@@ -10,5 +10,5 @@ This project is to develop a security-focused component subsystem of a prototype
 This repository is on the mobile application development of subsystem 3.
 
 #### Site Map
-Repository for web server
- [Link](https://github.com/jmtiong/CS3205)
+Repository for web server:
+* [Link](https://github.com/jmtiong/CS3205)
