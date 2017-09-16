@@ -16,6 +16,7 @@ script:
   - ./gradlew clean build connectedCheck
 
 before_install:
+  - cd Mobile
   - chmod +x gradlew
 
 before_cache:
