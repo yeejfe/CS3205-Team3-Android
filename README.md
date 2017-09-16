@@ -1,5 +1,7 @@
 # CS3205
 
+[![Build Status](https://travis-ci.com/yeejfe/CS3205.svg?token=xJsuVkszqswovyNsU8e6&branch=master)](https://travis-ci.com/yeejfe/CS3205)
+
 This project is to develop a security-focused component subsystem of a prototype webinternet based software system for health care, responsible for maintaining, inputting and displaying timestamped health records of various types.
 
 ## CS3205 SubSystem 3
