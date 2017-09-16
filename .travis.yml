@@ -7,6 +7,9 @@ android:
     - android-26
 jdk:
   - oraclejdk8
+script:
+  - cd Mobile
+  - ./gradlew test
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
