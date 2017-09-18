@@ -98,4 +98,9 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    // Go to record health data: image
+    public void onClick_GoToTakePhoto(){
+
+    }
 }
