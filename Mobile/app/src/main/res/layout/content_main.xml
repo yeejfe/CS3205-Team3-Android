@@ -9,12 +9,29 @@
     tools:showIn="@layout/app_bar_main">
 
     <TextView
+        android:id="@+id/tv_steps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="Press START to count steps"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        tools:layout_editor_absoluteY="313dp"
+        tools:layout_editor_absoluteX="73dp" />
+
+    <Button
+        android:id="@+id/btn_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop"
+        tools:layout_editor_absoluteY="313dp"
+        tools:layout_editor_absoluteX="225dp" />
 
 </android.support.constraint.ConstraintLayout>

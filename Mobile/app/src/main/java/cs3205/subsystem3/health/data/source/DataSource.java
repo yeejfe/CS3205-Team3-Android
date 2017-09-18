@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
+import cs3205.subsystem3.health.model.Session;
+
 /**
  * Created by Yee on 09/17/17.
  */
