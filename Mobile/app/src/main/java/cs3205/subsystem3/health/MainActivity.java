@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        init();
     }
 
     private void init(){
@@ -69,6 +71,28 @@ public class MainActivity extends AppCompatActivity
         textView = (TextView) findViewById(R.id.tv_steps);
         buttonStart = (Button) findViewById(R.id.btn_start);
         buttonStop = (Button) findViewById(R.id.btn_stop);
+
+        buttonStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+
+                numSteps = 0;
+                textView.setText(TEXT_NUM_STEPS + numSteps);
+                sensorManager.registerListener(MainActivity.this, accel, SensorManager.SENSOR_DELAY_FASTEST);
+
+            }
+        });
+
+
+        buttonStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+
+                sensorManager.unregisterListener(MainActivity.this);
+                textView.setText("Press START to count steps");
+
+            }
+        });
     }
 
     @Override
