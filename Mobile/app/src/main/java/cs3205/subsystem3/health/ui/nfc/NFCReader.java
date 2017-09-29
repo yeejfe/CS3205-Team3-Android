@@ -35,7 +35,7 @@ public class NFCReader extends AppCompatActivity {
         }
 
         mNFCInstruction = (TextView) findViewById(R.id.nfc_instruction);
-        mNFCInstruction.setText("Please scan your NFC tag to complete login.");
+        mNFCInstruction.setText("Please scan your NFC tag now.");
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter!= null && nfcAdapter.isEnabled()) {
