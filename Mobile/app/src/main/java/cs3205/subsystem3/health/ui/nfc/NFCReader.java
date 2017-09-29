@@ -1,7 +1,5 @@
 package cs3205.subsystem3.health.ui.nfc;
 
-
-import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,12 +8,8 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Parcelable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -157,23 +151,5 @@ public class NFCReader extends AppCompatActivity {
         }
         return text;
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 50:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission Granted
-//                    Intent startHeartRateMonitor = new Intent(getApplicationContext(), HeartRateMonitor.class);
-//                    startActivity(startHeartRateMonitor);
-
-                } else {
-                    // Permission Denied
-                    finish();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
+    
 }
