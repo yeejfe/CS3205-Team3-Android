@@ -45,6 +45,8 @@ public class StepSensorService extends Service implements SensorEventListener {
     private static int lastSaveSteps;
     private static long lastSaveTime;
 
+    public static boolean status_started = false;
+
     public final static String ACTION_UPDATE_NOTIFICATION = "updateNotificationState";
 
     private void reRegisterSensor() {
@@ -62,6 +64,8 @@ public class StepSensorService extends Service implements SensorEventListener {
             if (sm.getSensorList(Sensor.TYPE_STEP_COUNTER).size() < 1) return; // emulator
             Log.i(TAG, "default: " + sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER).getName());
         }
+
+        status_started = true;
 
         // enable batching with delay of max 5 min
         sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER),
@@ -128,7 +132,7 @@ public class StepSensorService extends Service implements SensorEventListener {
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "onStartCommand action: " + intent.getStringExtra("action"));
             if (steps == 0) {
-                StepsDB db = (StepsDB) LocalDataSource.getInstance(this);
+                StepsDB db = new StepsDB(this);
                 steps = db.getCurrentSteps();
                 db.close();
             }
@@ -136,7 +140,7 @@ public class StepSensorService extends Service implements SensorEventListener {
             if (prefs.contains("pauseCount")) { // resume counting
                 int difference = steps -
                         prefs.getInt("pauseCount", steps); // number of steps taken during the pause
-                StepsDB db = (StepsDB) LocalDataSource.getInstance(this);
+                StepsDB db = new StepsDB(this);
                 db.addToLastEntry(-difference);
                 db.close();
                 prefs.edit().remove("pauseCount").commit();
@@ -177,7 +181,7 @@ public class StepSensorService extends Service implements SensorEventListener {
             if (BuildConfig.DEBUG) Log.i(TAG,
                     "saving steps: steps=" + steps + " lastSave=" + lastSaveSteps +
                             " lastSaveTime=" + new Date(lastSaveTime));
-            StepsDB db = (StepsDB) LocalDataSource.getInstance(this);
+            StepsDB db = new StepsDB(this);
             if (db.getSteps(Timestamp.getToday()) == Integer.MIN_VALUE) {
                 int pauseDifference = steps -
                         getSharedPreferences("steps", Context.MODE_PRIVATE)

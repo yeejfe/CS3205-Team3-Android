@@ -20,6 +20,4 @@ public class LocalDataSource {
         instance.openCounter.incrementAndGet();
         return instance;
     }
-
-
 }

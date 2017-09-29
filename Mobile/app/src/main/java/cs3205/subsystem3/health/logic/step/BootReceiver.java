@@ -26,7 +26,7 @@ public class BootReceiver extends BroadcastReceiver {
 
         SharedPreferences prefs = context.getSharedPreferences("steps", Context.MODE_PRIVATE);
 
-        StepsDB db = (StepsDB) LocalDataSource.getInstance(context);
+        StepsDB db = new StepsDB(context);
 
         if (!prefs.getBoolean("correctShutdown", false)) {
             if (BuildConfig.DEBUG) Log.i(TAG, "Incorrect shutdown");

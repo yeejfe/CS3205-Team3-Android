@@ -8,8 +8,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -18,7 +22,6 @@ import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.Tag;
-import cs3205.subsystem3.health.data.source.local.LocalDataSource;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
 import cs3205.subsystem3.health.logic.step.StepSensorService;
 
@@ -26,7 +29,7 @@ import cs3205.subsystem3.health.logic.step.StepSensorService;
  * Created by Yee on 09/27/17.
  */
 
-public class StepSensorFragment extends FragmentActivity implements SensorEventListener {
+public class StepSensorFragment extends Fragment implements SensorEventListener, OnClickListener {
 
     private TextView stepsView, totalView, averageView, textView;
     private Button buttonStart;
@@ -36,28 +39,60 @@ public class StepSensorFragment extends FragmentActivity implements SensorEventL
     private int todayOffset, total_start, since_boot, total_days;
 
     @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
 
-        textView = (TextView) findViewById(R.id.tv_steps);
-        buttonStart = (Button) findViewById(R.id.btn_start);
-        buttonStop = (Button) findViewById(R.id.btn_stop);
+        View view = inflater.inflate(R.layout.steps_fragment, null);
 
-        stepsView = (TextView) findViewById(R.id.steps);
-        totalView = (TextView) findViewById(R.id.total);
-        averageView = (TextView) findViewById(R.id.total);
+        textView = (TextView) view.findViewById(R.id.tv_steps);
+        buttonStart = (Button) view.findViewById(R.id.btn_start);
+        buttonStop = (Button) view.findViewById(R.id.btn_stop);
+
+        buttonStart.setOnClickListener(this);
+        buttonStop.setOnClickListener(this);
+
+        stepsView = (TextView) view.findViewById(R.id.steps);
+        totalView = (TextView) view.findViewById(R.id.total);
+        averageView = (TextView) view.findViewById(R.id.average);
+
+        return view;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_start:
+                startStepsService();
+                break;
+            case R.id.btn_stop:
+                stopStepsService();
+                break;
+        }
+    }
+
+    public void startStepsService() {
+        getActivity().startService(new Intent(getActivity(), StepSensorService.class));
+        textView.setText(START_SERVICE);
+        buttonStart.setClickable(false);
+        buttonStop.setClickable(true);
+    }
+
+    public void stopStepsService() {
+        getActivity().stopService(new Intent(getActivity(), StepSensorService.class));
+        textView.setText(STOP_SERVICE);
+        buttonStart.setClickable(true);
+        buttonStop.setClickable(false);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        StepsDB db = (StepsDB) LocalDataSource.getInstance(getApplicationContext());
+        StepsDB db = new StepsDB(getActivity());
 
         // read todays offset
         todayOffset = db.getSteps(Timestamp.getToday());
 
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("steps", Context.MODE_PRIVATE);
+        SharedPreferences prefs = getActivity().getSharedPreferences("steps", Context.MODE_PRIVATE);
 
         since_boot = db.getCurrentSteps(); // do not use the value from the sharedPreferences
         int pauseDifference = since_boot - prefs.getInt("pauseCount", since_boot);
@@ -65,7 +100,7 @@ public class StepSensorFragment extends FragmentActivity implements SensorEventL
         // register a sensorlistener to live update the UI if a step is taken
         if (!prefs.contains("pauseCount")) {
             SensorManager sm =
-                    (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
+                    (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
             Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
             if (sensor == null) {
                 //error
@@ -82,25 +117,11 @@ public class StepSensorFragment extends FragmentActivity implements SensorEventL
         db.close();
     }
 
-    public void startStepsService(View view) {
-        startService(new Intent(this, StepSensorService.class));
-        textView.setText(START_SERVICE);
-        buttonStart.setClickable(false);
-        buttonStop.setClickable(true);
-    }
-
-    public void stopStepsService(View view) {
-        stopService(new Intent(this, StepSensorService.class));
-        textView.setText(STOP_SERVICE);
-        buttonStart.setClickable(true);
-        buttonStop.setClickable(false);
-    }
-
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (BuildConfig.DEBUG)
             Log.i(Tag.STEP_SENSOR, "UI - sensorChanged | todayOffset: " + todayOffset + " since boot: " +
-                    sensorEvent.values[0]);
+                    sensorEvent.sensor.getName());
         if (sensorEvent.values[0] > Integer.MAX_VALUE || sensorEvent.values[0] == 0) {
             return;
         }
@@ -109,7 +130,7 @@ public class StepSensorFragment extends FragmentActivity implements SensorEventL
             // we dont know when the reboot was, so set todays steps to 0 by
             // initializing them with -STEPS_SINCE_BOOT
             todayOffset = -(int) sensorEvent.values[0];
-            StepsDB db = (StepsDB) LocalDataSource.getInstance(getApplicationContext());
+            StepsDB db = new StepsDB(getActivity());
             db.insertNewDay(Timestamp.getToday(), (int) sensorEvent.values[0]);
             db.close();
         }
@@ -117,14 +138,14 @@ public class StepSensorFragment extends FragmentActivity implements SensorEventL
 
         int steps_today = Math.max(todayOffset + since_boot, 0);
 
-        stepsView.setText(steps_today);
-        totalView.setText((total_start + steps_today));
-        averageView.setText(((total_start + steps_today) / total_days));
+        stepsView.setText(String.valueOf(steps_today));
+        totalView.setText(String.valueOf((total_start + steps_today)));
+        averageView.setText(String.valueOf(((total_start + steps_today) / total_days)));
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
-        //will not happen
+        if (BuildConfig.DEBUG) Log.i(Tag.STEP_SENSOR, sensor.getName() + " accuracy changed: " + i);
     }
 }
 

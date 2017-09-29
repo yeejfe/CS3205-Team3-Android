@@ -17,16 +17,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
+import cs3205.subsystem3.health.data.source.local.Database;
+import cs3205.subsystem3.health.data.source.local.LocalDataSource;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
-
-    private TextView textView;
-    private Button buttonStart;
-    private Button buttonStop;
-    private SensorManager sensorManager;
-    private Sensor accel;
-    private static final String TEXT_NUM_STEPS = "Number of Steps: ";
-    private int numSteps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -32,12 +32,10 @@ public class Database extends SQLiteOpenHelper implements DbHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_TABLES);
-    }
+    public void onCreate(SQLiteDatabase db) { db.execSQL(CREATE_TABLE_STEPS); }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Not required as at version 1
+        db.execSQL("DROP TABLE IF EXISTS " + StepsPersistenceContract.StepsEntry.TABLE_NAME);
     }
 
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {

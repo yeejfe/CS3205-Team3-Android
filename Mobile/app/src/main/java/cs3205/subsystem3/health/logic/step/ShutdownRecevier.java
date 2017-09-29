@@ -30,7 +30,7 @@ public class ShutdownRecevier extends BroadcastReceiver {
         context.getSharedPreferences("steps", Context.MODE_PRIVATE).edit()
                 .putBoolean("correctShutdown", true).commit();
 
-        StepsDB db = (StepsDB) LocalDataSource.getInstance(context);
+        StepsDB db = new StepsDB(context);
         // if it's already a new day, add the temp. steps to the last one
         if (db.getSteps(Timestamp.getToday()) == Integer.MIN_VALUE) {
             int steps = db.getCurrentSteps();

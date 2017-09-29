@@ -17,24 +17,31 @@ import cs3205.subsystem3.health.common.logger.Tag;
  * Created by Yee on 09/29/17.
  */
 
-public class StepsDB extends Database implements DbHelper {
+public class StepsDB implements DbHelper {
     public static final String TAG = Tag.STEP_SENSOR_DB;
+    private Database db;
+
+    private String TABLE_NAME = StepsPersistenceContract.StepsEntry.TABLE_NAME;
 
     public StepsDB(Context context) {
-        super(context);
+        db = LocalDataSource.getInstance(context);
+    }
+
+    public void close() {
+        db.close();
     }
 
     public Cursor query(final String[] columns, final String selection,
                         final String[] selectionArgs, final String groupBy, final String having,
                         final String orderBy, final String limit) {
-        return getReadableDatabase()
-                .query(DATABASE_NAME, columns, selection, selectionArgs, groupBy, having, orderBy, limit);
+        return db.getReadableDatabase()
+                .query(TABLE_NAME, columns, selection, selectionArgs, groupBy, having, orderBy, limit);
     }
 
     public void insertNewDay(long date, int steps) {
-        getWritableDatabase().beginTransaction();
+        db.getWritableDatabase().beginTransaction();
         try {
-            Cursor c = getReadableDatabase().query(DATABASE_NAME, new String[]{"date"}, "date = ?",
+            Cursor c = db.getReadableDatabase().query(TABLE_NAME, new String[]{"date"}, "date = ?",
                     new String[]{String.valueOf(date)}, null, null, null);
             if (c.getCount() == 0 && steps >= 0) {
 
@@ -46,48 +53,48 @@ public class StepsDB extends Database implements DbHelper {
                 values.put("date", date);
                 // use the negative steps as offset
                 values.put("steps", -steps);
-                getWritableDatabase().insert(DATABASE_NAME, null, values);
+                db.getWritableDatabase().insert(TABLE_NAME, null, values);
             }
             c.close();
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "insertDay " + date + " / " + steps);
             }
-            getWritableDatabase().setTransactionSuccessful();
+            db.getWritableDatabase().setTransactionSuccessful();
         } finally {
-            getWritableDatabase().endTransaction();
+            db.getWritableDatabase().endTransaction();
         }
     }
 
     public void addToLastEntry(int steps) {
         if (steps > 0) {
-            getWritableDatabase().execSQL("UPDATE " + DATABASE_NAME + " SET steps = steps + " + steps +
-                    " WHERE date = (SELECT MAX(date) FROM " + DATABASE_NAME + ")");
+            db.getWritableDatabase().execSQL("UPDATE " + TABLE_NAME + " SET steps = steps + " + steps +
+                    " WHERE date = (SELECT MAX(date) FROM " + TABLE_NAME + ")");
         }
     }
 
     public boolean insertDayFromBackup(long date, int steps) {
-        getWritableDatabase().beginTransaction();
+        db.getWritableDatabase().beginTransaction();
         boolean newEntryCreated = false;
         try {
             ContentValues values = new ContentValues();
             values.put("steps", steps);
-            int updatedRows = getWritableDatabase()
-                    .update(DATABASE_NAME, values, "date = ?", new String[]{String.valueOf(date)});
+            int updatedRows = db.getWritableDatabase()
+                    .update(TABLE_NAME, values, "date = ?", new String[]{String.valueOf(date)});
             if (updatedRows == 0) {
                 values.put("date", date);
-                getWritableDatabase().insert(DATABASE_NAME, null, values);
+                db.getWritableDatabase().insert(TABLE_NAME, null, values);
                 newEntryCreated = true;
             }
-            getWritableDatabase().setTransactionSuccessful();
+            db.getWritableDatabase().setTransactionSuccessful();
         } finally {
-            getWritableDatabase().endTransaction();
+            db.getWritableDatabase().endTransaction();
         }
         return newEntryCreated;
     }
 
     public int getTotalWithoutToday() {
-        Cursor c = getReadableDatabase()
-                .query(DATABASE_NAME, new String[]{"SUM(steps)"}, "steps > 0 AND date > 0 AND date < ?",
+        Cursor c = db.getReadableDatabase()
+                .query(TABLE_NAME, new String[]{"SUM(steps)"}, "steps > 0 AND date > 0 AND date < ?",
                         new String[]{String.valueOf(Timestamp.getToday())}, null, null, null);
         c.moveToFirst();
         int re = c.getInt(0);
@@ -96,8 +103,8 @@ public class StepsDB extends Database implements DbHelper {
     }
 
     public int getRecord() {
-        Cursor c = getReadableDatabase()
-                .query(DATABASE_NAME, new String[]{"MAX(steps)"}, "date > 0", null, null, null, null);
+        Cursor c = db.getReadableDatabase()
+                .query(TABLE_NAME, new String[]{"MAX(steps)"}, "date > 0", null, null, null, null);
         c.moveToFirst();
         int re = c.getInt(0);
         c.close();
@@ -105,7 +112,7 @@ public class StepsDB extends Database implements DbHelper {
     }
 
     public int getSteps(final long date) {
-        Cursor c = getReadableDatabase().query(DATABASE_NAME, new String[]{"steps"}, "date = ?",
+        Cursor c = db.getReadableDatabase().query(TABLE_NAME, new String[]{"steps"}, "date = ?",
                 new String[]{String.valueOf(date)}, null, null, null);
         c.moveToFirst();
         int re;
@@ -116,8 +123,8 @@ public class StepsDB extends Database implements DbHelper {
     }
 
     public List<Pair<Long, Integer>> getLastEntries(int num) {
-        Cursor c = getReadableDatabase()
-                .query(DATABASE_NAME, new String[]{"date", "steps"}, "date > 0", null, null, null,
+        Cursor c = db.getReadableDatabase()
+                .query(TABLE_NAME, new String[]{"date", "steps"}, "date > 0", null, null, null,
                         "date DESC", String.valueOf(num));
         int max = c.getCount();
         List<Pair<Long, Integer>> result = new ArrayList<>(max);
@@ -130,8 +137,8 @@ public class StepsDB extends Database implements DbHelper {
     }
 
     public int getSteps(final long start, final long end) {
-        Cursor c = getReadableDatabase()
-                .query(DATABASE_NAME, new String[]{"SUM(steps)"}, "date >= ? AND date <= ?",
+        Cursor c = db.getReadableDatabase()
+                .query(TABLE_NAME, new String[]{"SUM(steps)"}, "date >= ? AND date <= ?",
                         new String[]{String.valueOf(start), String.valueOf(end)}, null, null, null);
         int re;
         if (c.getCount() == 0) {
@@ -145,16 +152,16 @@ public class StepsDB extends Database implements DbHelper {
     }
 
     public void removeNegativeEntries() {
-        getWritableDatabase().delete(DATABASE_NAME, "steps < ?", new String[]{"0"});
+        db.getWritableDatabase().delete(TABLE_NAME, "steps < ?", new String[]{"0"});
     }
 
     public void removeInvalidEntries() {
-        getWritableDatabase().delete(DATABASE_NAME, "steps >= ?", new String[]{"200000"});
+        db.getWritableDatabase().delete(TABLE_NAME, "steps >= ?", new String[]{"200000"});
     }
 
     public int getDaysWithoutToday() {
-        Cursor c = getReadableDatabase()
-                .query(DATABASE_NAME, new String[]{"COUNT(*)"}, "steps > ? AND date < ? AND date > 0",
+        Cursor c = db.getReadableDatabase()
+                .query(TABLE_NAME, new String[]{"COUNT(*)"}, "steps > ? AND date < ? AND date > 0",
                         new String[]{String.valueOf(0), String.valueOf(Timestamp.getToday())}, null,
                         null, null);
         c.moveToFirst();
@@ -172,9 +179,9 @@ public class StepsDB extends Database implements DbHelper {
     public void saveCurrentSteps(int steps) {
         ContentValues values = new ContentValues();
         values.put("steps", steps);
-        if (getWritableDatabase().update(DATABASE_NAME, values, "date = -1", null) == 0) {
+        if (db.getWritableDatabase().update(TABLE_NAME, values, "date = -1", null) == 0) {
             values.put("date", -1);
-            getWritableDatabase().insert(DATABASE_NAME, null, values);
+            db.getWritableDatabase().insert(TABLE_NAME, null, values);
         }
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "saving steps in db: " + steps);
