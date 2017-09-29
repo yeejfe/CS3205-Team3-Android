@@ -3,7 +3,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
-
+    targetCompatibility = '1.7'
+    sourceCompatibility = '1.7'
+    
     defaultConfig {
         applicationId "cs3205.subsystem3.health"
         minSdkVersion 20
