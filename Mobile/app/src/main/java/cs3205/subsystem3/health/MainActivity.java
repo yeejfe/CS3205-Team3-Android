@@ -118,10 +118,6 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         return true;
     }
 
-    // Go to record health data: image
-    public void onClick_GoToTakePhoto() {
-    }
-
     private void startHeartReader() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
             //ask for authorisation
