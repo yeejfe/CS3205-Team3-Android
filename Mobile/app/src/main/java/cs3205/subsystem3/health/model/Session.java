@@ -3,8 +3,9 @@ package cs3205.subsystem3.health.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.google.common.base.Strings;
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+
 import java.util.UUID;
 
 /**
@@ -37,7 +38,7 @@ public class Session {
     }
 
     public Session(@Nullable String userId, @Nullable String timestamp,
-                @NonNull String id, boolean haveUploaded) {
+                   @NonNull String id, boolean haveUploaded) {
         this.id = id;
         this.userId = userId;
         this.timestamp = timestamp;

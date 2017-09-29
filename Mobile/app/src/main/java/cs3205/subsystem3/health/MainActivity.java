@@ -1,32 +1,26 @@
 package cs3205.subsystem3.health;
 
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import cs3205.subsystem3.health.logic.StepDetector;
-import cs3205.subsystem3.health.logic.StepListener;
+import cs3205.subsystem3.health.common.activities.ActivityBase;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener, StepListener {
+public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
 
     private TextView textView;
-    private StepDetector stepDetector;
     private Button buttonStart;
     private Button buttonStop;
     private SensorManager sensorManager;
@@ -58,41 +52,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        init();
-    }
-
-    private void init(){
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        stepDetector = new StepDetector();
-        stepDetector.registerListener(this);
-
-        textView = (TextView) findViewById(R.id.tv_steps);
-        buttonStart = (Button) findViewById(R.id.btn_start);
-        buttonStop = (Button) findViewById(R.id.btn_stop);
-
-        buttonStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-
-                numSteps = 0;
-                textView.setText(TEXT_NUM_STEPS + numSteps);
-                sensorManager.registerListener(MainActivity.this, accel, SensorManager.SENSOR_DELAY_FASTEST);
-
-            }
-        });
-
-
-        buttonStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-
-                sensorManager.unregisterListener(MainActivity.this);
-                textView.setText("Press START to count steps");
-
-            }
-        });
     }
 
     @Override
@@ -154,23 +113,5 @@ public class MainActivity extends AppCompatActivity
 
     // Go to record health data: image
     public void onClick_GoToTakePhoto() {
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            stepDetector.updateAccel(
-                    event.timestamp, event.values[0], event.values[1], event.values[2]);
-        }
-    }
-
-    @Override
-    public void step(long timeNs) {
-        numSteps++;
-        textView.setText(TEXT_NUM_STEPS + numSteps);
     }
 }

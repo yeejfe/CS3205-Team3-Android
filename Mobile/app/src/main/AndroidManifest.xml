@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cs3205.subsystem3.health">
 
+    <uses-feature
+        android:name="android.hardware.sensor.stepcounter"
+        android:required="true"/>
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -17,6 +24,37 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name="cs3205.subsystem3.health.logic.step.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="cs3205.subsystem3.health.logic.step.AppUpdatedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="cs3205.subsystem3.health.logic.step.StepSensorService"/>
+
+        <receiver
+            android:name="cs3205.subsystem3.health.logic.step.ShutdownRecevier">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+                <action android:name="cs3205.subsystem3.ACTION_SHUTDOWN"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="cs3205.subsystem3.health.logic.step.PowerReceiver"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
