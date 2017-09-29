@@ -2,7 +2,6 @@ package cs3205.subsystem3.health.ui.nfc;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -21,7 +20,6 @@ import cs3205.subsystem3.health.R;
 public class NFCReader extends AppCompatActivity {
 
     private TextView mNFCInstruction;
-    private String userName = "";
 
     private NfcAdapter nfcAdapter;
     private TextView mTagInfo;
@@ -34,7 +32,6 @@ public class NFCReader extends AppCompatActivity {
 
         Intent intentStartNFCReading = getIntent();
         if (intentStartNFCReading.hasExtra(Intent.EXTRA_TEXT)) {
-            userName = intentStartNFCReading.getStringExtra(Intent.EXTRA_TEXT);
         }
 
         mNFCInstruction = (TextView) findViewById(R.id.nfc_instruction);
