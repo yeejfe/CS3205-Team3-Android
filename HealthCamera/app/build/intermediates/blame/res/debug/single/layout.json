@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/build/intermediates/res/merged/debug/layout/activity_main.xml",
+        "source": "/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/src/main/res/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/build/intermediates/res/merged/debug/layout/activity_upload_page.xml",
+        "source": "/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/src/main/res/layout/activity_upload_page.xml"
+    }
+]

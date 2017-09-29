@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/build/intermediates/res/merged/debug/mipmap-xxxhdpi/ic_launcher.png",
+        "source": "/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/build/intermediates/res/merged/debug/mipmap-xxxhdpi/ic_launcher_round.png",
+        "source": "/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png"
+    }
+]

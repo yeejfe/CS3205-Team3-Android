@@ -22,6 +22,7 @@ import android.widget.Toast;
 import cs3205.subsystem3.health.common.activities.ActivityBase;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReader;
 import cs3205.subsystem3.health.ui.nfc.NFCReader;
+import cs3205.subsystem3.health.ui.healthcamera.Camera;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -91,6 +92,8 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
+            startCamera();
+
         } else if (id == R.id.nav_heartrate) {
             startHeartReader();
 
@@ -129,6 +132,11 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
             Intent startNFCReadingIntent = new Intent(getApplicationContext(), NFCReader.class);
             startActivity(startNFCReadingIntent);
         }
+    }
+
+    private void startCamera(){
+        Intent cameraIntent = new Intent(this, Camera.class);
+        startActivity(cameraIntent);
     }
 
     @Override

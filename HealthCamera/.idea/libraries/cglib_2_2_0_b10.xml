@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="cglib-2.2.0-b10">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.glassfish.hk2.external/cglib/2.2.0-b10/a8d64568ca383a28775a721968b834f6e2f5749a/cglib-2.2.0-b10.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.glassfish.hk2.external/cglib/2.2.0-b10/da92ae6b25983006f3cadae3047ea20324ccfef3/cglib-2.2.0-b10-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
