@@ -151,5 +151,5 @@ public class NFCReader extends AppCompatActivity {
         }
         return text;
     }
-    
+
 }

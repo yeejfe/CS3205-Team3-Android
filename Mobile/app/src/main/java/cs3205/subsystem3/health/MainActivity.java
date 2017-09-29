@@ -3,8 +3,6 @@ package cs3205.subsystem3.health;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -19,13 +17,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
-import cs3205.subsystem3.health.data.source.local.Database;
-import cs3205.subsystem3.health.data.source.local.LocalDataSource;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReader;
 import cs3205.subsystem3.health.ui.nfc.NFCReader;
 
