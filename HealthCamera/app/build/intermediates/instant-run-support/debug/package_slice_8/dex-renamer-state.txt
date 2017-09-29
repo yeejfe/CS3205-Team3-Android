@@ -1,4 +1,0 @@
-#Fri Sep 29 20:27:22 SGT 2017
-base.0=/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/build/intermediates/transforms/dex/debug/folders/1000/5/slice_8
-renamed.0=classes.dex
-file.0=/Users/panjiyun/Documents/GitHub/CS3205-mobile/HealthCamera/app/build/intermediates/transforms/dex/debug/folders/1000/5/slice_8/classes.dex
