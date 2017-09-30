@@ -43,7 +43,7 @@
 
         <service android:name=".logic.step.StepSensorService" />
 
-        <receiver android:name=".logic.step.ShutdownRecevier">
+        <receiver android:name=".logic.step.ShutdownReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <action android:name="cs3205.subsystem3.ACTION_SHUTDOWN" />
@@ -60,8 +60,8 @@
 
         <activity android:name=".ui.heartrate.HeartRateReader" />
         <activity android:name=".ui.nfc.NFCReader" />
-        <activity android:name=".ui.healthcamera.Camera"></activity>
-        <activity android:name=".ui.healthcamera.UploadPage"></activity>
+        <activity android:name=".ui.camera.Camera" />
+        <activity android:name=".ui.camera.UploadPage" />
     </application>
 
 </manifest>

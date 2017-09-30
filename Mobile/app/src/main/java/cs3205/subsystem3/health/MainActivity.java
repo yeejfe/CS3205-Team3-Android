@@ -22,7 +22,7 @@ import android.widget.Toast;
 import cs3205.subsystem3.health.common.activities.ActivityBase;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReader;
 import cs3205.subsystem3.health.ui.nfc.NFCReader;
-import cs3205.subsystem3.health.ui.healthcamera.Camera;
+import cs3205.subsystem3.health.ui.camera.Camera;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
 
