@@ -6,16 +6,10 @@
 
     <string name="action_settings">Settings</string>
 
-
-
     <string name="button_image">Take Photo</string>
     <string name="button_video">Take Video</string>
     <string name="album_name">Health Camera Images</string>
     <string name="button_upload">To Upload</string>
     <string name="button_upload_image">Upload Image</string>
     <string name="button_upload_video">Upload Video</string>
-
-
-
-
 </resources>
