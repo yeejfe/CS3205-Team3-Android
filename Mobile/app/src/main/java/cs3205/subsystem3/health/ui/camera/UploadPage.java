@@ -1,4 +1,4 @@
-package cs3205.subsystem3.health.ui.healthcamera;
+package cs3205.subsystem3.health.ui.camera;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,34 +18,29 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
 
 public class UploadPage extends Activity implements View.OnClickListener {
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final int RESULT_LOAD_VIDEO = 2;
-    public static final String SERVER3_ADDRESS = "https://cs3205-3.comp.nus.edu.sg/upload";
     public static final String MESSAGE_EXCEED_MAX_SIZE = "Exceeded the maximum size: 10MB";
     public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
     public static final String MESSAGE_SUCCESSFUL = "Successful";
     public static final String MESSAGE_FAIL = "Fail";
 
-    private ImageView imageToUpload,videoToUpload;
+    private ImageView imageToUpload, videoToUpload;
     private VideoView videoToPreview;
-    private Button bUploadImage,bUploadVideo;
-    private TextView uploadImageName,uploadVideoName;
+    private Button bUploadImage, bUploadVideo;
+    private TextView uploadImageName, uploadVideoName;
 
     private Uri objectToUpload = null;
 
     private String selectedPath;
-
 
 
     @Override
@@ -53,14 +48,14 @@ public class UploadPage extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_page);
 
-        imageToUpload = (ImageView)findViewById(R.id.imageToUpload);
-        bUploadImage = (Button)findViewById(R.id.buttonUploadImage);
-        uploadImageName = (TextView)findViewById(R.id.imageName);
+        imageToUpload = (ImageView) findViewById(R.id.imageToUpload);
+        bUploadImage = (Button) findViewById(R.id.buttonUploadImage);
+        uploadImageName = (TextView) findViewById(R.id.imageName);
 
-        videoToUpload = (ImageView)findViewById(R.id.videoToUpload);
-        bUploadVideo = (Button)findViewById(R.id.buttonUploadVideo);
-        uploadVideoName = (TextView)findViewById(R.id.videoName);
-        videoToPreview = (VideoView)findViewById(R.id.videoToPreview);
+        videoToUpload = (ImageView) findViewById(R.id.videoToUpload);
+        bUploadVideo = (Button) findViewById(R.id.buttonUploadVideo);
+        uploadVideoName = (TextView) findViewById(R.id.videoName);
+        videoToPreview = (VideoView) findViewById(R.id.videoToPreview);
 
         imageToUpload.setOnClickListener(this);
         videoToUpload.setOnClickListener(this);
@@ -70,17 +65,17 @@ public class UploadPage extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.imageToUpload:
                 Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(imageGalleryIntent,RESULT_LOAD_IMAGE);
+                startActivityForResult(imageGalleryIntent, RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
                 uploadFileToServer(objectToUpload);
                 break;
             case R.id.videoToUpload:
                 Intent VideoGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(VideoGalleryIntent,RESULT_LOAD_VIDEO);
+                startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
                 uploadFileToServer(objectToUpload);
@@ -94,13 +89,12 @@ public class UploadPage extends Activity implements View.OnClickListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==RESULT_LOAD_IMAGE && resultCode==RESULT_OK && data!=null){
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData();
             imageToUpload.setImageURI(selectedImageUri);
             objectToUpload = selectedImageUri;
 
-        }
-        else if (requestCode==RESULT_LOAD_VIDEO && resultCode==RESULT_OK && data!=null) {
+        } else if (requestCode == RESULT_LOAD_VIDEO && resultCode == RESULT_OK && data != null) {
             Uri selectedVideoUri = data.getData();
             selectedPath = getVideoPath(selectedVideoUri);
             uploadVideoName.setText(selectedPath);
@@ -112,11 +106,11 @@ public class UploadPage extends Activity implements View.OnClickListener {
 
     }
 
-    public boolean uploadFileToServer(Uri pathUri){
+    public boolean uploadFileToServer(Uri pathUri) {
 
         File f = new File(pathUri.getPath());
-        long length = f.length()/(1024*1024);  // length is expressed in MB
-        if(length<10.00) {
+        long length = f.length() / (1024 * 1024);  // length is expressed in MB
+        if (length < 10.00) {
             InputStream stream = null;
             try {
                 stream = new FileInputStream(f);
@@ -124,26 +118,20 @@ public class UploadPage extends Activity implements View.OnClickListener {
                 e.printStackTrace();
             }
 
-            Client client = ClientBuilder.newClient();
-            Invocation.Builder builder = client.target(SERVER3_ADDRESS)
-                  // .queryParam() //type
-                  //  .queryParam() //epoch unixtime
-                    .request();
-            Response response = builder.post(Entity.entity(stream, "application/json"));
+            RemoteDataSource rDS = new RemoteDataSource();
+            Response response = rDS.buildFileUploadRequest(stream);
+            rDS.close();
             // Check Response
-
 
             if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
                 showAlert(MESSAGE_SUCCESSFUL);
                 return true;
 
-            }
-            else {
+            } else {
                 showAlert(MESSAGE_FAIL);
                 return false;
             }
-        }
-        else{
+        } else {
             showAlert(MESSAGE_EXCEED_MAX_SIZE);
             return false;
         }

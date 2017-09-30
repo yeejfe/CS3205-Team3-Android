@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="cs3205.subsystem3.health.ui.healthcamera.Camera"
+    tools:context="cs3205.subsystem3.health.ui.camera.Camera"
     android:padding="10dp">
 
     <LinearLayout

@@ -1,4 +1,4 @@
-package cs3205.subsystem3.health.ui.healthcamera;
+package cs3205.subsystem3.health.ui.camera;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,6 +21,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.logic.camera.AlbumStorageDirFactory;
+import cs3205.subsystem3.health.logic.camera.BaseAlbumDirFactory;
+import cs3205.subsystem3.health.logic.camera.FroyoAlbumDirFactory;
 
 public class Camera extends Activity {
 

@@ -1,4 +1,4 @@
-package cs3205.subsystem3.health.ui.healthcamera;
+package cs3205.subsystem3.health.logic.camera;
 
 import android.os.Environment;
 

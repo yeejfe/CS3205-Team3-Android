@@ -15,7 +15,7 @@ import cs3205.subsystem3.health.data.source.local.StepsDB;
  * Created by Yee on 09/28/17.
  */
 
-public class ShutdownRecevier extends BroadcastReceiver {
+public class ShutdownReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
