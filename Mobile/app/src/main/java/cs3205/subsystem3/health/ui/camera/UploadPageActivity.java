@@ -24,7 +24,7 @@ import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
 
-public class UploadPage extends Activity implements View.OnClickListener {
+public class UploadPageActivity extends Activity implements View.OnClickListener {
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final int RESULT_LOAD_VIDEO = 2;

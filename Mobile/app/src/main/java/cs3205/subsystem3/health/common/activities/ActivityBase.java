@@ -13,7 +13,7 @@ import cs3205.subsystem3.health.common.logger.LogWrapper;
 public class ActivityBase extends AppCompatActivity {
 
     public static final String TAG = "ActivityBase";
-
+    private LogWrapper logWrapper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,11 +29,13 @@ public class ActivityBase extends AppCompatActivity {
      * Set up targets to receive log data
      */
     public void initializeLogging() {
-        // Using Log, front-end to the logging chain, emulates android.util.log method signatures.
-        // Wraps Android's native log framework
-        LogWrapper logWrapper = new LogWrapper();
-        Log.setLogNode(logWrapper);
+        if(logWrapper == null) {
+            // Using Log, front-end to the logging chain, emulates android.util.log method signatures.
+            // Wraps Android's native log framework
+            logWrapper = new LogWrapper();
+            Log.setLogNode(logWrapper);
 
-        Log.i(TAG, "Ready");
+            Log.i(TAG, "Ready");
+        }
     }
 }

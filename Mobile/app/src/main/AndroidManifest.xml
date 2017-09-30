@@ -58,10 +58,10 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ui.heartrate.HeartRateReader" />
-        <activity android:name=".ui.nfc.NFCReader" />
-        <activity android:name=".ui.camera.Camera" />
-        <activity android:name=".ui.camera.UploadPage" />
+        <activity android:name=".ui.heartrate.HeartRateReaderActivity" />
+        <activity android:name=".ui.nfc.NFCReaderActivity" />
+        <activity android:name=".ui.camera.CameraActivity" />
+        <activity android:name=".ui.camera.UploadPageActivity" />
     </application>
 
 </manifest>

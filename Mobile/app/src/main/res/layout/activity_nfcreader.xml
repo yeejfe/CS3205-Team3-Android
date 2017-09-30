@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cs3205.subsystem3.health.ui.nfc.NFCReader">
+    tools:context="cs3205.subsystem3.health.ui.nfc.NFCReaderActivity">
     <TextView
         android:id="@+id/info"
         android:layout_width="wrap_content"

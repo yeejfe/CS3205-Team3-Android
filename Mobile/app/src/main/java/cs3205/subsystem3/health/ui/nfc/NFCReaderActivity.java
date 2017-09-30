@@ -17,7 +17,7 @@ import java.io.UnsupportedEncodingException;
 import cs3205.subsystem3.health.R;
 
 
-public class NFCReader extends AppCompatActivity {
+public class NFCReaderActivity extends AppCompatActivity {
 
     private TextView mNFCInstruction;
 

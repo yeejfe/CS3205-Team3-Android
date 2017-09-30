@@ -20,15 +20,19 @@ import android.view.View;
 import android.widget.Toast;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
-import cs3205.subsystem3.health.ui.heartrate.HeartRateReader;
-import cs3205.subsystem3.health.ui.nfc.NFCReader;
-import cs3205.subsystem3.health.ui.camera.Camera;
+import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
+import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
+import cs3205.subsystem3.health.ui.camera.CameraActivity;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loggedIn();
+    }
+
+    private void loggedIn() {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -120,7 +124,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
             //ask for authorisation
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BODY_SENSORS}, 50);
         } else {
-            Intent startHearRateReadingIntent = new Intent(getApplicationContext(), HeartRateReader.class);
+            Intent startHearRateReadingIntent = new Intent(getApplicationContext(), HeartRateReaderActivity.class);
             startActivity(startHearRateReadingIntent);
         }
     }
@@ -129,13 +133,13 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.NFC) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.NFC}, 51);
         } else {
-            Intent startNFCReadingIntent = new Intent(getApplicationContext(), NFCReader.class);
+            Intent startNFCReadingIntent = new Intent(getApplicationContext(), NFCReaderActivity.class);
             startActivity(startNFCReadingIntent);
         }
     }
 
     private void startCamera(){
-        Intent cameraIntent = new Intent(this, Camera.class);
+        Intent cameraIntent = new Intent(this, CameraActivity.class);
         startActivity(cameraIntent);
     }
 
@@ -145,7 +149,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
             case 50:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission Granted
-                    Intent startHeartRateReadingIntent = new Intent(getApplicationContext(), HeartRateReader.class);
+                    Intent startHeartRateReadingIntent = new Intent(getApplicationContext(), HeartRateReaderActivity.class);
                     startActivity(startHeartRateReadingIntent);
 
                 } else {
@@ -157,7 +161,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
             case 51:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission Granted
-                    Intent startNFCReadingIntent = new Intent(getApplicationContext(), NFCReader.class);
+                    Intent startNFCReadingIntent = new Intent(getApplicationContext(), NFCReaderActivity.class);
                     startActivity(startNFCReadingIntent);
 
                 } else {

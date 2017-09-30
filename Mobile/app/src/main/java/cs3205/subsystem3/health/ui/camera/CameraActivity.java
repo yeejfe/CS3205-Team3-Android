@@ -25,7 +25,7 @@ import cs3205.subsystem3.health.logic.camera.AlbumStorageDirFactory;
 import cs3205.subsystem3.health.logic.camera.BaseAlbumDirFactory;
 import cs3205.subsystem3.health.logic.camera.FroyoAlbumDirFactory;
 
-public class Camera extends Activity {
+public class CameraActivity extends Activity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int REQUEST_TAKE_VIDEO = 2;
@@ -228,7 +228,7 @@ public class Camera extends Activity {
     }
 
     public void onClick_GoToUploadPage(View view){
-        Intent toUploadIntent = new Intent(this, UploadPage.class);
+        Intent toUploadIntent = new Intent(this, UploadPageActivity.class);
         startActivity(toUploadIntent);
     }
 

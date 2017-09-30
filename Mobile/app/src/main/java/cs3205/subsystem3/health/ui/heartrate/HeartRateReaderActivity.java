@@ -10,7 +10,7 @@ import android.util.Log;
 
 import cs3205.subsystem3.health.R;
 
-public class HeartRateReader extends AppCompatActivity implements SensorEventListener{
+public class HeartRateReaderActivity extends AppCompatActivity implements SensorEventListener{
     private SensorManager mSensorManager;
     private Sensor mHeartRateSensor;
 
