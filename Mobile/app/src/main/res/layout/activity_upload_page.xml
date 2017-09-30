@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
-    tools:context="cs3205.subsystem3.health.ui.healthcamera.UploadPage">
+    tools:context="cs3205.subsystem3.health.ui.camera.UploadPage">
 
     <LinearLayout
         android:layout_width="match_parent"
