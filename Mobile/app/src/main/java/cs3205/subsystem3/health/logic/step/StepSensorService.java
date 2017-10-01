@@ -1,8 +1,6 @@
 package cs3205.subsystem3.health.logic.step;
 
 import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -15,15 +13,12 @@ import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import java.text.NumberFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import cs3205.subsystem3.health.BuildConfig;
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.Tag;
-import cs3205.subsystem3.health.data.source.local.LocalDataSource;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
 
 /**

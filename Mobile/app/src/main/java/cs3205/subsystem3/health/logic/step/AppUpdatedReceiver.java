@@ -1,6 +1,5 @@
 package cs3205.subsystem3.health.logic.step;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 

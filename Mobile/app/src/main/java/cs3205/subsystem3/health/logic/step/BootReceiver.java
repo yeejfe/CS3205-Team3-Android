@@ -1,6 +1,5 @@
 package cs3205.subsystem3.health.logic.step;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,8 +7,6 @@ import android.content.SharedPreferences;
 import cs3205.subsystem3.health.BuildConfig;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.Tag;
-import cs3205.subsystem3.health.data.source.local.Database;
-import cs3205.subsystem3.health.data.source.local.LocalDataSource;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
 
 /**
