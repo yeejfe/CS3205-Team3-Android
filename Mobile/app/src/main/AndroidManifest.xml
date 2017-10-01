@@ -58,6 +58,7 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name=".ui.login.LoginActivity" />
         <activity android:name=".ui.heartrate.HeartRateReaderActivity" />
         <activity android:name=".ui.nfc.NFCReaderActivity" />
         <activity android:name=".ui.camera.CameraActivity" />

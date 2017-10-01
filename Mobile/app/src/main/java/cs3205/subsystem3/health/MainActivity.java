@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
+import cs3205.subsystem3.health.ui.login.LoginActivity;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 import cs3205.subsystem3.health.ui.camera.CameraActivity;
 
@@ -29,11 +30,15 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+
         loggedIn();
     }
 
     private void loggedIn() {
-        setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
