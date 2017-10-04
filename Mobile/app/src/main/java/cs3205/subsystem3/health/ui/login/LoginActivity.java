@@ -10,6 +10,13 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
@@ -24,8 +31,11 @@ public class LoginActivity extends AppCompatActivity {
     EditText _usernameText;
     EditText _passwordText;
     Button _loginButton;
+    private String username;
+    private String password;
     private String tag_username;
     private String tag_password;
+    private boolean isValidationDone;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +58,10 @@ public class LoginActivity extends AppCompatActivity {
     public void login() {
         Log.d(TAG, "Login");
 
-        if (!validate()) {
+        username = _usernameText.getText().toString();
+        password = _passwordText.getText().toString();
+
+        if (!validate(username, password)) {
             onLoginFailed();
             return;
         }
@@ -59,10 +72,11 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.VISIBLE);
 
-        String username = _usernameText.getText().toString();
-        String password = _passwordText.getText().toString();
-
         // TODO: Implement/call authentication logic here.
+        if (!authenticate()) {
+            onLoginFailed();
+            return;
+        }
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -93,48 +107,44 @@ public class LoginActivity extends AppCompatActivity {
         _loginButton.setEnabled(true);
     }
 
-    public boolean validate() {
-
-        String username = _usernameText.getText().toString();
-        String password = _passwordText.getText().toString();
-        boolean isValid = true;
+    public boolean validate(String username, String password) {
 
         if (username.isEmpty()) {
-            isValid = false;
             _usernameText.setError("Username must not be empty");
+            return false;
         } else {
             _usernameText.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 8 || password.length() > 20) {
-            isValid = false;
             _passwordText.setError("between 8 and 20 alphanumeric characters");
+            return false;
         } else {
             _passwordText.setError(null);
         }
-        if (isValid) {
-            return validatePasswordWithServer(password, username) && validateNFCTagWithServer(username);
-        } else {
-            return false;
-        }
+        return true;
     }
 
-    private boolean validatePasswordWithServer(String username, String password) {
+    private boolean authenticate() {
+        return validatePasswordWithServer() && validateNFCTagWithServer();
+    }
+
+    private boolean validatePasswordWithServer() {
 
         return true;
     }
 
-    private boolean validateNFCTagWithServer(String username) {
+    private boolean validateNFCTagWithServer() {
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
         startActivityForResult(startNFCReadingActivity, 30);
+
         if (tag_password == null || tag_username == null) {
             return false;
         } else if (tag_username != username) {
             return false;
         } else {
-
+            return true;
         }
-        return true;
     }
 
     private void showSnackBarMessage(String message) {
@@ -154,4 +164,27 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
+
+
+    private void connectToServer() {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="http://cs3205-3.comp.nus.edu.sg/";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response", response.toString());
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+
+    }
+
 }
