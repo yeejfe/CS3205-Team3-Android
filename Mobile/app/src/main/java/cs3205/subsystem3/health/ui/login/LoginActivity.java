@@ -2,6 +2,7 @@ package cs3205.subsystem3.health.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,7 +11,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.util.HashMap;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Map;
 
 import cs3205.subsystem3.health.R;
@@ -20,8 +23,9 @@ import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.Request;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 
 /**
  * Created by Yee on 09/30/17.
@@ -42,6 +46,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //a hack for now
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         setContentView(R.layout.activity_login);
 
         _usernameText = (EditText) findViewById(R.id.input_username);
@@ -163,11 +172,19 @@ public class LoginActivity extends AppCompatActivity {
     private boolean connectToServer() {
         String url = "http://cs3205-3.comp.nus.edu.sg/oauth/token";
         Invocation.Builder request = ClientBuilder.newClient().target(url).request();
-        HashMap<String, String> body = new HashMap<>();
-        body.put("grant_type", "password");
-        body.put("username", "username");
-        body.put("passhash", "hash");
-        Response response = request.header("x-nfc-token", "hash").post(Entity.json(body));
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put("grant_type", "password");
+            body.put("username", "username");
+            body.put("passhash", "hash");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        //weirdly, jersey cannot parse JSONObject using Entity, so pass in a string for now
+        Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+        Log.d("error", response.toString());
         if (response.getStatus() != 200) {
             Log.d("error", response.readEntity(String.class));
             return false;
