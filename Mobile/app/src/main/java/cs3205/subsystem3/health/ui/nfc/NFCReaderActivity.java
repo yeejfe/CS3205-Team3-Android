@@ -67,7 +67,7 @@ public class NFCReaderActivity extends AppCompatActivity {
             } else {
                 String tagInfo = readTagCredentials(rawMsgs);
             }
-        } else if (nfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {//only for compatibility for now
+        } else if (nfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {//only for compatibility
             Toast.makeText(this,
                     "onResume() - TAG_DISCOVERED",
                     Toast.LENGTH_SHORT).show();
@@ -78,33 +78,12 @@ public class NFCReaderActivity extends AppCompatActivity {
                 mTagInfo.setText("No Tag Detected!");
             } else {
 
-                String tagInfo = tag.toString() + "\n";
-                tagInfo = readTagInfo(tag, tagInfo);
-                mTagInfo.setText(tagInfo);
             }
-        }   else {
+        } else {//continue reading if no tag is discovered
             Toast.makeText(this,
                     "onResume() : " + action,
                     Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private String readTagInfo(Tag tag, String tagInfo) {
-        tagInfo += "\nTag Id: \n";
-        byte[] tagId = tag.getId();
-        tagInfo += "length = " + tagId.length +"\n";
-        for(int i=0; i<tagId.length; i++){
-            tagInfo += Integer.toHexString(tagId[i] & 0xFF) + " ";
-        }
-        tagInfo += "\n";
-
-        String[] techList = tag.getTechList();
-        tagInfo += "\nTech List\n";
-        tagInfo += "length = " + techList.length +"\n";
-        for(int i=0; i<techList.length; i++) {
-            tagInfo += techList[i] + "\n ";
-        }
-        return tagInfo;
     }
 
     private String readTagCredentials(Parcelable[] rawMsgs) {
