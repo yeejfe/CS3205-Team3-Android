@@ -38,7 +38,11 @@ public class NFCReaderActivity extends AppCompatActivity {
 
         mNFCInstruction = (TextView) findViewById(R.id.nfc_instruction);
         mNFCInstruction.setText("Please scan your NFC tag now.");
-        
+
+        checkNFCStatus();
+    }
+
+    private void checkNFCStatus() {
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter!= null && nfcAdapter.isEnabled()) {
             Toast.makeText(this, "NFC available!", Toast.LENGTH_LONG).show();
