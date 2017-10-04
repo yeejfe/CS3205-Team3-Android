@@ -127,6 +127,13 @@ public class LoginActivity extends AppCompatActivity {
     private boolean validateNFCTagWithServer(String username) {
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
         startActivityForResult(startNFCReadingActivity, 30);
+        if (tag_password == null || tag_username == null) {
+            return false;
+        } else if (tag_username != username) {
+            return false;
+        } else {
+
+        }
         return true;
     }
 
@@ -144,8 +151,6 @@ public class LoginActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK) {
                tag_username = data.getStringExtra("username");
                tag_password = data.getStringExtra("password");
-               Log.d("tag username", tag_username);
-               Log.d("tag password", tag_password);
             }
         }
     }

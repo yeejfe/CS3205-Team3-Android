@@ -57,7 +57,7 @@ public class NFCReaderActivity extends AppCompatActivity {
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("username", credentials[0]);
                 returnIntent.putExtra("password", credentials[1]);
-                setResult(RESULT_OK, intent);
+                setResult(RESULT_OK, returnIntent);
                 finish();
                 break;
             case TAG_ABSENT:
