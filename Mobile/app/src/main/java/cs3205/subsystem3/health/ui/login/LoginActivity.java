@@ -137,12 +137,13 @@ public class LoginActivity extends AppCompatActivity {
     private boolean validateNFCTagWithServer() {
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
         startActivityForResult(startNFCReadingActivity, 30);
-
+        //TODO: need to wait for the values to be set first before checking
         if (tag_password == null || tag_username == null) {
             return false;
         } else if (tag_username != username) {
             return false;
         } else {
+            connectToServer();
             return true;
         }
     }
