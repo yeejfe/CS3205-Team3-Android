@@ -93,30 +93,27 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public boolean validate() {
-        boolean valid = true;
 
         String username = _usernameText.getText().toString();
         String password = _passwordText.getText().toString();
 
         if (username.isEmpty()) {
             _usernameText.setError("Username must not be empty");
-            valid = false;
+            return false;
         } else {
             _usernameText.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 8 || password.length() > 20) {
             _passwordText.setError("between 8 and 20 alphanumeric characters");
-            valid = false;
+           return false;
         } else {
             _passwordText.setError(null);
         }
 
         if (!validatePasswordWithServer(password, username) || !validateNFCTagWithServer(username)) {
-            valid = true;
+            return true;
         }
-
-        return valid;
     }
 
     private boolean validatePasswordWithServer(String username, String password) {
