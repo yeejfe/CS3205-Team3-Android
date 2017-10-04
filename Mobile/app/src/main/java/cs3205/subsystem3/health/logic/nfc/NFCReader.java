@@ -30,30 +30,30 @@ public class NFCReader {
     }
 
 
-    public boolean dispatchTagByType(String action, Intent intent) {
+    public NFCTagStatus dispatchTagByType(String action, Intent intent) {
         if (nfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-//            Toast.makeText(this,
-//                    "onResume() - NDEF_DISCOVERED",
-//                    Toast.LENGTH_SHORT).show();
 
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 
             if (tag == null) {
-
+                return NFCTagStatus.TAG_ABSENT;
             } else {
                 this.credentials = new String[2];
-                readTagCredentials(rawMsgs);
+                try {
+                    readTagCredentials(rawMsgs);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return NFCTagStatus.TAG_INVALID_INFO;
+                }
             }
-        } else if (nfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {//only for compatibility
         } else {
-            return false;
+            return NFCTagStatus.TAG_INCOMPATIBLE_TYPE;
         }
-
-        return true;
+        return NFCTagStatus.TAG_VALID;
     }
 
-    private void readTagCredentials(Parcelable[] rawMsgs) {
+    private void readTagCredentials(Parcelable[] rawMsgs) throws Exception {
         NdefMessage ndefMessage = (NdefMessage) rawMsgs[0];
         NdefRecord ndefRecord1 = ndefMessage.getRecords()[0];
         NdefRecord ndefRecord2 = ndefMessage.getRecords()[1];

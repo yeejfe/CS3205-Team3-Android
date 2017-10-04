@@ -113,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (!validatePasswordWithServer(password, username) || !validateNFCTagWithServer(username)) {
-            valid = false;
+            valid = true;
         }
 
         return valid;
@@ -128,11 +128,6 @@ public class LoginActivity extends AppCompatActivity {
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
         startNFCReadingActivity.putExtra("username", username);
         startActivityForResult(startNFCReadingActivity, 30);
-        if (tag == null) {
-            return false;
-        } else {
-
-        }
         return true;
     }
 

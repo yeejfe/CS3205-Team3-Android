@@ -16,8 +16,6 @@ import cs3205.subsystem3.health.logic.nfc.NFCReader;
 public class NFCReaderActivity extends AppCompatActivity {
 
     private TextView mNFCInstruction;
-
-    //private NfcAdapter nfcAdapter;
     private PendingIntent mPendingIntent;
     private String username;
     private NFCReader nfcReader;
@@ -56,13 +54,22 @@ public class NFCReaderActivity extends AppCompatActivity {
     private void resolveIntent(Intent intent) {
         String action = intent.getAction();
         mNFCInstruction.setVisibility(TextView.INVISIBLE);
-        if (nfcReader.dispatchTagByType(action, intent)) {
-            Toast.makeText(this, "onResume() - NDEF_DISCOVERED", Toast.LENGTH_SHORT).show();
-            credentials = nfcReader.readCredentials();
-            Log.d("username", credentials[0]);
-            Log.d("password", credentials[1]);
-        } else {
-            Toast.makeText(this, "onResume() - NO_TAG_DISCOVERED", Toast.LENGTH_SHORT).show();
+        switch (nfcReader.dispatchTagByType(action, intent)) {
+            case TAG_VALID:
+                Toast.makeText(this, "onResume() - NDEF_DISCOVERED", Toast.LENGTH_SHORT).show();
+                credentials = nfcReader.readCredentials();
+                Log.d("username", credentials[0]);
+                Log.d("password", credentials[1]);
+                break;
+            case TAG_ABSENT:
+                Toast.makeText(this, "onResume() - NO_TAG_DISCOVERED", Toast.LENGTH_SHORT).show();
+                break;
+            case TAG_INCOMPATIBLE_TYPE:
+                Toast.makeText(this, "onResume() - TAG_INCOMPATIBLE", Toast.LENGTH_SHORT).show();
+                break;
+            case TAG_INVALID_INFO:
+                Toast.makeText(this, "onResume() - TAG_INVALID_INFO", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
