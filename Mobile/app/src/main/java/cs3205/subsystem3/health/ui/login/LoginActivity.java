@@ -10,16 +10,18 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import java.util.HashMap;
+import java.util.Map;
 
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
+
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 
 /**
  * Created by Yee on 09/30/17.
@@ -35,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     private String password;
     private String tag_username;
     private String tag_password;
-    private boolean isValidationDone;
+    private ProgressBar progressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,25 +70,13 @@ public class LoginActivity extends AppCompatActivity {
 
         _loginButton.setEnabled(false);
 
-        final ProgressBar progressBar = new ProgressBar(LoginActivity.this, null, R.style.AppTheme_Dark_Dialog);
+        progressBar = new ProgressBar(LoginActivity.this, null, R.style.AppTheme_Dark_Dialog);
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.VISIBLE);
 
         // TODO: Implement/call authentication logic here.
-        if (!authenticate()) {
-            onLoginFailed();
-            return;
-        }
+         authenticate();
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
-                        progressBar.setVisibility(View.GONE);
-                    }
-                }, 3000);
     }
 
 
@@ -125,27 +115,9 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean authenticate() {
-        return validatePasswordWithServer() && validateNFCTagWithServer();
-    }
-
-    private boolean validatePasswordWithServer() {
-
-        return true;
-    }
-
-    private boolean validateNFCTagWithServer() {
+    private void authenticate() {
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
         startActivityForResult(startNFCReadingActivity, 30);
-        //TODO: need to wait for the values to be set first before checking
-        if (tag_password == null || tag_username == null) {
-            return false;
-        } else if (tag_username != username) {
-            return false;
-        } else {
-            connectToServer();
-            return true;
-        }
     }
 
     private void showSnackBarMessage(String message) {
@@ -163,28 +135,48 @@ public class LoginActivity extends AppCompatActivity {
                tag_username = data.getStringExtra("username");
                tag_password = data.getStringExtra("password");
             }
+            if (tag_password == null || tag_username == null) {
+                onLoginFailed();
+            } else if (!tag_username.equals(username)) {
+                onLoginFailed();
+            } else {
+                if (connectToServer()) {
+
+                    new android.os.Handler().postDelayed(
+                            new Runnable() {
+                                public void run() {
+                                    // On complete call either onLoginSuccess or onLoginFailed
+                                    onLoginSuccess();
+                                    // onLoginFailed();
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            }, 3000);
+                } else {
+                    onLoginFailed();
+                }
+            }
         }
+
     }
 
 
-    private void connectToServer() {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://cs3205-3.comp.nus.edu.sg/";
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("Response", response.toString());
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
+    private boolean connectToServer() {
+        String url = "http://cs3205-3.comp.nus.edu.sg/oauth/token";
+        Invocation.Builder request = ClientBuilder.newClient().target(url).request();
+        HashMap<String, String> body = new HashMap<>();
+        body.put("grant_type", "password");
+        body.put("username", "username");
+        body.put("passhash", "hash");
+        Response response = request.header("x-nfc-token", "hash").post(Entity.json(body));
+        if (response.getStatus() != 200) {
+            Log.d("error", response.readEntity(String.class));
+            return false;
+        } else {
+            Map<String, String> jsonResponse = response.readEntity(Map.class);
+            String accessToken = jsonResponse.get("access_token");
+            Log.d("access token", accessToken);
+            return true;
+        }
 
     }
 
