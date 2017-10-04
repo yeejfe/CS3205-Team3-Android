@@ -15,6 +15,7 @@ import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.logger.Log;
 
 
 public class NFCReaderActivity extends AppCompatActivity {
@@ -52,7 +53,6 @@ public class NFCReaderActivity extends AppCompatActivity {
     private void resolveIntent(Intent intent) {
         String action = intent.getAction();
         mNFCInstruction.setVisibility(TextView.INVISIBLE);
-        System.out.println(action);
 
         if (nfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
             Toast.makeText(this,
@@ -63,14 +63,14 @@ public class NFCReaderActivity extends AppCompatActivity {
             Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 
             if (tag == null) {
-                mTagInfo.setText("tag == null");
+                mTagInfo.setText("No Tag Detected!");
             } else {
                 String tagInfo = tag.toString() + "\n";
                 tagInfo = readTagInfo(tag, tagInfo);
                 tagInfo = readTagCredentials(rawMsgs, tagInfo);
                 mTagInfo.setText(tagInfo);
             }
-        } else if (nfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {
+        } else if (nfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {//only for compatibility for now
             Toast.makeText(this,
                     "onResume() - TAG_DISCOVERED",
                     Toast.LENGTH_SHORT).show();
@@ -78,7 +78,7 @@ public class NFCReaderActivity extends AppCompatActivity {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
             if (tag == null) {
-                mTagInfo.setText("tag == null");
+                mTagInfo.setText("No Tag Detected!");
             } else {
 
                 String tagInfo = tag.toString() + "\n";

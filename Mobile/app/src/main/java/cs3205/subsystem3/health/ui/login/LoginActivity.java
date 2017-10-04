@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 /**
  * Created by Yee on 09/30/17.
@@ -23,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText _usernameText;
     EditText _passwordText;
     Button _loginButton;
+    private String tag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,13 +112,43 @@ public class LoginActivity extends AppCompatActivity {
             _passwordText.setError(null);
         }
 
+        if (!validatePasswordWithServer(password, username) || !validateNFCTagWithServer()) {
+            valid = false;
+        }
+
         return valid;
+    }
+
+    private boolean validatePasswordWithServer(String username, String password) {
+
+        return true;
+    }
+
+    private boolean validateNFCTagWithServer() {
+        Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
+        startActivityForResult(startNFCReadingActivity, 30);
+        if (tag == null) {
+            return false;
+        } else {
+
+        }
+        return true;
     }
 
     private void showSnackBarMessage(String message) {
         View view = findViewById(R.id.login_activity);
         if (view != null) {
             Snackbar.make(view,message,Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 30) {
+            if(resultCode == RESULT_OK) {
+               tag = data.getStringExtra("tag");
+            }
         }
     }
 }
