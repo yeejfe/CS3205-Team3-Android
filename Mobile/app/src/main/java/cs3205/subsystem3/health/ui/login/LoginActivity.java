@@ -111,9 +111,7 @@ public class LoginActivity extends AppCompatActivity {
             _passwordText.setError(null);
         }
 
-        if (!validatePasswordWithServer(password, username) || !validateNFCTagWithServer(username)) {
-            return true;
-        }
+        return !validatePasswordWithServer(password, username) || !validateNFCTagWithServer(username);
     }
 
     private boolean validatePasswordWithServer(String username, String password) {
