@@ -17,7 +17,6 @@ public class NFCReaderActivity extends AppCompatActivity {
 
     private TextView mNFCInstruction;
     private PendingIntent mPendingIntent;
-    private String username;
     private NFCReader nfcReader;
     private String[] credentials;
 
@@ -25,11 +24,6 @@ public class NFCReaderActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfcreader);
-
-        Intent intentStartNFCReading = getIntent();
-        if (intentStartNFCReading.hasExtra(Intent.EXTRA_TEXT)) {
-            username = intentStartNFCReading.getStringExtra("username");
-        }
 
         mNFCInstruction = (TextView) findViewById(R.id.nfc_instruction);
         mNFCInstruction.setText("Please scan your NFC tag now.");
@@ -56,10 +50,15 @@ public class NFCReaderActivity extends AppCompatActivity {
         mNFCInstruction.setVisibility(TextView.INVISIBLE);
         switch (nfcReader.dispatchTagByType(action, intent)) {
             case TAG_VALID:
-                Toast.makeText(this, "onResume() - NDEF_DISCOVERED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "onResume() - TAG_VALID", Toast.LENGTH_SHORT).show();
                 credentials = nfcReader.readCredentials();
                 Log.d("username", credentials[0]);
                 Log.d("password", credentials[1]);
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("username", credentials[0]);
+                returnIntent.putExtra("password", credentials[1]);
+                setResult(RESULT_OK, intent);
+                finish();
                 break;
             case TAG_ABSENT:
                 Toast.makeText(this, "onResume() - NO_TAG_DISCOVERED", Toast.LENGTH_SHORT).show();

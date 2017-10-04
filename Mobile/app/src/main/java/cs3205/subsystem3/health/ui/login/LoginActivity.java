@@ -24,7 +24,8 @@ public class LoginActivity extends AppCompatActivity {
     EditText _usernameText;
     EditText _passwordText;
     Button _loginButton;
-    private String tag;
+    private String tag_username;
+    private String tag_password;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,22 +97,26 @@ public class LoginActivity extends AppCompatActivity {
 
         String username = _usernameText.getText().toString();
         String password = _passwordText.getText().toString();
+        boolean isValid = true;
 
         if (username.isEmpty()) {
+            isValid = false;
             _usernameText.setError("Username must not be empty");
-            return false;
         } else {
             _usernameText.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 8 || password.length() > 20) {
+            isValid = false;
             _passwordText.setError("between 8 and 20 alphanumeric characters");
-           return false;
         } else {
             _passwordText.setError(null);
         }
-
-        return !validatePasswordWithServer(password, username) || !validateNFCTagWithServer(username);
+        if (isValid) {
+            return validatePasswordWithServer(password, username) && validateNFCTagWithServer(username);
+        } else {
+            return false;
+        }
     }
 
     private boolean validatePasswordWithServer(String username, String password) {
@@ -121,7 +126,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean validateNFCTagWithServer(String username) {
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
-        startNFCReadingActivity.putExtra("username", username);
         startActivityForResult(startNFCReadingActivity, 30);
         return true;
     }
@@ -138,7 +142,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 30) {
             if(resultCode == RESULT_OK) {
-               tag = data.getStringExtra("tag");
+               tag_username = data.getStringExtra("username");
+               tag_password = data.getStringExtra("password");
+               Log.d("tag username", tag_username);
+               Log.d("tag password", tag_password);
             }
         }
     }
