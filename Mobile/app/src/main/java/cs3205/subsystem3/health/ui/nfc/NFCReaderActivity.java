@@ -54,10 +54,10 @@ public class NFCReaderActivity extends AppCompatActivity {
                 credentials = nfcReader.readCredentials();
                 Log.d("username", credentials[0]);
                 Log.d("password", credentials[1]);
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("username", credentials[0]);
-                returnIntent.putExtra("password", credentials[1]);
-                setResult(RESULT_OK, returnIntent);
+                Intent returnToLoginIntent = new Intent();
+                returnToLoginIntent.putExtra("username", credentials[0]);
+                returnToLoginIntent.putExtra("password", credentials[1]);
+                setResult(RESULT_OK, returnToLoginIntent);
                 finish();
                 break;
             case TAG_ABSENT:
