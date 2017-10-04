@@ -65,10 +65,7 @@ public class NFCReaderActivity extends AppCompatActivity {
             if (tag == null) {
                 mTagInfo.setText("No Tag Detected!");
             } else {
-                String tagInfo = tag.toString() + "\n";
-                tagInfo = readTagInfo(tag, tagInfo);
-                tagInfo = readTagCredentials(rawMsgs, tagInfo);
-                mTagInfo.setText(tagInfo);
+                String tagInfo = readTagCredentials(rawMsgs);
             }
         } else if (nfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {//only for compatibility for now
             Toast.makeText(this,
@@ -110,14 +107,11 @@ public class NFCReaderActivity extends AppCompatActivity {
         return tagInfo;
     }
 
-    private String readTagCredentials(Parcelable[] rawMsgs, String tagInfo) {
+    private String readTagCredentials(Parcelable[] rawMsgs) {
         NdefMessage ndefMessage = (NdefMessage) rawMsgs[0];
         NdefRecord ndefRecord = ndefMessage.getRecords()[0];
         String msg = parseRecord(ndefRecord);
-        tagInfo += "\nTag Username\n";
-        tagInfo += "length = " + msg.length() +"\n";
-        tagInfo += msg;
-        return tagInfo;
+        return msg;
     }
 
 
