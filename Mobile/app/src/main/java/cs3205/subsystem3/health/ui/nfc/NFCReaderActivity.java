@@ -23,8 +23,8 @@ public class NFCReaderActivity extends AppCompatActivity {
     private TextView mNFCInstruction;
 
     private NfcAdapter nfcAdapter;
-    private TextView mTagInfo;
     PendingIntent mPendingIntent;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,15 +33,15 @@ public class NFCReaderActivity extends AppCompatActivity {
 
         Intent intentStartNFCReading = getIntent();
         if (intentStartNFCReading.hasExtra(Intent.EXTRA_TEXT)) {
+            username = intentStartNFCReading.getStringExtra("username");
         }
 
         mNFCInstruction = (TextView) findViewById(R.id.nfc_instruction);
         mNFCInstruction.setText("Please scan your NFC tag now.");
-
+        
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter!= null && nfcAdapter.isEnabled()) {
             Toast.makeText(this, "NFC available!", Toast.LENGTH_LONG).show();
-            mTagInfo = (TextView) findViewById(R.id.info);
             mPendingIntent = PendingIntent.getActivity(this, 0,
                     new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         } else {
@@ -63,7 +63,7 @@ public class NFCReaderActivity extends AppCompatActivity {
             Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 
             if (tag == null) {
-                mTagInfo.setText("No Tag Detected!");
+
             } else {
                 String tagInfo = readTagCredentials(rawMsgs);
             }
@@ -75,7 +75,7 @@ public class NFCReaderActivity extends AppCompatActivity {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
             if (tag == null) {
-                mTagInfo.setText("No Tag Detected!");
+
             } else {
 
             }

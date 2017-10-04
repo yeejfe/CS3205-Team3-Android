@@ -7,10 +7,6 @@
     android:layout_height="match_parent"
     tools:context="cs3205.subsystem3.health.ui.nfc.NFCReaderActivity">
     <TextView
-        android:id="@+id/info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
         android:id="@+id/nfc_instruction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
