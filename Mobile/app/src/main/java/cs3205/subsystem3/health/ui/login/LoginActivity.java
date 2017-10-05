@@ -2,7 +2,6 @@ package cs3205.subsystem3.health.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -40,15 +39,14 @@ public class LoginActivity extends AppCompatActivity {
     private String tag_username;
     private String tag_password;
     private ProgressBar progressBar;
+    private boolean isSuccess;
+
+    final static String LOGIN_URL = "https://cs3205-3.comp.nus.edu.sg/oauth/token";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //a hack for now
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+
         setContentView(R.layout.activity_login);
 
         _usernameText = (EditText) findViewById(R.id.input_username);
@@ -168,37 +166,52 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private boolean connectToServer() {
-        String url = "https://cs3205-3.comp.nus.edu.sg/oauth/token";
-        //TODO: register a JSON reader and writer
-        Invocation.Builder request = ClientBuilder.newClient().target(url).request();
-
-        JSONObject body = new JSONObject();
+        ConnectionThread connectionThread = new ConnectionThread();
+        connectionThread.run();
         try {
-            body.put("grant_type", "password");
-            body.put("username", "username");
-            body.put("passhash", "hash");
-        } catch (JSONException e) {
+            connectionThread.join();
+        } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-
-        Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
-        Log.d("error", response.toString());
-        if (response.getStatus() != 200) {
-            Log.d("error", response.readEntity(String.class));
             return false;
-        } else {
-            String strResponse = response.readEntity(String.class);
-            if (!strResponse.isEmpty()) {
-                try {
-                    JSONObject jsonResponse = new JSONObject(strResponse);
-                    String accessToken = jsonResponse.get("access_token").toString();
-                    Log.d("access token", accessToken);
+        }
+        return isSuccess;
+    }
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+    class ConnectionThread extends Thread {
+
+        public void run() {
+            //TODO: register a JSON reader and writer
+
+            Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
+
+            JSONObject body = new JSONObject();
+            try {
+                body.put("grant_type", "password");
+                body.put("username", "username");
+                body.put("passhash", "hash");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+            Log.d("error", response.toString());
+            if (response.getStatus() != 200) {
+                Log.d("error", response.readEntity(String.class));
+            } else {
+                String strResponse = response.readEntity(String.class);
+                if (!strResponse.isEmpty()) {
+                    try {
+                        JSONObject jsonResponse = new JSONObject(strResponse);
+                        String accessToken = jsonResponse.get("access_token").toString();
+                        Log.d("access token", accessToken);
+                        isSuccess = true;
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-            return true;
         }
+
     }
+
 }
