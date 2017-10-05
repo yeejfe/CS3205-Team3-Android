@@ -14,8 +14,6 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Map;
-
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
@@ -170,7 +168,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private boolean connectToServer() {
-        String url = "http://cs3205-3.comp.nus.edu.sg/oauth/token";
+        String url = "https://cs3205-3.comp.nus.edu.sg/oauth/token";
+        //TODO: register a JSON reader and writer
         Invocation.Builder request = ClientBuilder.newClient().target(url).request();
 
         JSONObject body = new JSONObject();
@@ -182,19 +181,24 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        //weirdly, jersey cannot parse JSONObject using Entity, so pass in a string for now
         Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
         Log.d("error", response.toString());
         if (response.getStatus() != 200) {
             Log.d("error", response.readEntity(String.class));
             return false;
         } else {
-            Map<String, String> jsonResponse = response.readEntity(Map.class);
-            String accessToken = jsonResponse.get("access_token");
-            Log.d("access token", accessToken);
+            String strResponse = response.readEntity(String.class);
+            if (!strResponse.isEmpty()) {
+                try {
+                    JSONObject jsonResponse = new JSONObject(strResponse);
+                    String accessToken = jsonResponse.get("access_token").toString();
+                    Log.d("access token", accessToken);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
             return true;
         }
-
     }
-
 }
