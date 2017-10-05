@@ -3,7 +3,9 @@ package cs3205.subsystem3.health.ui.login;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -42,13 +44,17 @@ public class LoginActivity extends AppCompatActivity {
     private String tag_username;
     private String tag_password;
     private ProgressBar progressBar;
-    private boolean isSuccess;
 
     final static String LOGIN_URL = "https://cs3205-3.comp.nus.edu.sg/oauth/token";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
 
         setContentView(R.layout.activity_login);
 
@@ -135,95 +141,87 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 30) {
             if(resultCode == RESULT_OK) {
-               tag_username = data.getStringExtra("username");
-               tag_password = data.getStringExtra("password");
+                tag_username = data.getStringExtra("username");
+                tag_password = data.getStringExtra("password");
             }
             if (tag_password == null || tag_username == null) {
                 onLoginFailed();
             } else if (!tag_username.equals(username)) {
                 onLoginFailed();
             } else {
-                if (connectToServer()) {
-
-                    new android.os.Handler().postDelayed(
-                            new Runnable() {
-                                public void run() {
-                                    // On complete call either onLoginSuccess or onLoginFailed
-                                    onLoginSuccess();
-                                    // onLoginFailed();
-                                    progressBar.setVisibility(View.GONE);
-                                }
-                            }, 3000);
-                } else {
-                    onLoginFailed();
+                JSONObject body = new JSONObject();
+                try {
+                    body.put("grant_type", "password");
+                    body.put("username", "1");
+                    body.put("passhash", "hash");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                new LoginTask().execute(body.toString());
             }
         }
 
     }
 
 
-    private boolean connectToServer() {
-        ConnectionThread connectionThread = new ConnectionThread(this);
-        connectionThread.run();
-        try {
-            connectionThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    private boolean connectToServer(String body) {
+        //TODO: register a JSON reader and writer
+        Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
+
+        Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+        Log.d("error", response.toString());
+        if (response.getStatus() != 200) {
+            Log.d("error", response.readEntity(String.class));
             return false;
-        }
-        return isSuccess;
-    }
+        } else {
+            String strResponse = response.readEntity(String.class);
+            if (!strResponse.isEmpty()) {
+                try {
+                    JSONObject jsonResponse = new JSONObject(strResponse);
+                    String accessToken = jsonResponse.get("access_token").toString();
+                    Log.d("access token", accessToken);
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+                    SharedPreferences.Editor editor  =
+                            pref.edit();
+                    editor.putString("access_token",accessToken);
+                    editor.putString("nfc_hash","hash");
 
-    class ConnectionThread extends Thread {
-        Activity parentAct = null;
-        public ConnectionThread(Activity parentAct){
-            this.parentAct = parentAct;
-        }
-        public void run() {
-            //TODO: register a JSON reader and writer
-
-            Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
-
-            JSONObject body = new JSONObject();
-            try {
-                body.put("grant_type", "password");
-                body.put("username", "username");//TODO: hack here
-                body.put("passhash", "hash");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
-            Log.d("error", response.toString());
-            if (response.getStatus() != 200) {
-                Log.d("error", response.readEntity(String.class));
-            } else {
-                String strResponse = response.readEntity(String.class);
-                if (!strResponse.isEmpty()) {
-                    try {
-                        JSONObject jsonResponse = new JSONObject(strResponse);
-                        String accessToken = jsonResponse.get("access_token").toString();
-                        Log.d("access token", accessToken);
-                        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(parentAct);
-                        SharedPreferences.Editor editor  =
-                                pref.edit();
-                        editor.putString("access_token",accessToken);
-                        editor.putString("nfc_hash","hash");
-                        editor.commit();
-                        isSuccess = true;
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
+            return true;
+        }
+    }
+
+    class LoginTask extends AsyncTask<String, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(String... params) {
+            return connectToServer(params[0]);
         }
 
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            if (aBoolean) {
+                new android.os.Handler().postDelayed(
+                        new Runnable() {
+                            public void run() {
+                                // On complete call either onLoginSuccess or onLoginFailed
+                                onLoginSuccess();
+                                // onLoginFailed();
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        }, 3000);
+            } else {
+                onLoginFailed();
+            }
+        }
     }
 
 }
