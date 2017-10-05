@@ -1,10 +1,8 @@
 package cs3205.subsystem3.health.ui.camera;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -20,6 +18,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.util.UploadHandler;
 
 
 public class UploadPageActivity extends Activity implements View.OnClickListener {
@@ -69,6 +68,10 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
                 startActivityForResult(imageGalleryIntent, RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
+                Intent uploader = new Intent(this, UploadHandler.class);
+                uploader.putExtra("path",selectedPath);
+                startActivity(uploader);
+
             //    uploadFileToServer(selectedPath);
                 break;
             case R.id.videoToUpload:
@@ -106,40 +109,8 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
 
     }
 
- /*   public boolean uploadFileToServer(String path) {
-
-        File f = new File(path);
-        long length = f.length() / (1024 * 1024);  // length is expressed in MB
-        if (length < 10.00) {
-            Uploader uploader = new Uploader(path);
 
 
-            if (uploader.upload()) {
-                showAlert(MESSAGE_SUCCESSFUL);
-                return true;
-
-            } else {
-                showAlert(MESSAGE_FAIL);
-                return false;
-            }
-        } else {
-            showAlert(MESSAGE_EXCEED_MAX_SIZE);
-            return false;
-        }
-    }
-*/
-    private void showAlert(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message).setTitle(MESSAGE_RESPONSE_TITLE)
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // do nothing
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
 
     public String getVideoPath(Uri uri) {
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
