@@ -19,14 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-
-import javax.ws.rs.core.Response;
-
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
 
 public class UploadPageActivity extends Activity implements View.OnClickListener {
@@ -76,14 +69,14 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
                 startActivityForResult(imageGalleryIntent, RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
-                uploadFileToServer(selectedPath);
+            //    uploadFileToServer(selectedPath);
                 break;
             case R.id.videoToUpload:
                 Intent VideoGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
-                uploadFileToServer(selectedPath);
+           //     uploadFileToServer(selectedPath);
                 break;
 
 
@@ -113,24 +106,15 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
 
     }
 
-    public boolean uploadFileToServer(String path) {
+ /*   public boolean uploadFileToServer(String path) {
 
         File f = new File(path);
         long length = f.length() / (1024 * 1024);  // length is expressed in MB
         if (length < 10.00) {
-            InputStream stream = null;
-            try {
-                stream = new FileInputStream(f);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Uploader uploader = new Uploader(path);
 
-            RemoteDataSource rDS = new RemoteDataSource();
-            Response response = rDS.buildFileUploadRequest(stream);
-            rDS.close();
-            // Check Response
 
-            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+            if (uploader.upload()) {
                 showAlert(MESSAGE_SUCCESSFUL);
                 return true;
 
@@ -143,7 +127,7 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
             return false;
         }
     }
-
+*/
     private void showAlert(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message).setTitle(MESSAGE_RESPONSE_TITLE)
