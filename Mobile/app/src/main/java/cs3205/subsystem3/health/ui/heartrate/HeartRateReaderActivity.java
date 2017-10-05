@@ -1,5 +1,6 @@
 package cs3205.subsystem3.health.ui.heartrate;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -7,9 +8,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -110,7 +110,8 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
 
         private boolean upload(String timeStamp, String heartRate) {
             String finalUrl = UPLOAD_URL + timeStamp;
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+      //      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
             String token = pref.getString("access_token", "");
             Invocation.Builder request = ClientBuilder.newClient().target(finalUrl).request();
             Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", "hash").post(

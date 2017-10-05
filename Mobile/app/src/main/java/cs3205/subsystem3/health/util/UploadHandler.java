@@ -1,11 +1,11 @@
 package cs3205.subsystem3.health.util;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
@@ -37,31 +37,38 @@ public class UploadHandler extends AppCompatActivity {
         Intent intent = getIntent();
         path = intent.getStringExtra("path");
         textView = (TextView) findViewById(R.id.textView2);
-        getToken();
-        getNfcHash();
-        upload();
+        try {
+            getToken();
+            getNfcHash();
+            upload();
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
 
     }
 
 
 
-        private void getToken(){
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-            token = pref.getString("access_token", "");
-            textView.setText(token);
-            System.out.println("token is "+ token);
-        }
+    private void getToken(){
+        SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
+        token = pref.getString("access_token", "");
+        textView.setText(token);
+        System.out.println("token is "+ token);
+    }
+
+
     private String getNfcHash(){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
         hash = pref.getString("nfc_hash", "");
+        System.out.println("hash is "+ hash);
         return hash;
     }
 
 
 
 
-        public boolean upload() {
-            getToken();
+    public boolean upload() {
             File f = new File(path);
             long length = f.length() / (1024 * 1024);  // length is expressed in MB
             if (length < 10.00) {
@@ -93,7 +100,7 @@ public class UploadHandler extends AppCompatActivity {
 
 
 
-        }
+    }
 
     private void showAlert(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

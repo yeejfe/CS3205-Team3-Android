@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -89,7 +88,12 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         // TODO: Implement/call authentication logic here.
-         authenticate();
+       //  authenticate();
+
+//for test
+        //skip NFC authentication
+
+        skipNfcTest();
 
     }
 
@@ -169,6 +173,20 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    //For test
+    //skip nfc
+    public void skipNfcTest(){
+        JSONObject body = new JSONObject();
+        try {
+            body.put("grant_type", "password");
+            body.put("username", "1");
+            body.put("passhash", "hash");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        new LoginTask().execute(body.toString());
+    }
+
 
     private boolean connectToServer(String body) {
         //TODO: register a JSON reader and writer
@@ -186,11 +204,19 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject jsonResponse = new JSONObject(strResponse);
                     String accessToken = jsonResponse.get("access_token").toString();
                     Log.d("access token", accessToken);
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+
+                    SharedPreferences savedSession = getApplicationContext().getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
+                 /*   SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
                     SharedPreferences.Editor editor  =
                             pref.edit();
                     editor.putString("access_token",accessToken);
+                    editor.putString("nfc_hash","hash");*/
+
+                    SharedPreferences.Editor editor = savedSession.edit();
+                    editor.putString("access_token", accessToken);
                     editor.putString("nfc_hash","hash");
+                    editor.commit();
+                    System.out.println("the token1 is "+ accessToken);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
