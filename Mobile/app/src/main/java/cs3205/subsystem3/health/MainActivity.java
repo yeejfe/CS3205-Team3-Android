@@ -22,7 +22,6 @@ import android.widget.Toast;
 import cs3205.subsystem3.health.common.activities.ActivityBase;
 import cs3205.subsystem3.health.ui.camera.CameraActivity;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
-import cs3205.subsystem3.health.ui.login.LoginActivity;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
@@ -32,8 +31,8 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+    //    Intent intent = new Intent(this, LoginActivity.class);
+    //    startActivity(intent);
 
         loggedIn();
     }
