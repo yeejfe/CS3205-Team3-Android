@@ -14,8 +14,6 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Map;
-
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
@@ -182,7 +180,7 @@ public class LoginActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        
+
         Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
         Log.d("error", response.toString());
         if (response.getStatus() != 200) {
