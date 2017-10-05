@@ -180,7 +180,6 @@ public class LoginActivity extends AppCompatActivity {
         return isSuccess;
     }
 
-    String hash = "hash";
     class ConnectionThread extends Thread {
         Activity parentAct = null;
         public ConnectionThread(Activity parentAct){
@@ -194,13 +193,13 @@ public class LoginActivity extends AppCompatActivity {
             JSONObject body = new JSONObject();
             try {
                 body.put("grant_type", "password");
-                body.put("username", "1");//TODO: hack here
+                body.put("username", "username");//TODO: hack here
                 body.put("passhash", "hash");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            Response response = request.header("x-nfc-token", hash).post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+            Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
             Log.d("error", response.toString());
             if (response.getStatus() != 200) {
                 Log.d("error", response.readEntity(String.class));
@@ -215,9 +214,8 @@ public class LoginActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor  =
                                 pref.edit();
                         editor.putString("access_token",accessToken);
-                        editor.putString("nfc_hash",hash);
+                        editor.putString("nfc_hash","hash");
                         editor.commit();
-
                         isSuccess = true;
                     } catch (JSONException e) {
                         e.printStackTrace();
