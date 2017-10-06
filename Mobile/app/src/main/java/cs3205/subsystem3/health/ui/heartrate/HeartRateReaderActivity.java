@@ -35,6 +35,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     private long timeStamp;
     private ArrayList<Float> heartRates;
     private TextView mHeartRateReading;
+    final static String QUERY_PARAMETER_TIMESTAMP = "timestamp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,12 +148,11 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         }
 
         private boolean upload(String timeStamp, String avgHeartRate) {
-            String finalUrl = UPLOAD_URL + timeStamp;
             SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
             String token = pref.getString("access_token", "");
             String nfcTokenHash = pref.getString("nfc_hash", "");
             System.out.println("token in heartrate reader: " + token);
-            Invocation.Builder request = ClientBuilder.newClient().target(finalUrl).request();
+            Invocation.Builder request = ClientBuilder.newClient().target(UPLOAD_URL).queryParam(QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
             Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", nfcTokenHash).post(
                     Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
             cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
