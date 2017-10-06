@@ -108,28 +108,28 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
             return false;
         }
 
-        private boolean upload(String timeStamp, String heartRate) {
-            String finalUrl = UPLOAD_URL + timeStamp;
-      //      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-            SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-            String token = pref.getString("access_token", "");
-            Invocation.Builder request = ClientBuilder.newClient().target(finalUrl).request();
-            Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", "hash").post(
-                    Entity.entity(heartRate, MediaType.APPLICATION_OCTET_STREAM));
-            cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
-            if (response.getStatus() != 200) {
-                cs3205.subsystem3.health.common.logger.Log.d("error", response.readEntity(String.class));
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            cs3205.subsystem3.health.common.logger.Log.d("result", aBoolean.toString());
+    private boolean upload(String timeStamp, String heartRate) {
+        String finalUrl = UPLOAD_URL + timeStamp;
+        //      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
+        String token = pref.getString("access_token", "");
+        Invocation.Builder request = ClientBuilder.newClient().target(finalUrl).request();
+        Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", "hash").post(
+                Entity.entity(heartRate, MediaType.APPLICATION_OCTET_STREAM));
+        cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
+        if (response.getStatus() != 200) {
+            cs3205.subsystem3.health.common.logger.Log.d("error", response.readEntity(String.class));
+            return false;
+        } else {
+            return true;
         }
     }
+
+    @Override
+    protected void onPostExecute(Boolean aBoolean) {
+        cs3205.subsystem3.health.common.logger.Log.d("result", aBoolean.toString());
+    }
+}
 
 }
 
