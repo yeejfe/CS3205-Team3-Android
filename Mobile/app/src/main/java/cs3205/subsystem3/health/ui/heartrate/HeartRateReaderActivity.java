@@ -58,14 +58,6 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         }
     }
 
-    public void stop(View view) {
-        onPause();
-    }
-
-    public void start(View view) {
-        onResume();
-    }
-
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
     }

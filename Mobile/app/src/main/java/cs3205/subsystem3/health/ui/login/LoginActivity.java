@@ -206,12 +206,6 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("access token", accessToken);
 
                     SharedPreferences savedSession = getApplicationContext().getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-                 /*   SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                    SharedPreferences.Editor editor  =
-                            pref.edit();
-                    editor.putString("access_token",accessToken);
-                    editor.putString("nfc_hash","hash");*/
-
                     SharedPreferences.Editor editor = savedSession.edit();
                     editor.putString("access_token", accessToken);
                     editor.putString("nfc_hash","hash");
