@@ -147,7 +147,6 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
 
         private boolean upload(String timeStamp, String avgHeartRate) {
             String finalUrl = UPLOAD_URL + timeStamp;
-      //      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
             String token = pref.getString("access_token", "");
             System.out.println("token in heartrate reader: " + token);
