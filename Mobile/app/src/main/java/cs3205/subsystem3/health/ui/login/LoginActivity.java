@@ -88,12 +88,12 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         // TODO: Implement/call authentication logic here.
-       //  authenticate();
+        authenticate();
 
 //for test
         //skip NFC authentication
 
-        skipNfcTest();
+        //skipNfcTest();
 
     }
 
@@ -162,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject body = new JSONObject();
                 try {
                     body.put("grant_type", "password");
-                    body.put("username", "1");
+                    body.put("username", "username");
                     body.put("passhash", "hash");
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -206,12 +206,6 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("access token", accessToken);
 
                     SharedPreferences savedSession = getApplicationContext().getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-                 /*   SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                    SharedPreferences.Editor editor  =
-                            pref.edit();
-                    editor.putString("access_token",accessToken);
-                    editor.putString("nfc_hash","hash");*/
-
                     SharedPreferences.Editor editor = savedSession.edit();
                     editor.putString("access_token", accessToken);
                     editor.putString("nfc_hash","hash");
