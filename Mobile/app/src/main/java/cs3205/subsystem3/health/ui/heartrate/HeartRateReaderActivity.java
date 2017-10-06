@@ -14,6 +14,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -31,7 +34,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     private float heartRate;
     private long timeStamp;
     private ArrayList<Float> heartRates;
-    private Context context;
+    private TextView mHeartRateReading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +43,43 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         heartRates = new ArrayList<>();
-        context = this;
+        mHeartRateReading = (TextView) findViewById(R.id.hear_rate_reading);
     }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.accuracy != SensorManager.SENSOR_STATUS_NO_CONTACT || sensorEvent.accuracy != SensorManager.SENSOR_STATUS_UNRELIABLE) {
             heartRate = sensorEvent.values[0];
-            heartRates.add(heartRate);
+            if (heartRate != 0.0) {
+                heartRates.add(heartRate);
+            }
+            mHeartRateReading.setText(String.valueOf(heartRate));
             Log.d("sensorData", "" + sensorEvent.values[0]);
         }
+    }
+
+    public void start(View view) {
+        if (mHeartRateSensor == null) {
+            mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+            mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        } else {
+            Toast.makeText(this, "Sensor Has Already Started.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void stop(View view) {
+        if (mHeartRateSensor != null) {
+            mSensorManager.unregisterListener(this);
+            mHeartRateSensor = null;
+        } else {
+            Toast.makeText(this, "Sensor Has Not Started.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void clear(View view) {
+        heartRates.clear();
+        Toast.makeText(this, "Previous Readings Cleared.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -80,15 +110,20 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.upload:
+                if (heartRates.size() == 0) {
+                    Toast.makeText(this, "Nothing To Upload!", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
                 timeStamp = System.currentTimeMillis();
                 HeartRateUploader uploader = new HeartRateUploader();
                 uploader.execute(String.valueOf(timeStamp), String.valueOf(computeAverageHeartRate()));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private float computeAverageHeartRate() {
+    private int computeAverageHeartRate() {
         float sum = 0;
         for (float heartRate : heartRates) {
             sum += heartRate;
@@ -97,39 +132,41 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     }
 
     class HeartRateUploader extends AsyncTask<String, Void, Boolean> {
-        final static String UPLOAD_URL = "https://cs3205-3.comp.nus.edu.sg/upload/heart/" ;
+        final static String UPLOAD_URL = "https://cs3205-3.comp.nus.edu.sg/session/heart?timestamp=" ;
         @Override
         protected Boolean doInBackground(String... params) {
             String timeStamp = params[0];
-            String heartRate = params[1];
-            if (upload(timeStamp, heartRate)) {
+            String avgHeartRate = params[1];
+            if (upload(timeStamp, avgHeartRate)) {
                 return true;
             }
             return false;
         }
 
-    private boolean upload(String timeStamp, String heartRate) {
-        String finalUrl = UPLOAD_URL + timeStamp;
-        //      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-        String token = pref.getString("access_token", "");
-        Invocation.Builder request = ClientBuilder.newClient().target(finalUrl).request();
-        Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", "hash").post(
-                Entity.entity(heartRate, MediaType.APPLICATION_OCTET_STREAM));
-        cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
-        if (response.getStatus() != 200) {
-            cs3205.subsystem3.health.common.logger.Log.d("error", response.readEntity(String.class));
-            return false;
-        } else {
-            return true;
+        private boolean upload(String timeStamp, String avgHeartRate) {
+            String finalUrl = UPLOAD_URL + timeStamp;
+      //      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
+            String token = pref.getString("access_token", "");
+            System.out.println("token in heartrate reader: " + token);
+            Invocation.Builder request = ClientBuilder.newClient().target(finalUrl).request();
+            Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", "hash").post(
+                    Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
+            cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
+            if (response.getStatus() != 200) {
+                cs3205.subsystem3.health.common.logger.Log.d("error", response.readEntity(String.class));
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            heartRates.clear();
+            cs3205.subsystem3.health.common.logger.Log.d("result", aBoolean.toString());
         }
     }
-
-    @Override
-    protected void onPostExecute(Boolean aBoolean) {
-        cs3205.subsystem3.health.common.logger.Log.d("result", aBoolean.toString());
-    }
-}
 
 }
 

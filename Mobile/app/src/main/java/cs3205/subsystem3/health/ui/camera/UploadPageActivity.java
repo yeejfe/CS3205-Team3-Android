@@ -18,7 +18,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.util.UploadHandler;
+import cs3205.subsystem3.health.common.utilities.UploadHandler;
 
 
 public class UploadPageActivity extends Activity implements View.OnClickListener {
@@ -68,19 +68,30 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
                 startActivityForResult(imageGalleryIntent, RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
-                Intent uploader = new Intent(this, UploadHandler.class);
-                uploader.putExtra("path",selectedPath);
-                startActivity(uploader);
-
-            //    uploadFileToServer(selectedPath);
-                break;
+                Intent imageUploader = new Intent(this, UploadHandler.class);
+                if(selectedPath==null){
+                    break;
+                }else {
+                    imageUploader.putExtra("path", selectedPath);
+                    imageUploader.putExtra("choice", "image");
+                    startActivity(imageUploader);
+                    break;
+                }
             case R.id.videoToUpload:
                 Intent VideoGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
-           //     uploadFileToServer(selectedPath);
-                break;
+                Intent videoUploader = new Intent(this, UploadHandler.class);
+                if(selectedPath==null){
+                    break;
+                }
+                else {
+                    videoUploader.putExtra("path", selectedPath);
+                    videoUploader.putExtra("choice", "video");
+                    startActivity(videoUploader);
+                    break;
+                }
 
 
         }

@@ -63,7 +63,7 @@
         <activity android:name=".ui.nfc.NFCReaderActivity" />
         <activity android:name=".ui.camera.CameraActivity" />
         <activity android:name=".ui.camera.UploadPageActivity" />
-        <activity android:name=".util.UploadHandler"></activity>
+        <activity android:name=".common.utilities.UploadHandler"></activity>
     </application>
 
 </manifest>
