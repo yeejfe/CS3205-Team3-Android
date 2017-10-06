@@ -9,7 +9,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.logic.nfc.NFCReader;
 
 public class NFCReaderActivity extends AppCompatActivity {
