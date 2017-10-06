@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
  */
 
 public class HashGenerator {
-    
+
     public static byte[] generateHash(String input) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return digest.digest(input.getBytes(StandardCharsets.UTF_8));
