@@ -19,7 +19,8 @@ public class ShutdownReceiver extends BaseBroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
         if (BuildConfig.DEBUG) Log.i(Tag.STEP_SENSOR, "shutting down");
 
-        context.startService(new Intent(context, StepSensorService.class));
+        if (checkServiceStoppedPref(context) == false)
+            context.startService(new Intent(context, StepSensorService.class));
 
         // if the user used a root script for shutdown, the DEVICE_SHUTDOWN
         // broadcast might not be send. Therefore, the app will check this

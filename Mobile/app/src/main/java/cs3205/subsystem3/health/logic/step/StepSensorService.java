@@ -13,6 +13,11 @@ import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 
 import cs3205.subsystem3.health.BuildConfig;
@@ -35,6 +40,8 @@ public class StepSensorService extends Service implements SensorEventListener {
     private final static int SAVE_OFFSET_STEPS = 500;
 
     public final static String ACTION_PAUSE = "pause";
+    public static final String STEPS_STOPPED = "StepsStopped";
+    public static final String STEPS = "steps";
 
     private static int steps;
     private static int lastSaveSteps;
@@ -96,16 +103,26 @@ public class StepSensorService extends Service implements SensorEventListener {
         if (BuildConfig.DEBUG) Log.i(TAG, "StepSensorService onCreate");
         reRegisterSensor();
         //updateNotificationState();
+        SharedPreferences prefs = getSharedPreferences(STEPS, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(STEPS_STOPPED, false).commit();
     }
 
     @Override
     public void onTaskRemoved(final Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         if (BuildConfig.DEBUG) Log.i(TAG, "sensor service task removed");
+
+        SharedPreferences prefs = getSharedPreferences("steps", Context.MODE_PRIVATE);
+        if (prefs.getBoolean(STEPS_STOPPED, false)) {
+            prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
+        }
+
+
         // Restart service in 500 ms
-        ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-                .set(AlarmManager.RTC, System.currentTimeMillis() + 500, PendingIntent
-                        .getService(this, 3, new Intent(this, StepSensorService.class), 0));
+        /** ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
+         .set(AlarmManager.RTC, System.currentTimeMillis() + 500, PendingIntent
+         .getService(this, 3, new Intent(this, StepSensorService.class), 0));
+         */
     }
 
     @Override
@@ -115,6 +132,10 @@ public class StepSensorService extends Service implements SensorEventListener {
         try {
             SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
             sm.unregisterListener(this);
+            SharedPreferences prefs = getSharedPreferences("steps", Context.MODE_PRIVATE);
+            if (prefs.getBoolean(STEPS_STOPPED, false)) {
+                prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
+            }
         } catch (Exception e) {
             if (BuildConfig.DEBUG) Log.e(TAG, e.getMessage(), e);
             e.printStackTrace();
@@ -124,6 +145,9 @@ public class StepSensorService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         if (intent != null && ACTION_PAUSE.equals(intent.getStringExtra("action"))) {
+            SharedPreferences prefs = getSharedPreferences("steps", Context.MODE_PRIVATE);
+            if (prefs.getBoolean(STEPS_STOPPED, true))
+                return START_NOT_STICKY;
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "onStartCommand action: " + intent.getStringExtra("action"));
             if (steps == 0) {
@@ -131,7 +155,6 @@ public class StepSensorService extends Service implements SensorEventListener {
                 steps = db.getCurrentSteps();
                 db.close();
             }
-            SharedPreferences prefs = getSharedPreferences("steps", Context.MODE_PRIVATE);
             if (prefs.contains("pauseCount")) { // resume counting
                 int difference = steps -
                         prefs.getInt("pauseCount", steps); // number of steps taken during the pause
@@ -186,13 +209,47 @@ public class StepSensorService extends Service implements SensorEventListener {
                     // update pauseCount for the new day
                     getSharedPreferences("steps", Context.MODE_PRIVATE).edit()
                             .putInt("pauseCount", steps).commit();
+
+                    //save to file
+                    saveToFile(pauseDifference);
                 }
             }
+
             db.saveCurrentSteps(steps);
             db.close();
             lastSaveSteps = steps;
             lastSaveTime = System.currentTimeMillis();
             //updateNotificationState();
         }
+    }
+
+    private void saveToFile(int steps) {
+        String dirPath = getApplicationContext().getExternalFilesDir(null).getAbsolutePath() + "/steps";
+        File dir = new File(dirPath);
+        dir.mkdirs();
+        File file = new File(dir, String.valueOf(Timestamp.getToday()));
+
+        try {
+            FileOutputStream os;
+
+            if (!file.exists()) {
+                os = new FileOutputStream(file);
+            } else {
+                os = openFileOutput(file.getAbsolutePath(), MODE_APPEND);
+            }
+            PrintWriter pw = new PrintWriter(os);
+            pw.print(Timestamp.getEpochTimeStamp() + ",");
+            pw.println(steps);
+            pw.flush();
+            pw.close();
+            os.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.i(TAG, "******* File not found. Did you" +
+                    " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -17,6 +17,7 @@ public class AppUpdatedReceiver extends BaseBroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
         if (BuildConfig.DEBUG)
             Log.i(Tag.STEP_SENSOR, "app updated");
-        context.startService(new Intent(context, StepSensorService.class));
+        if (checkServiceStoppedPref(context) == false)
+            context.startService(new Intent(context, StepSensorService.class));
     }
 }
