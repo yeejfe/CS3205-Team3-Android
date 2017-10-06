@@ -1,13 +1,9 @@
 package cs3205.subsystem3.health.ui.heartrate;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,13 +16,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.utilities.HeartRateUploadTask;
 
 public class HeartRateReaderActivity extends AppCompatActivity implements SensorEventListener{
     private SensorManager mSensorManager;
@@ -117,8 +108,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                     return false;
                 }
                 timeStamp = System.currentTimeMillis();
-                HeartRateUploader uploader = new HeartRateUploader();
-                uploader.execute(String.valueOf(timeStamp), String.valueOf(computeAverageHeartRate()), this);
+                new HeartRateUploadTask().execute(String.valueOf(timeStamp), String.valueOf(computeAverageHeartRate()), this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -133,47 +123,8 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         return Math.round(sum / heartRates.size());
     }
 
-    class HeartRateUploader extends AsyncTask<Object, Void, Boolean> {
-        private Context context;
-        final static String UPLOAD_URL = "https://cs3205-3.comp.nus.edu.sg/session/heart?timestamp=" ;
-        @Override
-        protected Boolean doInBackground(Object... params) {
-            String timeStamp = (String)params[0];
-            String avgHeartRate = (String)params[1];
-            context = (Context)params[2];
-            if (upload(timeStamp, avgHeartRate)) {
-                return true;
-            }
-            return false;
-        }
-
-        private boolean upload(String timeStamp, String avgHeartRate) {
-            SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-            String token = pref.getString("access_token", "");
-            String nfcTokenHash = pref.getString("nfc_hash", "");
-            System.out.println("token in heartrate reader: " + token);
-            Invocation.Builder request = ClientBuilder.newClient().target(UPLOAD_URL).queryParam(QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
-            Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", nfcTokenHash).post(
-                    Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
-            cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
-            if (response.getStatus() != 200) {
-                cs3205.subsystem3.health.common.logger.Log.d("error", response.readEntity(String.class));
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            cs3205.subsystem3.health.common.logger.Log.d("result", aBoolean.toString());
-            if (aBoolean) {
-                heartRates.clear();
-                Toast.makeText(context, "Upload Successful.", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(context, "Upload Failed.", Toast.LENGTH_LONG).show();
-            }
-        }
+    public void clear() {
+        heartRates.clear();
     }
 
 }
