@@ -209,17 +209,19 @@ public class StepSensorService extends Service implements SensorEventListener {
                     // update pauseCount for the new day
                     getSharedPreferences("steps", Context.MODE_PRIVATE).edit()
                             .putInt("pauseCount", steps).commit();
-
-                    //save to file
-                    saveToFile(pauseDifference);
                 }
             }
-
+            int prevSteps = db.getCurrentSteps();
             db.saveCurrentSteps(steps);
             db.close();
             lastSaveSteps = steps;
             lastSaveTime = System.currentTimeMillis();
             //updateNotificationState();
+
+            Log.i("StepSensor: no of Steps are ",String.valueOf(steps));
+
+            //save to file
+            saveToFile(steps - prevSteps);
         }
     }
 
@@ -235,7 +237,7 @@ public class StepSensorService extends Service implements SensorEventListener {
             if (!file.exists()) {
                 os = new FileOutputStream(file);
             } else {
-                os = openFileOutput(file.getAbsolutePath(), MODE_APPEND);
+                os = new FileOutputStream(file, true);
             }
             PrintWriter pw = new PrintWriter(os);
             pw.print(Timestamp.getEpochTimeStamp() + ",");
