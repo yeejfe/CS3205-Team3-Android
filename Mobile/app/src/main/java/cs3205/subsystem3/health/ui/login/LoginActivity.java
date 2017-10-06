@@ -1,9 +1,6 @@
 package cs3205.subsystem3.health.ui.login;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
@@ -20,15 +17,10 @@ import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
 
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.utilities.HashGenerator;
+import cs3205.subsystem3.health.common.utilities.LoginTask;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 
@@ -111,6 +103,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
         finish();
+        progressBar.setVisibility(View.GONE);
     }
 
     public void onLoginFailed() {
@@ -180,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                new LoginTask().execute(body.toString());
+                new LoginTask().execute(body.toString(), tag_password, this);
             }
         }
 
@@ -197,70 +190,6 @@ public class LoginActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        new LoginTask().execute(body.toString());
+        new LoginTask().execute(body.toString(), tag_password, this);
     }
-
-
-    private boolean connectToServer(String body) {
-        //TODO: register a JSON reader and writer
-        Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
-        String nfcTokenHash = null;
-        try {
-            nfcTokenHash = Base64.encodeToString(HashGenerator.generateHash(tag_password), Base64.URL_SAFE);//TODO: fix the hash
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return false;
-        }
-        Response response = request.header("x-nfc-token", nfcTokenHash).post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
-        Log.d("error", response.toString());
-        if (response.getStatus() != 200) {
-            Log.d("error", response.readEntity(String.class));
-            return false;
-        } else {
-            String strResponse = response.readEntity(String.class);
-            if (!strResponse.isEmpty()) {
-                try {
-                    JSONObject jsonResponse = new JSONObject(strResponse);
-                    String accessToken = jsonResponse.get("access_token").toString();
-                    Log.d("access token", accessToken);
-
-                    SharedPreferences savedSession = getApplicationContext().getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = savedSession.edit();
-                    editor.putString("access_token", accessToken);
-                    editor.putString("nfc_hash",nfcTokenHash);
-                    editor.commit();
-                    System.out.println("the token1 is "+ accessToken);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            return true;
-        }
-    }
-
-    class LoginTask extends AsyncTask<String, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(String... params) {
-            return connectToServer(params[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            if (aBoolean) {
-                new android.os.Handler().postDelayed(
-                        new Runnable() {
-                            public void run() {
-                                // On complete call either onLoginSuccess or onLoginFailed
-                                onLoginSuccess();
-                                // onLoginFailed();
-                                progressBar.setVisibility(View.GONE);
-                            }
-                        }, 3000);
-            } else {
-                onLoginFailed();
-            }
-        }
-    }
-
 }
