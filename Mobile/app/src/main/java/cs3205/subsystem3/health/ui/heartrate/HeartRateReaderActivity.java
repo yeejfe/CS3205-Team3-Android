@@ -58,6 +58,30 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         }
     }
 
+    public void start(View view) {
+        if (mHeartRateSensor == null) {
+            mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+            mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        } else {
+            Toast.makeText(this, "Sensor Has Already Started.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void stop(View view) {
+        if (mHeartRateSensor != null) {
+            mSensorManager.unregisterListener(this);
+            mHeartRateSensor = null;
+        } else {
+            Toast.makeText(this, "Sensor Has Not Started.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void clear(View view) {
+        heartRates.clear();
+        Toast.makeText(this, "Previous Readings Cleared.", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
     }

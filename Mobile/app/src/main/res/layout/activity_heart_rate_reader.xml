@@ -8,23 +8,27 @@
     android:paddingRight="16dp"
     android:orientation="vertical"
     tools:context="cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity">
-
-    <!--<Button-->
-        <!--android:id="@+id/start"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Start"-->
-        <!--android:textSize="22sp"-->
-        <!--android:onClick="stop"/>-->
-    <!--<Button-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/stop"-->
-        <!--android:text="Stop"-->
-        <!--android:textSize="22sp"-->
-        <!--android:layout_marginTop="5dp"-->
-        <!--android:layout_marginBottom="5dp"-->
-        <!--android:onClick="stop"/>-->
+    <Button
+        android:id="@+id/start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        android:textSize="22sp"
+        android:onClick="start"/>
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop"
+        android:textSize="22sp"
+        android:onClick="stop"/>
+    <Button
+        android:id="@+id/clear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear Readings"
+        android:textSize="22sp"
+        android:onClick="clear"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
