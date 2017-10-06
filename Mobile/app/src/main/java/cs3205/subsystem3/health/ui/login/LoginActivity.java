@@ -88,12 +88,12 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         // TODO: Implement/call authentication logic here.
-       //  authenticate();
+        authenticate();
 
 //for test
         //skip NFC authentication
 
-        skipNfcTest();
+        //skipNfcTest();
 
     }
 
