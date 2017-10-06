@@ -17,6 +17,14 @@ import cs3205.subsystem3.health.common.logger.Log;
 
 public class RemoteDataSource {
 
+    public static final String TIMESTAMP = "timestamp";
+
+    public enum Type {
+        STEPS,
+        IMAGE,
+        VIDEO
+    }
+
     public static final String AUTHORIZATION = "Authorization";
     public static final String BEARER = "Bearer ";
     public static final String X_NFC_TOKEN = "X-NFC-Token";
@@ -26,30 +34,23 @@ public class RemoteDataSource {
     public static final String SERVER3_ENDPOINT_IMAGE = "https://cs3205-3.comp.nus.edu.sg/session/image";
     public static final String SERVER3_ENDPOINT_VIDEO = "https://cs3205-3.comp.nus.edu.sg/session/video";
 
-    private static final String JSON = "application/json";
-
     private Client client;
 
     public RemoteDataSource() {
         client = ClientBuilder.newClient();
     }
 
-    public Response buildFileUploadRequest(InputStream stream, String token, String hash, String choice) {
-
-        long time = System.currentTimeMillis() / 1000;
+    public Response buildFileUploadRequest(InputStream stream, String token, String hash, Long time, Type type) {
         Invocation.Builder builder = null;
 
-        if (choice.equals("steps")) {
-            builder = client.target(SERVER3_ENDPOINT_STEPS).queryParam("timestamp", time)
+        if (type.equals(Type.STEPS)) {
+            builder = client.target(SERVER3_ENDPOINT_STEPS).queryParam(TIMESTAMP, time)
                     .request();
-        } else if (choice.equals("image")) {
-
-
-            builder = client.target(SERVER3_ENDPOINT_IMAGE).queryParam("timestamp", time)
+        } else if (type.equals(Type.IMAGE)) {
+            builder = client.target(SERVER3_ENDPOINT_IMAGE).queryParam(TIMESTAMP, time)
                     .request();
-
         } else {
-            builder = client.target(SERVER3_ENDPOINT_VIDEO).queryParam("timestamp", time)
+            builder = client.target(SERVER3_ENDPOINT_VIDEO).queryParam(TIMESTAMP, time)
                     .request();
         }
 
@@ -57,12 +58,6 @@ public class RemoteDataSource {
                 .header(X_NFC_TOKEN, hash)
                 .header(AUTHORIZATION, BEARER + token)
                 .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
-    }
-
-    public Response buildStepUploadRequest(InputStream stepsData, String token, String hash) {
-        Log.i("Upload", "Upload");
-
-        return buildFileUploadRequest(stepsData, token, hash, "steps");
     }
 
     public void close() {

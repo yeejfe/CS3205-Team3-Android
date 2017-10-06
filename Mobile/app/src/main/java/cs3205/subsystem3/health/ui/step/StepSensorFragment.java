@@ -129,6 +129,8 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         total_days = db.getDays();
 
         db.close();
+
+        setTextView(Math.max(todayOffset + since_boot, 0));
     }
 
     @Override
@@ -152,14 +154,18 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
         int steps_today = Math.max(todayOffset + since_boot, 0);
 
-        stepsView.setText(String.valueOf(steps_today));
-        totalView.setText(String.valueOf((total_start + steps_today)));
-        averageView.setText(String.valueOf(((total_start + steps_today) / total_days)));
+        setTextView(steps_today);
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
         if (BuildConfig.DEBUG) Log.i(Tag.STEP_SENSOR, sensor.getName() + " accuracy changed: " + i);
+    }
+
+    private void setTextView(int steps_today) {
+        stepsView.setText(String.valueOf(steps_today));
+        totalView.setText(String.valueOf((total_start + steps_today)));
+        averageView.setText(String.valueOf(((total_start + steps_today) / total_days)));
     }
 }
 

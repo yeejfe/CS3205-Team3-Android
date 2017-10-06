@@ -20,6 +20,7 @@ import java.io.InputStream;
 import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
@@ -39,7 +40,7 @@ public class UploadHandler extends AppCompatActivity {
     private String path;
     private String token;
     private String hash;
-    private String choice;
+    private RemoteDataSource.Type choice;
 
     long totalSize = 0;
 
@@ -51,7 +52,7 @@ public class UploadHandler extends AppCompatActivity {
             setContentView(R.layout.activity_upload_handler);
             Intent intent = getIntent();
             path = intent.getStringExtra("path");
-            choice = intent.getStringExtra("choice");
+            choice = RemoteDataSource.Type.valueOf(intent.getStringExtra("choice").toUpperCase());
             textView = (TextView) findViewById(R.id.textView2);
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
             txtPercentage = (TextView) findViewById(R.id.txtPercentage);
@@ -116,7 +117,7 @@ public class UploadHandler extends AppCompatActivity {
             }
 
             RemoteDataSource rDS = new RemoteDataSource();
-            Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(),choice);
+            Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(),Long.valueOf(Timestamp.getEpochTimeStamp()),choice);
 
             rDS.close();
             // Check Response
@@ -188,7 +189,7 @@ public class UploadHandler extends AppCompatActivity {
                     }
 
                     RemoteDataSource rDS = new RemoteDataSource();
-                    Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(), choice);
+                    Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(), Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
 
                     rDS.close();
                     // Check Response
