@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.common.core.Timestamp;
+import cs3205.subsystem3.health.common.logger.Log;
 
 /**
  * Created by Yee on 09/30/17.
@@ -22,7 +23,7 @@ public class RemoteDataSource {
     public static final String TIMESTAMP = "?timestamp=";
 
     public static final String IMG_UPLOAD_URL = SERVER3_UPLOAD_URL + "/image";
-    private final static String STEP_UPLOAD_URL = SERVER3_SESSION_UPLOAD_URL + "/step/" + TIMESTAMP;
+    private final static String STEP_UPLOAD_URL = SERVER3_SESSION_UPLOAD_URL + "step" + TIMESTAMP;
 
     public static final String FRONT_SLASH = "/";
     public static final String AUTHORIZATION = "Authorization";
@@ -58,9 +59,11 @@ public class RemoteDataSource {
     }
 
     public Response buildStepUploadRequest(InputStream stepsData, String token, String hash) {
+        Log.i("Upload", "Upload");
         Invocation.Builder builder = client.target(STEP_UPLOAD_URL + Timestamp.getEpochTimeStamp()).request();
         Response response = builder.header(AUTHORIZATION, BEARER + token).header(X_NFC_TOKEN, hash).post(
                         Entity.entity(stepsData, MediaType.APPLICATION_OCTET_STREAM));
+        Log.i("Upload", response.toString());
         return response;
     }
 
