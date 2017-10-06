@@ -73,14 +73,18 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         getActivity().startService(new Intent(getActivity(), StepSensorService.class));
         textView.setText(START_SERVICE);
         buttonStart.setClickable(false);
+        buttonStart.setEnabled(false);
         buttonStop.setClickable(true);
+        buttonStop.setEnabled(true);
     }
 
     public void stopStepsService() {
         getActivity().stopService(new Intent(getActivity(), StepSensorService.class));
         textView.setText(STOP_SERVICE);
         buttonStart.setClickable(true);
+        buttonStart.setEnabled(true);
         buttonStop.setClickable(false);
+        buttonStop.setEnabled(false);
     }
 
     @Override

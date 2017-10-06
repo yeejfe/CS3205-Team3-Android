@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,6 +25,7 @@ import cs3205.subsystem3.health.ui.camera.CameraActivity;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 import cs3205.subsystem3.health.ui.login.LoginActivity;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
+import cs3205.subsystem3.health.ui.step.StepSensorFragment;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -59,6 +61,15 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        initFrag();
+    }
+
+    private void initFrag() {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment_placeholder, new StepSensorFragment());
+        //ft.add(R.id.fragment_placeholder, new StepSensorFragment());
+        ft.commit();
     }
 
     @Override
@@ -143,7 +154,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         }
     }
 
-    private void startCamera(){
+    private void startCamera() {
         Intent cameraIntent = new Intent(this, CameraActivity.class);
         startActivity(cameraIntent);
     }
