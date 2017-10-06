@@ -100,7 +100,6 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
             case R.id.upload:
                 if (heartRates.size() == 0) {
