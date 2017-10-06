@@ -162,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject body = new JSONObject();
                 try {
                     body.put("grant_type", "password");
-                    body.put("username", "1");
+                    body.put("username", "username");
                     body.put("passhash", "hash");
                 } catch (JSONException e) {
                     e.printStackTrace();
