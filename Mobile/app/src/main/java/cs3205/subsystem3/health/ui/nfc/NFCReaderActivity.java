@@ -51,8 +51,6 @@ public class NFCReaderActivity extends AppCompatActivity {
             case TAG_VALID:
                 Toast.makeText(this, "onResume() - TAG_VALID", Toast.LENGTH_SHORT).show();
                 credentials = nfcReader.readCredentials();
-                Log.d("username", credentials[0]);
-                Log.d("password", credentials[1]);
                 Intent returnToLoginIntent = new Intent();
                 returnToLoginIntent.putExtra("username", credentials[0]);
                 returnToLoginIntent.putExtra("password", credentials[1]);

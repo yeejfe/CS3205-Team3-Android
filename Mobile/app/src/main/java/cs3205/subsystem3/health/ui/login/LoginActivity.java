@@ -6,8 +6,10 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.renderscript.Element;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +19,8 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.NoSuchAlgorithmException;
+
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -25,6 +29,7 @@ import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.utilities.HashGenerator;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 
@@ -162,8 +167,17 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject body = new JSONObject();
                 try {
                     body.put("grant_type", "password");
-                    body.put("username", "username");
-                    body.put("passhash", "hash");
+                    body.put("username", username);
+                    try {
+                        byte[] passHash = HashGenerator.generateHash(password);
+                        Log.d("password.hash", Base64.encodeToString(HashGenerator.generateHash(tag_password), Base64.DEFAULT));
+                        body.put("passhash", passHash);
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Fail To Generate Password Hash.", Toast.LENGTH_SHORT).show();
+                        onLoginFailed();
+                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -191,8 +205,14 @@ public class LoginActivity extends AppCompatActivity {
     private boolean connectToServer(String body) {
         //TODO: register a JSON reader and writer
         Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
-
-        Response response = request.header("x-nfc-token", "hash").post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+        String nfcTokenHash = null;
+        try {
+            nfcTokenHash = Base64.encodeToString(HashGenerator.generateHash(tag_password), Base64.URL_SAFE);//TODO: fix the hash
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return false;
+        }
+        Response response = request.header("x-nfc-token", nfcTokenHash).post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
         Log.d("error", response.toString());
         if (response.getStatus() != 200) {
             Log.d("error", response.readEntity(String.class));
