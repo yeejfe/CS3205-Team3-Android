@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
 /**
@@ -86,7 +87,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
         RemoteDataSource rDS = new RemoteDataSource();
         Log.i("UPload", "Upload");
-        rDS.buildStepUploadRequest(stream, token, hash);
+        rDS.buildFileUploadRequest(stream, token, hash, Timestamp.getEpochTimeStamp(), RemoteDataSource.Type.STEPS);
         Toast.makeText(getActivity(), "Upload Successful.", Toast.LENGTH_SHORT).show();
         Log.i("UPload", rDS.toString());
         rDS.close();

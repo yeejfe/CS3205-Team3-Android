@@ -15,6 +15,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
@@ -54,7 +55,7 @@ public class StepCountUploader extends AsyncTask<String, Void, Boolean> {
         SharedPreferences pref = sPref;
         String token = pref.getString(ACCESS_TOKEN, EMPTY_STRING);
         RemoteDataSource rDS = new RemoteDataSource();
-        Response response = rDS.buildStepUploadRequest(inputStream, token, HASH);
+        Response response = rDS.buildFileUploadRequest(inputStream, token, HASH, Timestamp.getEpochTimeStamp(), RemoteDataSource.Type.STEPS);
         rDS.close();
         Log.d(ERROR, response.toString());
         if (response.getStatus() != STATUS_200) {
