@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.renderscript.Element;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
@@ -228,7 +227,7 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences savedSession = getApplicationContext().getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
                     SharedPreferences.Editor editor = savedSession.edit();
                     editor.putString("access_token", accessToken);
-                    editor.putString("nfc_hash","hash");
+                    editor.putString("nfc_hash",nfcTokenHash);
                     editor.commit();
                     System.out.println("the token1 is "+ accessToken);
 

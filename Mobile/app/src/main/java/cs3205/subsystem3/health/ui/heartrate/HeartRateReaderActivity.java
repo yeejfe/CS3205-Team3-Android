@@ -35,13 +35,13 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     private long timeStamp;
     private ArrayList<Float> heartRates;
     private TextView mHeartRateReading;
+    final static String QUERY_PARAMETER_TIMESTAMP = "timestamp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heart_rate_reader);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         heartRates = new ArrayList<>();
         mHeartRateReading = (TextView) findViewById(R.id.hear_rate_reading);
     }
@@ -62,6 +62,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (mHeartRateSensor == null) {
             mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
             mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            Toast.makeText(this, "Sensor Started.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Sensor Has Already Started.", Toast.LENGTH_SHORT).show();
         }
@@ -71,6 +72,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (mHeartRateSensor != null) {
             mSensorManager.unregisterListener(this);
             mHeartRateSensor = null;
+            Toast.makeText(this, "Sensor Stopped.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Sensor Has Not Started.", Toast.LENGTH_SHORT).show();
         }
@@ -116,7 +118,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                 }
                 timeStamp = System.currentTimeMillis();
                 HeartRateUploader uploader = new HeartRateUploader();
-                uploader.execute(String.valueOf(timeStamp), String.valueOf(computeAverageHeartRate()));
+                uploader.execute(String.valueOf(timeStamp), String.valueOf(computeAverageHeartRate()), this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -131,12 +133,14 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         return Math.round(sum / heartRates.size());
     }
 
-    class HeartRateUploader extends AsyncTask<String, Void, Boolean> {
+    class HeartRateUploader extends AsyncTask<Object, Void, Boolean> {
+        private Context context;
         final static String UPLOAD_URL = "https://cs3205-3.comp.nus.edu.sg/session/heart?timestamp=" ;
         @Override
-        protected Boolean doInBackground(String... params) {
-            String timeStamp = params[0];
-            String avgHeartRate = params[1];
+        protected Boolean doInBackground(Object... params) {
+            String timeStamp = (String)params[0];
+            String avgHeartRate = (String)params[1];
+            context = (Context)params[2];
             if (upload(timeStamp, avgHeartRate)) {
                 return true;
             }
@@ -144,13 +148,12 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         }
 
         private boolean upload(String timeStamp, String avgHeartRate) {
-            String finalUrl = UPLOAD_URL + timeStamp;
-      //      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
             String token = pref.getString("access_token", "");
+            String nfcTokenHash = pref.getString("nfc_hash", "");
             System.out.println("token in heartrate reader: " + token);
-            Invocation.Builder request = ClientBuilder.newClient().target(finalUrl).request();
-            Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", "hash").post(
+            Invocation.Builder request = ClientBuilder.newClient().target(UPLOAD_URL).queryParam(QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
+            Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", nfcTokenHash).post(
                     Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
             cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
             if (response.getStatus() != 200) {
@@ -163,8 +166,13 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
-            heartRates.clear();
             cs3205.subsystem3.health.common.logger.Log.d("result", aBoolean.toString());
+            if (aBoolean) {
+                heartRates.clear();
+                Toast.makeText(context, "Upload Successful.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, "Upload Failed.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
