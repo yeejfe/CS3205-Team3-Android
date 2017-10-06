@@ -69,20 +69,29 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
                 break;
             case R.id.buttonUploadImage:
                 Intent imageUploader = new Intent(this, UploadHandler.class);
-                imageUploader.putExtra("path",selectedPath);
-                imageUploader.putExtra("choice","image");
-                startActivity(imageUploader);
-                break;
+                if(selectedPath==null){
+                    break;
+                }else {
+                    imageUploader.putExtra("path", selectedPath);
+                    imageUploader.putExtra("choice", "image");
+                    startActivity(imageUploader);
+                    break;
+                }
             case R.id.videoToUpload:
                 Intent VideoGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
                 Intent videoUploader = new Intent(this, UploadHandler.class);
-                videoUploader.putExtra("path",selectedPath);
-                videoUploader.putExtra("choice","video");
-                startActivity(videoUploader);
-                break;
+                if(selectedPath==null){
+                    break;
+                }
+                else {
+                    videoUploader.putExtra("path", selectedPath);
+                    videoUploader.putExtra("choice", "video");
+                    startActivity(videoUploader);
+                    break;
+                }
 
 
         }
