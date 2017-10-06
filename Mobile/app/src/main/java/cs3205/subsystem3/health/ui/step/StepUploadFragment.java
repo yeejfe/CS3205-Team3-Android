@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,6 +87,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         RemoteDataSource rDS = new RemoteDataSource();
         Log.i("UPload", "Upload");
         rDS.buildStepUploadRequest(stream, token, hash);
+        Toast.makeText(getActivity(), "Upload Successful.", Toast.LENGTH_SHORT).show();
         Log.i("UPload", rDS.toString());
         rDS.close();
 
