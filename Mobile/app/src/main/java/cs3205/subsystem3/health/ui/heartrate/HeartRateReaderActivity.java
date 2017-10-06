@@ -150,9 +150,10 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
             String finalUrl = UPLOAD_URL + timeStamp;
             SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
             String token = pref.getString("access_token", "");
+            String nfcTokenHash = pref.getString("nfc_hash", "");
             System.out.println("token in heartrate reader: " + token);
             Invocation.Builder request = ClientBuilder.newClient().target(finalUrl).request();
-            Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", "hash").post(
+            Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", nfcTokenHash).post(
                     Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
             cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
             if (response.getStatus() != 200) {
