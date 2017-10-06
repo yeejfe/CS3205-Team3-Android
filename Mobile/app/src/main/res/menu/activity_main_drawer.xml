@@ -11,9 +11,6 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="Heartrate" />
         <item
-            android:id="@+id/nav_nfc"
-            android:title="NFC"/>
-        <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="View Local Records" />

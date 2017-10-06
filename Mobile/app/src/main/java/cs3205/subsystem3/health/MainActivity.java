@@ -117,9 +117,6 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         } else if (id == R.id.nav_heartrate) {
             startHeartReader();
 
-        } else if (id == R.id.nav_nfc) {
-            startNFCReader();
-
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
