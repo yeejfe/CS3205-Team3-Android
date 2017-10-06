@@ -116,7 +116,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                 }
                 timeStamp = System.currentTimeMillis();
                 HeartRateUploader uploader = new HeartRateUploader();
-                uploader.execute(String.valueOf(timeStamp), String.valueOf(computeAverageHeartRate()));
+                uploader.execute(String.valueOf(timeStamp), String.valueOf(computeAverageHeartRate()), this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -131,12 +131,14 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         return Math.round(sum / heartRates.size());
     }
 
-    class HeartRateUploader extends AsyncTask<String, Void, Boolean> {
+    class HeartRateUploader extends AsyncTask<Object, Void, Boolean> {
+        private Context context;
         final static String UPLOAD_URL = "https://cs3205-3.comp.nus.edu.sg/session/heart?timestamp=" ;
         @Override
-        protected Boolean doInBackground(String... params) {
-            String timeStamp = params[0];
-            String avgHeartRate = params[1];
+        protected Boolean doInBackground(Object... params) {
+            String timeStamp = (String)params[0];
+            String avgHeartRate = (String)params[1];
+            context = (Context)params[2];
             if (upload(timeStamp, avgHeartRate)) {
                 return true;
             }
@@ -163,8 +165,13 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
-            heartRates.clear();
             cs3205.subsystem3.health.common.logger.Log.d("result", aBoolean.toString());
+            if (aBoolean) {
+                heartRates.clear();
+                Toast.makeText(context, "Upload Successful.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, "Upload Failed.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
