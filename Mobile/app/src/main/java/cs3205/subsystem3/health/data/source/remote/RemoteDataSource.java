@@ -6,6 +6,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -13,7 +14,8 @@ import javax.ws.rs.core.Response;
  */
 
 public class RemoteDataSource {
-    public static final String SERVER3_ADDRESS = "https://cs3205-3.comp.nus.edu.sg/upload/image";
+    public static final String SERVER3_ENDPOINT_IMAGE = "https://cs3205-3.comp.nus.edu.sg/session/image";
+    public static final String SERVER3_ENDPOINT_VIDEO = "https://cs3205-3.comp.nus.edu.sg/session/video";
     private static final String JSON = "application/json";
 
     private Client client;
@@ -22,23 +24,27 @@ public class RemoteDataSource {
         client = ClientBuilder.newClient();
     }
 
-    public Response buildFileUploadRequest(InputStream stream, String token, String hash){
-//        URL url = new URL(SERVER3_ADDRESS);
-//        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-//        conn.setRequestProperty("Authorization", "Bearer "+ token);
-//        conn.setRequestProperty("x-nfc-token", hash);
-//        OutputStream os = conn.getOutputStream();
-//        OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-     //   osw.write
-        long time = System.currentTimeMillis()/1000;
-        Invocation.Builder builder = client.target(SERVER3_ADDRESS+"/"+time)
-                // .queryParam() //type
-                //  .queryParam() //epoch unixtime
-                .request();
+    public Response buildFileUploadRequest(InputStream stream, String token, String hash, String choice){
+
+        long time = System.currentTimeMillis() / 1000;
+        Invocation.Builder builder=null;
+
+        if(choice.equals("image")) {
+
+
+            builder = client.target(SERVER3_ENDPOINT_IMAGE).queryParam("timestamp",time)
+                    .request();
+
+        }
+        else{
+            builder = client.target(SERVER3_ENDPOINT_VIDEO).queryParam("timestamp",time)
+                    .request();
+        }
+
         return  builder
                 .header("x-nfc-token", hash)
                 .header("Authorization", "Bearer "+token)
-                .post(Entity.entity(stream, JSON));
+                .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
     }
 
     public void close(){
