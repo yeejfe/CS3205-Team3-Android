@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
-import static cs3205.subsystem3.health.data.source.remote.RemoteDataSource.SERVER3_UPLOAD_URL;
 
 /**
  * Created by Yee on 10/05/17.
