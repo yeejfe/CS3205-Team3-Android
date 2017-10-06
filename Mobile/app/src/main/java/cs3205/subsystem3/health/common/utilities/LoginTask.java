@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Base64;
-import android.view.View;
-import android.widget.ProgressBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
