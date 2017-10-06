@@ -60,7 +60,7 @@ public class RemoteDataSource {
     public Response buildStepUploadRequest(InputStream stepsData, String token, String hash) {
         Invocation.Builder builder = client.target(STEP_UPLOAD_URL + Timestamp.getEpochTimeStamp()).request();
         Response response = builder.header(AUTHORIZATION, BEARER + token).header(X_NFC_TOKEN, hash).post(
-                        Entity.entity(stepsData, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                        Entity.entity(stepsData, MediaType.APPLICATION_OCTET_STREAM));
         return response;
     }
 

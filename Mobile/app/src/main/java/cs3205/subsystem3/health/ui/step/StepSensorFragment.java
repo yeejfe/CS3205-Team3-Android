@@ -9,6 +9,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,6 +35,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     private TextView stepsView, totalView, averageView, textView;
     private Button buttonStart;
     private Button buttonStop;
+    private Button buttonUpload;
     private static final String START_SERVICE = "Steps Counter Service Started";
     public static final String STOP_SERVICE = "Press START to count steps";
     private int todayOffset, total_start, since_boot, total_days;
@@ -46,9 +49,11 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         textView = (TextView) view.findViewById(R.id.tv_steps);
         buttonStart = (Button) view.findViewById(R.id.btn_start);
         buttonStop = (Button) view.findViewById(R.id.btn_stop);
+        buttonUpload = (Button) view.findViewById(R.id.btn_go_step_upload);
 
         buttonStart.setOnClickListener(this);
         buttonStop.setOnClickListener(this);
+        buttonUpload.setOnClickListener(this);
 
         stepsView = (TextView) view.findViewById(R.id.steps);
         totalView = (TextView) view.findViewById(R.id.total);
@@ -65,6 +70,12 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
                 break;
             case R.id.btn_stop:
                 stopStepsService();
+                break;
+            case R.id.btn_go_step_upload:
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.fragment_placeholder, new StepUploadFragment(), null);
+                ft.addToBackStack(null);
+                ft.commit();
                 break;
         }
     }
