@@ -39,6 +39,7 @@ public class BootReceiver extends BaseBroadcastReceiver {
         db.close();
         prefs.edit().remove(CORRECT_SHUTDOWN).apply();
 
-        context.startService(new Intent(context, StepSensorService.class));
+        if (checkServiceStoppedPref(context) == false)
+            context.startService(new Intent(context, StepSensorService.class));
     }
 }
