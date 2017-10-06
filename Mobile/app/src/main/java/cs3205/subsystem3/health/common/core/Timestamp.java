@@ -33,4 +33,8 @@ public abstract class Timestamp {
         c.add(Calendar.DATE, 1);
         return c.getTimeInMillis();
     }
+
+    public static long getEpochTimeStamp() {
+        return System.currentTimeMillis() / 1000;
+    }
 }
