@@ -41,7 +41,6 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heart_rate_reader);
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         heartRates = new ArrayList<>();
         mHeartRateReading = (TextView) findViewById(R.id.hear_rate_reading);
     }
@@ -62,6 +61,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (mHeartRateSensor == null) {
             mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
             mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            Toast.makeText(this, "Sensor Started.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Sensor Has Already Started.", Toast.LENGTH_SHORT).show();
         }
@@ -71,6 +71,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (mHeartRateSensor != null) {
             mSensorManager.unregisterListener(this);
             mHeartRateSensor = null;
+            Toast.makeText(this, "Sensor Stopped.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Sensor Has Not Started.", Toast.LENGTH_SHORT).show();
         }
