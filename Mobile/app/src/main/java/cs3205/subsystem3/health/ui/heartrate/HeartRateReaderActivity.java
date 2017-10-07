@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,9 +24,10 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     private SensorManager mSensorManager;
     private Sensor mHeartRateSensor;
     private float heartRate;
-    private long timeStamp;
     private ArrayList<Float> heartRates;
     private TextView mHeartRateReading;
+    private Button mStart;
+    private Button mStop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,8 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         heartRates = new ArrayList<>();
         mHeartRateReading = (TextView) findViewById(R.id.hear_rate_reading);
+        mStart = (Button) findViewById(R.id.start_sensor);
+        mStop = (Button) findViewById(R.id.stop_sensor);
     }
 
     @Override
@@ -49,29 +53,29 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     }
 
     public void start(View view) {
+
         if (mHeartRateSensor == null) {
             mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
             mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Toast.makeText(this, "Sensor Activated.", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Sensor Has Already Started.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Sensor Activated", Toast.LENGTH_SHORT).show();
         }
+        mStart.setEnabled(false);
+        mStop.setEnabled(true);
     }
 
     public void stop(View view) {
         if (mHeartRateSensor != null) {
             mSensorManager.unregisterListener(this);
             mHeartRateSensor = null;
-            Toast.makeText(this, "Sensor Deactivated.", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Sensor Has Not Started.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Sensor Deactivated", Toast.LENGTH_SHORT).show();
         }
-
+        mStop.setEnabled(false);
+        mStart.setEnabled(true);
     }
 
     public void clear(View view) {
         heartRates.clear();
-        Toast.makeText(this, "Previous Readings Cleared.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Previous Readings Cleared", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -102,11 +106,10 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         switch (item.getItemId()) {
             case R.id.upload:
                 if (heartRates.size() == 0) {
-                    Toast.makeText(this, "Nothing To Upload!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Nothing To Upload", Toast.LENGTH_SHORT).show();
                     return false;
                 }
-                timeStamp = System.currentTimeMillis();
-                new HeartRateUploadTask().execute(String.valueOf(timeStamp), String.valueOf(computeAverageHeartRate()), this);
+                new HeartRateUploadTask().execute(String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
