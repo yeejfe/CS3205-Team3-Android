@@ -26,7 +26,6 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     private long timeStamp;
     private ArrayList<Float> heartRates;
     private TextView mHeartRateReading;
-    final static String QUERY_PARAMETER_TIMESTAMP = "timestamp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +52,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (mHeartRateSensor == null) {
             mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
             mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Toast.makeText(this, "Sensor Started.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Sensor Activated.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Sensor Has Already Started.", Toast.LENGTH_SHORT).show();
         }
@@ -63,7 +62,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (mHeartRateSensor != null) {
             mSensorManager.unregisterListener(this);
             mHeartRateSensor = null;
-            Toast.makeText(this, "Sensor Stopped.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Sensor Deactivated.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Sensor Has Not Started.", Toast.LENGTH_SHORT).show();
         }
