@@ -9,6 +9,8 @@ import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.Tag;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
 
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
+
 /**
  * Created by Yee on 09/28/17.
  */
@@ -21,7 +23,7 @@ public class BootReceiver extends BaseBroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
         if (BuildConfig.DEBUG) Log.i(TAG, "booted");
 
-        SharedPreferences prefs = context.getSharedPreferences(PREF_STEPS, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(STEPS, Context.MODE_PRIVATE);
 
         StepsDB db = new StepsDB(context);
 
