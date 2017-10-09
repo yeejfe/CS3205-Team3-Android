@@ -7,18 +7,27 @@ import java.util.ArrayList;
  */
 
 public class Steps {
-    private static String INTERVAL = "seconds";
-    private static String TYPE = "steps";
+    public static final String FIELD_INTERVAL = "interval";
+    public static final String FIELD_TYPE = "type";
+    public static final String FIELD_TIMESTAMP = "timestamp";
+    public static final String FIELD_TIME = "time";
+    public static final String FIELD_CHANNEL = "channel";
 
-    private String interval;
+    private static final String INTERVAL = "seconds";
+    private static final String TYPE = "steps";
+
     private String type;
+    private String interval;
     private long timestamp;
     private ArrayList<Integer> time;
-    private Channel channel;
+    private ArrayList<Channel> channels;
 
-    public Steps(){
+    public Steps(long timestamp){
         this.interval = INTERVAL;
         this.type = TYPE;
+        this.timestamp = timestamp;
+        this.time = new ArrayList<Integer>();
+        this.channels = new ArrayList<Channel>();
     }
 
     public String getInterval() {
@@ -33,16 +42,12 @@ public class Steps {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public ArrayList<Channel> getChannels() {
+        return channels;
     }
 
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
+    public void setChannels(ArrayList<Channel> channels) {
+        this.channels = channels;
     }
 
     public ArrayList<Integer> getTime() {
@@ -54,14 +59,14 @@ public class Steps {
     }
 
     public class Channel {
-        private ArrayList<ArrayList<Integer>> channels;
+        private ArrayList<Integer> values;
 
-        public ArrayList<ArrayList<Integer>> getChannels() {
-            return channels;
+        public ArrayList<Integer> getValues() {
+            return values;
         }
 
-        public void setChannels(ArrayList<ArrayList<Integer>> channels) {
-            this.channels = channels;
+        public void setValues(ArrayList<Integer> values) {
+            this.values = values;
         }
     }
 }
