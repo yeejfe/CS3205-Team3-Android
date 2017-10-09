@@ -6,7 +6,9 @@
     <ListView
         android:id="@+id/steps_list_view"
         android:layout_width="match_parent"
-        android:layout_height="443dp" />
+        android:layout_height="443dp"
+        android:choiceMode="singleChoice"
+        android:listSelector="@android:color/darker_gray" />
 
     <Button
         android:id="@+id/btn_step_upload"
