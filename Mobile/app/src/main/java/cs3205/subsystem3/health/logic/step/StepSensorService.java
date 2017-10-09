@@ -19,11 +19,13 @@ import cs3205.subsystem3.health.BuildConfig;
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.Tag;
+import cs3205.subsystem3.health.data.source.local.Repository;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
+import cs3205.subsystem3.health.model.Steps;
 
-import static cs3205.subsystem3.health.common.core.JSONFileWriter.saveToFile;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.ACTION;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.ACTION_PAUSE;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.FILENAME;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.PAUSE_COUNT;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS_STOPPED;
@@ -44,6 +46,8 @@ public class StepSensorService extends Service implements SensorEventListener {
     private static int steps;
     private static int lastSaveSteps;
     private static long lastSaveTime;
+
+    private Steps data;
 
     public final static String ACTION_UPDATE_NOTIFICATION = "updateNotificationState";
 
@@ -98,6 +102,7 @@ public class StepSensorService extends Service implements SensorEventListener {
         reRegisterSensor();
         //updateNotificationState();
         SharedPreferences prefs = getSharedPreferences(STEPS, Context.MODE_PRIVATE);
+        getSteps(prefs);
     }
 
     @Override
@@ -149,7 +154,7 @@ public class StepSensorService extends Service implements SensorEventListener {
             }
             if (prefs.contains(PAUSE_COUNT)) { // resume counting
                 int difference = steps -
-                        prefs.getInt("pauseCount", steps); // number of steps taken during the pause
+                        prefs.getInt(PAUSE_COUNT, steps); // number of steps taken during the pause
                 StepsDB db = new StepsDB(this);
                 db.addToLastEntry(-difference);
                 db.close();
@@ -211,7 +216,12 @@ public class StepSensorService extends Service implements SensorEventListener {
             //updateNotificationState();
 
             //save to file
-            saveToFile(getApplicationContext().getExternalFilesDir(null).getAbsolutePath(), steps - prevSteps);
+            //saveToFile(getApplicationContext().getExternalFilesDir(null).getAbsolutePath(), steps - prevSteps);
         }
+    }
+
+    private void getSteps(SharedPreferences prefs){
+        String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeStamp()));
+        data = Repository.getFile(getApplicationContext().getExternalFilesDir(null).getAbsolutePath(), filename);
     }
 }

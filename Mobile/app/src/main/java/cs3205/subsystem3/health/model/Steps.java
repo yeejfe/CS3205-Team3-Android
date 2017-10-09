@@ -42,6 +42,10 @@ public class Steps {
         return timestamp;
     }
 
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public ArrayList<Channel> getChannels() {
         return channels;
     }
