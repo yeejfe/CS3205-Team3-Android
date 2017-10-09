@@ -26,6 +26,9 @@ import cs3205.subsystem3.health.common.logger.Tag;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
 import cs3205.subsystem3.health.logic.step.StepSensorService;
 
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.PAUSE_COUNT;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
+
 /**
  * Created by Yee on 09/27/17.
  */
@@ -106,13 +109,13 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         // read todays offset
         todayOffset = db.getSteps(Timestamp.getToday());
 
-        SharedPreferences prefs = getActivity().getSharedPreferences("steps", Context.MODE_PRIVATE);
+        SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
 
         since_boot = db.getCurrentSteps(); // do not use the value from the sharedPreferences
-        int pauseDifference = since_boot - prefs.getInt("pauseCount", since_boot);
+        int pauseDifference = since_boot - prefs.getInt(PAUSE_COUNT, since_boot);
 
         // register a sensorlistener to live update the UI if a step is taken
-        if (!prefs.contains("pauseCount")) {
+        if (!prefs.contains(PAUSE_COUNT)) {
             SensorManager sm =
                     (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
             Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);

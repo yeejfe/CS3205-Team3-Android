@@ -21,7 +21,13 @@ import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.Timestamp;
+import cs3205.subsystem3.health.data.source.Repository;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
+
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.ACCESS_TOKEN;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.EMPTY_STRING;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.NFC_HASH;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.TOKEN_SHARED_PREFERENCES;
 
 /**
  * Created by Yee on 10/06/17.
@@ -39,7 +45,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
         View view = inflater.inflate(R.layout.fragment_step_upload, null);
 
-        ArrayList<String> filesinfolder = GetFiles(getActivity().getExternalFilesDir(null).getAbsolutePath() + "/steps");
+        ArrayList<String> filesinfolder = Repository.getFiles(getActivity().getExternalFilesDir(null).getAbsolutePath() + "/steps");
 
         listView = (ListView) view.findViewById(R.id.steps_list_view);
         listView.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, filesinfolder));
@@ -72,9 +78,9 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
     }
 
     private void upload() {
-        SharedPreferences pref = getActivity().getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-        String token = pref.getString("access_token", "");
-        String hash = pref.getString("nfc_hash", "");
+        SharedPreferences pref = getActivity().getSharedPreferences(TOKEN_SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        String token = pref.getString(ACCESS_TOKEN, EMPTY_STRING);
+        String hash = pref.getString(NFC_HASH, EMPTY_STRING);
 
         File file = new File(selectedItem);
 
@@ -93,19 +99,5 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         rDS.close();
 
         buttonUpload.setEnabled(false);
-    }
-
-    public ArrayList<String> GetFiles(String dirPath) {
-        ArrayList<String> arrayListOfFiles = new ArrayList<String>();
-        File f = new File(dirPath);
-        f.mkdirs();
-        File[] listFiles = f.listFiles();
-        if (listFiles.length == 0) {
-            return new ArrayList<String>();
-        } else {
-            for (int i = 0; i < listFiles.length; i++)
-                arrayListOfFiles.add(listFiles[i].getAbsolutePath());
-        }
-        return arrayListOfFiles;
     }
 }
