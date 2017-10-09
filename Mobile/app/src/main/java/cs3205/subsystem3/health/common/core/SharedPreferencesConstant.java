@@ -16,4 +16,5 @@ public final class SharedPreferencesConstant {
     public static final String STEPS = "steps";
     public static final String STEPS_STOPPED = "stepsStopped";
     public static final String PAUSE_COUNT = "pauseCount";
+    public static final String FILENAME = "filename";
 }
