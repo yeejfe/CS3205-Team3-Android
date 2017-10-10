@@ -18,6 +18,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.utilities.HeartRateUploadTask;
 import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
@@ -60,7 +61,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (mHeartRateSensor == null) {
             mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
             mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Toast.makeText(this, "Sensor Activated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_ACTIVATE_SENSOR, Toast.LENGTH_SHORT).show();
         }
         mStart.setEnabled(false);
         mStop.setEnabled(true);
@@ -70,7 +71,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (mHeartRateSensor != null) {
             mSensorManager.unregisterListener(this);
             mHeartRateSensor = null;
-            Toast.makeText(this, "Sensor Deactivated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_DEACTIVATE_SENSOR, Toast.LENGTH_SHORT).show();
         }
         mStop.setEnabled(false);
         mStart.setEnabled(true);
@@ -78,7 +79,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
 
     public void clear(View view) {
         heartRates.clear();
-        Toast.makeText(this, "Previous Readings Cleared", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, AppMessage.TOAST_MESSAGE_CLEAR_PREVIOUS_CHANGES, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -89,7 +90,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     protected void onResume() {
         super.onResume();
         if (!SessionManager.isSessionValid(this)) {
-            Toast.makeText(this, "Session Expired", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_SESSION_EXPIRED, Toast.LENGTH_LONG).show();
             LogoutHelper.logout(this);
         } else {
             mSensorManager.registerListener(this, mHeartRateSensor,SensorManager.SENSOR_DELAY_NORMAL);
@@ -115,7 +116,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         switch (item.getItemId()) {
             case R.id.upload:
                 if (heartRates.size() == 0) {
-                    Toast.makeText(this, "Nothing To Upload", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, AppMessage.TOAST_MESSAGE_NOTHING_TO_UPLOAD, Toast.LENGTH_SHORT).show();
                     return false;
                 }
                 new HeartRateUploadTask().execute(String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);

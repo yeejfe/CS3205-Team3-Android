@@ -53,8 +53,8 @@ public class NFCReaderActivity extends AppCompatActivity {
                 Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_TAG_VALID, Toast.LENGTH_SHORT).show();
                 credentials = nfcReader.readCredentials();
                 Intent returnToLoginIntent = new Intent();
-                returnToLoginIntent.putExtra(Value.KEY_VALUE_SHARED_PREFERENCE_USERNAME, credentials[0]);
-                returnToLoginIntent.putExtra(Value.KEY_VALUE_SHARED_PREFERENCE_PASSWORD, credentials[1]);
+                returnToLoginIntent.putExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME, credentials[0]);
+                returnToLoginIntent.putExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD, credentials[1]);
                 setResult(RESULT_OK, returnToLoginIntent);
                 finish();
                 break;

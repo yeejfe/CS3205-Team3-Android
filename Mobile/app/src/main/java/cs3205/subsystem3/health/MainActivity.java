@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.ui.camera.CameraActivity;
@@ -99,7 +100,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         super.onResume();
 
         if (!isFirstOnResume && !SessionManager.isSessionValid(this)) {
-            Toast.makeText(this, "Session Expired", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_SESSION_EXPIRED, Toast.LENGTH_LONG).show();
             LogoutHelper.logout(this);
         }
 
@@ -187,7 +188,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
 
                 } else {
                     // Permission Denied
-                    Toast.makeText(MainActivity.this, "Body Sensor Permission Denied!", Toast.LENGTH_SHORT)
+                    Toast.makeText(MainActivity.this, AppMessage.TOAST_MESSAGE_BODY_SENSOR_PERMISSION_DENIED, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
@@ -199,7 +200,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
 
                 } else {
                     // Permission Denied
-                    Toast.makeText(MainActivity.this, "NFC Permission Denied!", Toast.LENGTH_SHORT)
+                    Toast.makeText(MainActivity.this, AppMessage.TOAST_MESSAGE_NFC_PERMISSION_DENIED, Toast.LENGTH_SHORT)
                             .show();
                 }
             default:

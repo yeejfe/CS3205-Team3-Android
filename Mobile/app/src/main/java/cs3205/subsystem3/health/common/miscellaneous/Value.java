@@ -5,8 +5,8 @@ package cs3205.subsystem3.health.common.miscellaneous;
  */
 
 public class Value {
-    public static final String KEY_VALUE_SHARED_PREFERENCE_USERNAME = "username";
-    public static final String KEY_VALUE_SHARED_PREFERENCE_PASSWORD = "password";
+    public static final String KEY_VALUE_LOGIN_INTENT_USERNAME = "username";
+    public static final String KEY_VALUE_LOGIN_INTENT_PASSWORD = "password";
     public static final String KEY_VALUE_SHARED_PREFERENCE_TOKEN = "Token_SharedPreferences";
     public static final String KEY_VALUE_SHARED_PREFERENCE_TIMESTAMP = "timestamp";
     public static final String KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN = "access_token";

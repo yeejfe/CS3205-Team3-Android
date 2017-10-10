@@ -18,6 +18,9 @@ import java.security.NoSuchAlgorithmException;
 
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
+import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.HashGenerator;
 import cs3205.subsystem3.health.common.utilities.LoginTask;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
@@ -100,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), AppMessage.TOAST_MESSAGE_LOGIN_FAILURE, Toast.LENGTH_LONG).show();
 
         _loginButton.setEnabled(true);
     }
@@ -108,14 +111,14 @@ public class LoginActivity extends AppCompatActivity {
     public boolean validate(String username, String password) {
 
         if (username.isEmpty()) {
-            _usernameText.setError("Username must not be empty");
+            _usernameText.setError(AppMessage.ERROR_MESSAGE_EMPTY_USERNAME);
             return false;
         } else {
             _usernameText.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 8 || password.length() > 20) {
-            _passwordText.setError("between 8 and 20 alphanumeric characters");
+            _passwordText.setError(AppMessage.ERROR_MESSAGE_INVALID_PASSWORD_LENGTH);
             return false;
         } else {
             _passwordText.setError(null);
@@ -141,8 +144,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 30) {
             if(resultCode == RESULT_OK) {
-                tag_username = data.getStringExtra("username");
-                tag_password = data.getStringExtra("password");
+                tag_username = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME);
+                tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
             }
             if (tag_password == null || tag_username == null) {
                 onLoginFailed();
@@ -151,15 +154,15 @@ public class LoginActivity extends AppCompatActivity {
             } else {
                 JSONObject body = new JSONObject();
                 try {
-                    body.put("grant_type", "password");
-                    body.put("username", username);
+                    body.put(RequestInfo.HEADER_GRANT_TYPE, RequestInfo.GRANT_TYPE_PASSWORD);
+                    body.put(RequestInfo.HEADER_USERNAME, username);
                     try {
                         byte[] passHash = HashGenerator.generateHash(password);
                         Log.d("password.hash", Base64.encodeToString(HashGenerator.generateHash(tag_password), Base64.DEFAULT));
-                        body.put("passhash", passHash);
+                        body.put(RequestInfo.HEADER_PASSWORD_HASH, passHash);
                     } catch (NoSuchAlgorithmException e) {
                         e.printStackTrace();
-                        Toast.makeText(this, "Fail To Generate Password Hash.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, AppMessage.TOAST_MESSAGE_GENERATION_OF_PASSWORD_HASH_FAILED, Toast.LENGTH_SHORT).show();
                         onLoginFailed();
                     }
 
@@ -177,9 +180,9 @@ public class LoginActivity extends AppCompatActivity {
     public void skipNfcTest(){
         JSONObject body = new JSONObject();
         try {
-            body.put("grant_type", "password");
-            body.put("username", "1");
-            body.put("passhash", "hash");
+            body.put(RequestInfo.HEADER_GRANT_TYPE, RequestInfo.GRANT_TYPE_PASSWORD);
+            body.put(RequestInfo.HEADER_USERNAME, "1");
+            body.put(RequestInfo.HEADER_PASSWORD_HASH, "hash");
         } catch (JSONException e) {
             e.printStackTrace();
         }
