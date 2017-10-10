@@ -20,7 +20,7 @@ import cs3205.subsystem3.health.common.logger.Tag;
  */
 
 public class JSONFileWriter extends JSONFile {
-    public static final String FOLDER = "/steps";
+    public static final String FOLDER = "steps";
     public static final String FRONT_SLASH = "/";
 
     public static void createFile(String extDirPath, String fileName, JSONObject jsonObject) {

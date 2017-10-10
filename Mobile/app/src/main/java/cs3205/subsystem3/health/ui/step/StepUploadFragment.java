@@ -24,6 +24,8 @@ import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.data.source.local.Repository;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
+import static cs3205.subsystem3.health.common.core.JSONFileWriter.FOLDER;
+import static cs3205.subsystem3.health.common.core.JSONFileWriter.FRONT_SLASH;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.ACCESS_TOKEN;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.EMPTY_STRING;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.NFC_HASH;
@@ -34,6 +36,7 @@ import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.TOK
  */
 
 public class StepUploadFragment extends Fragment implements View.OnClickListener {
+    public static final String STEPS = FRONT_SLASH + FOLDER;
     ListView listView;
     Button buttonUpload;
 
@@ -45,7 +48,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
         View view = inflater.inflate(R.layout.fragment_step_upload, null);
 
-        ArrayList<String> filesinfolder = Repository.getFiles(getActivity().getExternalFilesDir(null).getAbsolutePath() + "/steps");
+        ArrayList<String> filesinfolder = Repository.getFiles(getActivity().getExternalFilesDir(null).getAbsolutePath() + STEPS);
 
         listView = (ListView) view.findViewById(R.id.steps_list_view);
         listView.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, filesinfolder));
@@ -93,7 +96,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
         RemoteDataSource rDS = new RemoteDataSource();
         Log.i("UPload", "Upload");
-        rDS.buildFileUploadRequest(stream, token, hash, Timestamp.getEpochTimeStamp(), RemoteDataSource.Type.STEPS);
+        rDS.buildFileUploadRequest(stream, token, hash, Long.valueOf(file.getName()), RemoteDataSource.Type.STEPS);
         Toast.makeText(getActivity(), "Upload Successful.", Toast.LENGTH_SHORT).show();
         Log.i("UPload", rDS.toString());
         rDS.close();
