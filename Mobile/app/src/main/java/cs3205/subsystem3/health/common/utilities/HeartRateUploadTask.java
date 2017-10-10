@@ -43,14 +43,11 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
         SharedPreferences pref = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
         String token = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, "");
         String nfcTokenHash = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH, "");
-        System.out.println("token in heartrate reader: " + token);
         Invocation.Builder request = ClientBuilder.newClient().target(UPLOAD_URL).queryParam(QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
         Response response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + token).header(
                 RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).post(
                 Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
-        cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
         if (response.getStatus() != 200) {
-            cs3205.subsystem3.health.common.logger.Log.d("error", response.readEntity(String.class));
             return false;
         } else {
             return true;
@@ -59,7 +56,6 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean isUploadSuccess) {
-        cs3205.subsystem3.health.common.logger.Log.d("result", isUploadSuccess.toString());
         if (isUploadSuccess) {
             ((HeartRateReaderActivity) context).clear();
             Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_SUCCESS, Toast.LENGTH_LONG).show();

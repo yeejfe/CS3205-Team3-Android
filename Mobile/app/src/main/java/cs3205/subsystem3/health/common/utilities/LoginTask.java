@@ -54,7 +54,6 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     private boolean connectToServer(String body, String tag_password, Context context) {
-        //TODO: register a JSON reader and writer
         Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
         String nfcTokenHash = null;
         try {
@@ -64,9 +63,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             return false;
         }
         Response response = request.header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
-        Log.d("error", response.toString());
         if (response.getStatus() != 200) {
-            Log.d("error", response.readEntity(String.class));
             return false;
         } else {
             String strResponse = response.readEntity(String.class);
@@ -74,7 +71,6 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 try {
                     JSONObject jsonResponse = new JSONObject(strResponse);
                     String accessToken = jsonResponse.get(Value.KEY_VALUE_JWT_ACCESS_TOKEN).toString();
-                    Log.d("access token", accessToken);
                     Long timestamp = System.currentTimeMillis();
 
                     SharedPreferences savedSession = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
@@ -83,7 +79,6 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                     editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH,nfcTokenHash);
                     editor.putLong(Value.KEY_VALUE_SHARED_PREFERENCE_TIMESTAMP, timestamp);
                     editor.commit();
-                    System.out.println("the token1 is "+ accessToken);
 
                 } catch (JSONException e) {
                     e.printStackTrace();

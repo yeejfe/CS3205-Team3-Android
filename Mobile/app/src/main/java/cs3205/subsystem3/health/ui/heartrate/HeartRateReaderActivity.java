@@ -52,7 +52,6 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                 heartRates.add(heartRate);
             }
             mHeartRateReading.setText(String.valueOf(heartRate));
-            Log.d("sensorData", "" + sensorEvent.values[0]);
         }
     }
 
