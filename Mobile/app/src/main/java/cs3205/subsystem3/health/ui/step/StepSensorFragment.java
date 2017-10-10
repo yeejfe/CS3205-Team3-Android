@@ -106,6 +106,8 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
     public void stopStepsService() {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
+        saveSteps();
+
         prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
         prefs.edit().remove(FILENAME);
 
@@ -145,6 +147,12 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
         db.close();
 
+        int steps_today = Math.max(todayOffset + since_boot, 0);
+
+        Log.d(this.getClass().getName(), "Steps_today: " + steps_today);
+
+        setTextView(steps_today);
+
         retrieveSteps();
     }
 
@@ -158,14 +166,21 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         } catch (Exception e) {
             e.printStackTrace();
         }
-        StepsDB db = new StepsDB(getActivity());
-        db.saveCurrentSteps(since_boot);
-        db.close();
 
-        //save to file
+        saveSteps();
+    }
+
+    private void saveSteps() {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
-        String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeStamp()));
-        Repository.writeFile(getActivity().getExternalFilesDir(null).getAbsolutePath(), filename, data);
+        if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
+            StepsDB db = new StepsDB(getActivity());
+            db.saveCurrentSteps(since_boot);
+            db.close();
+
+            //save to file
+            String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeStamp()));
+            Repository.writeFile(getActivity().getExternalFilesDir(null).getAbsolutePath(), filename, data);
+        }
     }
 
     @Override
@@ -194,7 +209,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
             setTextView(steps_today);
 
-            updateSteps(1);
+            updateSteps(1, Timestamp.getEpochTimeStamp());
 
             //save to file
             JSONFileWriter.toFile(prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeStamp())), JSONUtil.stepsDataToJSON(data));
@@ -210,12 +225,12 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         }
     }
 
-    private void updateSteps(int steps) {
+    private void updateSteps(int steps, long timestamp) {
         boolean timeValueExist = false;
         int index = -1;
 
         if (data.getTimestamp() == 0) {
-            data.setTimestamp(Timestamp.getEpochTimeStamp());
+            data.setTimestamp(timestamp);
         }
 
         ArrayList<Integer> time = data.getTime();
@@ -258,10 +273,31 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     private void showSteps() {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
         if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
-            setViewServiceStopped();
-        } else {
             setViewServiceStarted();
+        } else {
+            setViewServiceStopped();
         }
+
+        StepsDB db = new StepsDB(getActivity());
+
+        // read todays offset
+        todayOffset = db.getSteps(Timestamp.getToday());
+
+        since_boot = db.getCurrentSteps(); // do not use the value from the sharedPreferences
+        int pauseDifference = since_boot - prefs.getInt(PAUSE_COUNT, since_boot);
+
+        since_boot -= pauseDifference;
+
+        total_start = db.getTotalWithoutToday();
+        total_days = db.getDays();
+
+        db.close();
+
+        int steps_today = Math.max(todayOffset + since_boot, 0);
+
+        Log.d(this.getClass().getName(), "UI - showSteps | Steps_today: " + steps_today);
+
+        setTextView(steps_today);
     }
 
     private void retrieveSteps() {

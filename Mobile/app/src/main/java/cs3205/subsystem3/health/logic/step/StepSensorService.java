@@ -102,7 +102,7 @@ public class StepSensorService extends Service implements SensorEventListener {
         reRegisterSensor();
         //updateNotificationState();
         SharedPreferences prefs = getSharedPreferences(STEPS, Context.MODE_PRIVATE);
-        getSteps(prefs);
+        //getSteps(prefs);
     }
 
     @Override
