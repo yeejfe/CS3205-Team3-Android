@@ -42,7 +42,7 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
     private boolean upload(String timeStamp, String avgHeartRate) {
         SharedPreferences pref = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
         String token = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, "");
-        String nfcTokenHash = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_HASH, "");
+        String nfcTokenHash = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH, "");
         System.out.println("token in heartrate reader: " + token);
         Invocation.Builder request = ClientBuilder.newClient().target(UPLOAD_URL).queryParam(QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
         Response response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + token).header(

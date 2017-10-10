@@ -10,7 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
-import java.security.Timestamp;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -19,6 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.ui.login.LoginActivity;
 
 /**
@@ -62,7 +63,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             e.printStackTrace();
             return false;
         }
-        Response response = request.header("x-nfc-token", nfcTokenHash).post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+        Response response = request.header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
         Log.d("error", response.toString());
         if (response.getStatus() != 200) {
             Log.d("error", response.readEntity(String.class));
@@ -72,15 +73,15 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             if (!strResponse.isEmpty()) {
                 try {
                     JSONObject jsonResponse = new JSONObject(strResponse);
-                    String accessToken = jsonResponse.get("access_token").toString();
+                    String accessToken = jsonResponse.get(Value.KEY_VALUE_JWT_ACCESS_TOKEN).toString();
                     Log.d("access token", accessToken);
                     Long timestamp = System.currentTimeMillis();
 
-                    SharedPreferences savedSession = context.getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
+                    SharedPreferences savedSession = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
                     SharedPreferences.Editor editor = savedSession.edit();
-                    editor.putString("access_token", accessToken);
-                    editor.putString("nfc_hash",nfcTokenHash);
-                    editor.putLong("timestamp", timestamp);
+                    editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, accessToken);
+                    editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH,nfcTokenHash);
+                    editor.putLong(Value.KEY_VALUE_SHARED_PREFERENCE_TIMESTAMP, timestamp);
                     editor.commit();
                     System.out.println("the token1 is "+ accessToken);
 
