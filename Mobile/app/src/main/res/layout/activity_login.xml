@@ -30,6 +30,7 @@
                 android:layout_height="wrap_content"
                 android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
                 android:inputType="textFilter"
+                android:singleLine="true"
                 android:hint="Username" />
         </android.support.design.widget.TextInputLayout>
 
