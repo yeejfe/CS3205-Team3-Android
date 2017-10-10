@@ -1,6 +1,5 @@
 package cs3205.subsystem3.health.ui.heartrate;
 
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -18,10 +17,10 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import cs3205.subsystem3.health.MainActivity;
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.utilities.HeartRateUploadTask;
 import cs3205.subsystem3.health.common.utilities.LogoutHelper;
+import cs3205.subsystem3.health.common.utilities.SessionManager;
 
 public class HeartRateReaderActivity extends AppCompatActivity implements SensorEventListener{
     private SensorManager mSensorManager;
@@ -89,7 +88,12 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mHeartRateSensor,SensorManager.SENSOR_DELAY_NORMAL);
+        if (!SessionManager.isSessionValid(this)) {
+            Toast.makeText(this, "Session Expired", Toast.LENGTH_LONG).show();
+            LogoutHelper.logout(this);
+        } else {
+            mSensorManager.registerListener(this, mHeartRateSensor,SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     @Override
@@ -123,6 +127,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                 return super.onOptionsItemSelected(item);
         }
     }
+
 
     private int computeAverageHeartRate() {
         float sum = 0;

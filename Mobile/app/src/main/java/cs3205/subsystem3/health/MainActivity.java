@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
 import cs3205.subsystem3.health.common.utilities.LogoutHelper;
+import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.ui.camera.CameraActivity;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 import cs3205.subsystem3.health.ui.login.LoginActivity;
@@ -29,11 +30,13 @@ import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 import cs3205.subsystem3.health.ui.step.StepSensorFragment;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
+    private boolean isFirstOnResume;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        isFirstOnResume = true;
 
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
@@ -89,6 +92,19 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         getMenuInflater().inflate(R.menu.main, menu);
         getMenuInflater().inflate(R.menu.logout, menu);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (!isFirstOnResume && !SessionManager.isSessionValid(this)) {
+            Toast.makeText(this, "Session Expired", Toast.LENGTH_LONG).show();
+            LogoutHelper.logout(this);
+        }
+
+        isFirstOnResume = false;
+
     }
 
     @Override

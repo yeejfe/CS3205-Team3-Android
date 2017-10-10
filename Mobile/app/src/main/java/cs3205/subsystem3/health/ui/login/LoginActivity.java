@@ -39,7 +39,6 @@ public class LoginActivity extends AppCompatActivity {
     private String tag_password;
     private ProgressBar progressBar;
 
-    final static String LOGIN_URL = "https://cs3205-3.comp.nus.edu.sg/oauth/token";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

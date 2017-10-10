@@ -118,6 +118,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     @Override
     public void onResume() {
         super.onResume();
+
         StepsDB db = new StepsDB(getActivity());
 
         // read todays offset
