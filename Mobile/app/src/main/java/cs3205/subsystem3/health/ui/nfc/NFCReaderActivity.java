@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.miscellaneous.Message;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.logic.nfc.NFCReader;
 
 public class NFCReaderActivity extends AppCompatActivity {
@@ -24,7 +26,7 @@ public class NFCReaderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_nfcreader);
 
         mNFCInstruction = (TextView) findViewById(R.id.nfc_instruction);
-        mNFCInstruction.setText("Please scan your NFC tag now.");
+        mNFCInstruction.setText(Message.MESSAGE_SCAN_NFC_TAG);
 
         checkNFCStatus();
     }
@@ -32,13 +34,13 @@ public class NFCReaderActivity extends AppCompatActivity {
     private void checkNFCStatus() {
         NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter!= null && nfcAdapter.isEnabled()) {
-            Toast.makeText(this, "NFC available!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Message.TOAST_MESSAGE_NFC_AVAILABLE, Toast.LENGTH_LONG).show();
             nfcReader = new NFCReader();
             nfcReader.setAdapter(nfcAdapter);
             mPendingIntent = PendingIntent.getActivity(this, 0,
                     new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         } else {
-            Toast.makeText(this, "NFC not available :(", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Message.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_LONG).show();
             finish();
         }
     }
@@ -48,22 +50,22 @@ public class NFCReaderActivity extends AppCompatActivity {
         mNFCInstruction.setVisibility(TextView.INVISIBLE);
         switch (nfcReader.dispatchTagByType(action, intent)) {
             case TAG_VALID:
-                Toast.makeText(this, "onResume() - TAG_VALID", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, Message.TOAST_MESSAGE_NFC_TAG_VALID, Toast.LENGTH_SHORT).show();
                 credentials = nfcReader.readCredentials();
                 Intent returnToLoginIntent = new Intent();
-                returnToLoginIntent.putExtra("username", credentials[0]);
-                returnToLoginIntent.putExtra("password", credentials[1]);
+                returnToLoginIntent.putExtra(Value.KEY_VALUE_SHARED_PREFERENCE_USERNAME, credentials[0]);
+                returnToLoginIntent.putExtra(Value.KEY_VALUE_SHARED_PREFERENCE_PASSWORD, credentials[1]);
                 setResult(RESULT_OK, returnToLoginIntent);
                 finish();
                 break;
             case TAG_ABSENT:
-                Toast.makeText(this, "onResume() - NO_TAG_DISCOVERED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, Message.TOAST_MESSAGE_NO_NFC_TAG_DISCOVERED, Toast.LENGTH_SHORT).show();
                 break;
             case TAG_INCOMPATIBLE_TYPE:
-                Toast.makeText(this, "onResume() - TAG_INCOMPATIBLE", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, Message.TOAST_MESSAGE_NFC_TAG_INCOMPATIBLE, Toast.LENGTH_SHORT).show();
                 break;
             case TAG_INVALID_INFO:
-                Toast.makeText(this, "onResume() - TAG_INVALID_INFO", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, Message.TOAST_MESSAGE_NFC_TAG_INVALID_INFO, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
