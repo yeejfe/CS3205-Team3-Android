@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.Timestamp;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -73,11 +74,13 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                     JSONObject jsonResponse = new JSONObject(strResponse);
                     String accessToken = jsonResponse.get("access_token").toString();
                     Log.d("access token", accessToken);
+                    Long timestamp = System.currentTimeMillis();
 
                     SharedPreferences savedSession = context.getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
                     SharedPreferences.Editor editor = savedSession.edit();
                     editor.putString("access_token", accessToken);
                     editor.putString("nfc_hash",nfcTokenHash);
+                    editor.putLong("timestamp", timestamp);
                     editor.commit();
                     System.out.println("the token1 is "+ accessToken);
 

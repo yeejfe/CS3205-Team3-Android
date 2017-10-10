@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
+import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.ui.camera.CameraActivity;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 import cs3205.subsystem3.health.ui.login.LoginActivity;
@@ -100,9 +101,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
             case R.id.action_settings:
                 return true;
             case R.id.logout:
-                Intent logoutFromMainIntent = new Intent(this, MainActivity.class);
-                logoutFromMainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(logoutFromMainIntent);
+                LogoutHelper.logout(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import cs3205.subsystem3.health.MainActivity;
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.utilities.HeartRateUploadTask;
+import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 
 public class HeartRateReaderActivity extends AppCompatActivity implements SensorEventListener{
     private SensorManager mSensorManager;
@@ -116,9 +117,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                 new HeartRateUploadTask().execute(String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);
                 return true;
             case R.id.logout:
-                Intent logoutFromMainIntent = new Intent(this, MainActivity.class);
-                logoutFromMainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(logoutFromMainIntent);
+                LogoutHelper.logout(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
