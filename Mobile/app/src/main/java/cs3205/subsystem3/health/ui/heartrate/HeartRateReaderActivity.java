@@ -38,6 +38,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         mHeartRateReading = (TextView) findViewById(R.id.hear_rate_reading);
         mStart = (Button) findViewById(R.id.start_sensor);
         mStop = (Button) findViewById(R.id.stop_sensor);
+
     }
 
     @Override
