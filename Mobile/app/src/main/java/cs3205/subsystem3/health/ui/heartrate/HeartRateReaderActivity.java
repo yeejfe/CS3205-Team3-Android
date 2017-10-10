@@ -1,5 +1,6 @@
 package cs3205.subsystem3.health.ui.heartrate;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import cs3205.subsystem3.health.MainActivity;
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.utilities.HeartRateUploadTask;
 
@@ -99,6 +101,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.upload, menu);
+        inflater.inflate(R.menu.logout, menu);
         return true;
     }
 
@@ -111,6 +114,11 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                     return false;
                 }
                 new HeartRateUploadTask().execute(String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);
+                return true;
+            case R.id.logout:
+                Intent logoutFromMainIntent = new Intent(this, MainActivity.class);
+                logoutFromMainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(logoutFromMainIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
