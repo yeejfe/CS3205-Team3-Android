@@ -12,6 +12,9 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
+import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 
 /**
@@ -37,12 +40,13 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     private boolean upload(String timeStamp, String avgHeartRate) {
-        SharedPreferences pref = context.getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-        String token = pref.getString("access_token", "");
-        String nfcTokenHash = pref.getString("nfc_hash", "");
+        SharedPreferences pref = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
+        String token = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, "");
+        String nfcTokenHash = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_HASH, "");
         System.out.println("token in heartrate reader: " + token);
         Invocation.Builder request = ClientBuilder.newClient().target(UPLOAD_URL).queryParam(QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
-        Response response = request.header("Authorization", "Bearer " + token).header("x-nfc-token", nfcTokenHash).post(
+        Response response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + token).header(
+                RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).post(
                 Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
         cs3205.subsystem3.health.common.logger.Log.d("error", response.toString());
         if (response.getStatus() != 200) {
@@ -58,9 +62,9 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
         cs3205.subsystem3.health.common.logger.Log.d("result", isUploadSuccess.toString());
         if (isUploadSuccess) {
             ((HeartRateReaderActivity) context).clear();
-            Toast.makeText(context, "Upload Successful.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_SUCCESS, Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(context, "Upload Failed.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_FAILURE, Toast.LENGTH_LONG).show();
         }
     }
 }

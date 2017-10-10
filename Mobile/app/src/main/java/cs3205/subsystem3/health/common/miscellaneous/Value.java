@@ -9,4 +9,6 @@ public class Value {
     public static final String KEY_VALUE_SHARED_PREFERENCE_PASSWORD = "password";
     public static final String KEY_VALUE_SHARED_PREFERENCE_TOKEN = "Token_SharedPreferences";
     public static final String KEY_VALUE_SHARED_PREFERENCE_TIMESTAMP = "timestamp";
+    public static final String KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN = "access_token";
+    public static final String KEY_VALUE_SHARED_PREFERENCE_NFC_HASH = "nfc_hash";
 }
