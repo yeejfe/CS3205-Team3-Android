@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,7 +20,7 @@ import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
-import cs3205.subsystem3.health.common.utilities.HashGenerator;
+import cs3205.subsystem3.health.common.utilities.Crypto;
 import cs3205.subsystem3.health.common.utilities.LoginTask;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
@@ -157,9 +156,7 @@ public class LoginActivity extends AppCompatActivity {
                     body.put(RequestInfo.HEADER_GRANT_TYPE, RequestInfo.GRANT_TYPE_PASSWORD);
                     body.put(RequestInfo.HEADER_USERNAME, username);
                     try {
-                        byte[] passHash = HashGenerator.generateHash(password);
-                        Log.d("password.hash", Base64.encodeToString(HashGenerator.generateHash(tag_password), Base64.DEFAULT));
-                        body.put(RequestInfo.HEADER_PASSWORD_HASH, passHash);
+                        body.put(RequestInfo.HEADER_PASSWORD_HASH, Crypto.generateHash(password.getBytes()));
                     } catch (NoSuchAlgorithmException e) {
                         e.printStackTrace();
                         Toast.makeText(this, AppMessage.TOAST_MESSAGE_GENERATION_OF_PASSWORD_HASH_FAILED, Toast.LENGTH_SHORT).show();

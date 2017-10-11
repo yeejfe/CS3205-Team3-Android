@@ -9,6 +9,7 @@ import android.util.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -56,7 +57,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
         String nfcTokenHash = null;
         try {
-            nfcTokenHash = Base64.encodeToString(HashGenerator.generateHash(tag_password), Base64.URL_SAFE);
+            nfcTokenHash = Base64.encodeToString(Crypto.generateURLSafeHash(tag_password.getBytes()), Base64.URL_SAFE);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return false;
@@ -70,7 +71,6 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 try {
                     JSONObject jsonResponse = new JSONObject(strResponse);
                     String accessToken = jsonResponse.get(Value.KEY_VALUE_JWT_ACCESS_TOKEN).toString();
-
                     SharedPreferences savedSession = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
                     SharedPreferences.Editor editor = savedSession.edit();
                     editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, accessToken);
