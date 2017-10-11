@@ -167,15 +167,6 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         }
     }
 
-    private void startNFCReader() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.NFC) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.NFC}, 51);
-        } else {
-            Intent startNFCReadingIntent = new Intent(getApplicationContext(), NFCReaderActivity.class);
-            startActivity(startNFCReadingIntent);
-        }
-    }
-
     private void startCamera() {
         Intent cameraIntent = new Intent(this, CameraActivity.class);
         startActivity(cameraIntent);
