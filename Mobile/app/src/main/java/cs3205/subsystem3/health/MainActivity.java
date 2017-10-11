@@ -33,10 +33,13 @@ import cs3205.subsystem3.health.ui.step.StepSensorFragment;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
 
+    private boolean isOnCreate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        isOnCreate = true;
 
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
@@ -108,8 +111,11 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         if (SessionManager.isTimerSet()) {
             SessionManager.resetTimer(this);
         } else {
-            SessionManager.setTimer(this);
+            if (!isOnCreate) {
+                SessionManager.setTimer(this);
+            }
         }
+        isOnCreate = false;
     }
 
     @Override
