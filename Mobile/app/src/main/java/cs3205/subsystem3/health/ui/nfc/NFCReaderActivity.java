@@ -80,7 +80,9 @@ public class NFCReaderActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        SessionManager.cancelTimer();
+        if (SessionManager.isTimerSet()) {
+            SessionManager.cancelTimer();
+        }
         if (nfcReader.getAdapter() != null) {
             nfcReader.getAdapter().enableForegroundDispatch(this, mPendingIntent, null, null);
         }

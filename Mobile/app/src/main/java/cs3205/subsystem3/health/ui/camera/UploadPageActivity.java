@@ -62,7 +62,9 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
     @Override
     protected void onResume() {
         super.onResume();
-        SessionManager.cancelTimer();
+        if (SessionManager.isTimerSet()) {
+            SessionManager.cancelTimer();
+        }
     }
 
     @Override

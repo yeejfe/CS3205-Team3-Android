@@ -97,7 +97,9 @@ public class CameraActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        SessionManager.cancelTimer();
+        if (SessionManager.isTimerSet()) {
+            SessionManager.cancelTimer();
+        }
     }
 
     @Override

@@ -87,7 +87,9 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     @Override
     protected void onResume() {
         super.onResume();
-        SessionManager.cancelTimer();
+        if (SessionManager.isTimerSet()) {
+            SessionManager.cancelTimer();
+        }
         mSensorManager.registerListener(this, mHeartRateSensor,SensorManager.SENSOR_DELAY_NORMAL);
 
     }
