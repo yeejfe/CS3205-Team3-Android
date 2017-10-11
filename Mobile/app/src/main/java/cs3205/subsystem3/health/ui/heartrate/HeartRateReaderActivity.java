@@ -75,8 +75,12 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     }
 
     public void clear(View view) {
-        heartRates.clear();
-        Toast.makeText(this, AppMessage.TOAST_MESSAGE_CLEAR_PREVIOUS_CHANGES, Toast.LENGTH_SHORT).show();
+        if (mStop.isEnabled()) {
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_STOP_BEFORE_CLEAR, Toast.LENGTH_SHORT).show();
+        } else {
+            heartRates.clear();
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_CLEAR_PREVIOUS_CHANGES, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -115,7 +119,10 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.upload:
-                if (heartRates.size() == 0) {
+                if (mStop.isEnabled()) {
+                    Toast.makeText(this, AppMessage.TOAST_MESSAGE_STOP_BEFORE_UPLOAD, Toast.LENGTH_SHORT).show();
+                    return false;
+                } else if (heartRates.size() == 0) {
                     Toast.makeText(this, AppMessage.TOAST_MESSAGE_NOTHING_TO_UPLOAD, Toast.LENGTH_SHORT).show();
                     return false;
                 }
