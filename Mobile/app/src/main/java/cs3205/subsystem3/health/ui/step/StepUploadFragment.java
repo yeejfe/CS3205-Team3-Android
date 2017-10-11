@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.data.source.local.Repository;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 

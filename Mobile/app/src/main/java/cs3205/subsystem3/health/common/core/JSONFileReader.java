@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
  * Created by Yee on 10/09/17.
  */
 
-public class JSONFileReader extends JSONFile {
+public class JSONFileReader extends FileHelper {
     public static JSONObject toJSONObj(String filePath) throws IOException {
         JSONObject newJSONObj = new JSONObject();
         try {
