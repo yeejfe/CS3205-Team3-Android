@@ -15,11 +15,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.common.utilities.UploadHandler;
 
@@ -37,8 +35,6 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
     private VideoView videoToPreview;
     private Button bUploadImage, bUploadVideo;
     private TextView uploadImageName, uploadVideoName;
-
-
 
     private String selectedPath = null;
 
@@ -65,11 +61,18 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
 
     @Override
     protected void onResume() {
-        if (!SessionManager.isSessionValid(this)) {
-            Toast.makeText(this, "Session Expired", Toast.LENGTH_LONG).show();
-            LogoutHelper.logout(this);
-        }
         super.onResume();
+        SessionManager.cancelTimer();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (SessionManager.isTimerSet()) {
+            SessionManager.resetTimer(this);
+        } else {
+            SessionManager.setTimer(this);
+        }
     }
 
     @Override

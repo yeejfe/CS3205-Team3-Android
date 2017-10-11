@@ -2,6 +2,7 @@ package cs3205.subsystem3.health.ui.camera;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -13,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import java.io.File;
@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.logic.camera.AlbumStorageDirFactory;
 import cs3205.subsystem3.health.logic.camera.BaseAlbumDirFactory;
@@ -97,11 +96,18 @@ public class CameraActivity extends Activity {
 
     @Override
     protected void onResume() {
-        if (!SessionManager.isSessionValid(this)) {
-            Toast.makeText(this, "Session Expired", Toast.LENGTH_LONG).show();
-            LogoutHelper.logout(this);
-        }
         super.onResume();
+        SessionManager.cancelTimer();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (SessionManager.isTimerSet()) {
+            SessionManager.resetTimer(this);
+        } else {
+            SessionManager.setTimer(this);
+        }
     }
 
     private File createImageFile() throws IOException {

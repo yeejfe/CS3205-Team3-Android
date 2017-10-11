@@ -6,7 +6,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -88,18 +87,19 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     @Override
     protected void onResume() {
         super.onResume();
-        if (!SessionManager.isSessionValid(this)) {
-            Toast.makeText(this, AppMessage.TOAST_MESSAGE_SESSION_EXPIRED, Toast.LENGTH_LONG).show();
-            LogoutHelper.logout(this);
-        } else {
-            mSensorManager.registerListener(this, mHeartRateSensor,SensorManager.SENSOR_DELAY_NORMAL);
-        }
+        SessionManager.cancelTimer();
+        mSensorManager.registerListener(this, mHeartRateSensor,SensorManager.SENSOR_DELAY_NORMAL);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mSensorManager.unregisterListener(this);
+        if (SessionManager.isTimerSet()) {
+            SessionManager.resetTimer(this);
+        } else {
+            SessionManager.setTimer(this);
+        }
     }
 
     @Override

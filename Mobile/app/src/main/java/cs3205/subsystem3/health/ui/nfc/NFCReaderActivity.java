@@ -11,6 +11,7 @@ import android.widget.Toast;
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
+import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.logic.nfc.NFCReader;
 
 public class NFCReaderActivity extends AppCompatActivity {
@@ -79,10 +80,19 @@ public class NFCReaderActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        SessionManager.cancelTimer();
         if (nfcReader.getAdapter() != null) {
             nfcReader.getAdapter().enableForegroundDispatch(this, mPendingIntent, null, null);
         }
     }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (SessionManager.isTimerSet()) {
+            SessionManager.resetTimer(this);
+        } else {
+            SessionManager.setTimer(this);
+        }
+    }
 }

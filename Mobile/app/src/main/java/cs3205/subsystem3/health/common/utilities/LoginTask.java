@@ -17,7 +17,6 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.ui.login.LoginActivity;
@@ -71,13 +70,11 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 try {
                     JSONObject jsonResponse = new JSONObject(strResponse);
                     String accessToken = jsonResponse.get(Value.KEY_VALUE_JWT_ACCESS_TOKEN).toString();
-                    Long timestamp = System.currentTimeMillis();
 
                     SharedPreferences savedSession = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
                     SharedPreferences.Editor editor = savedSession.edit();
                     editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, accessToken);
                     editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH,nfcTokenHash);
-                    editor.putLong(Value.KEY_VALUE_SHARED_PREFERENCE_TIMESTAMP, timestamp);
                     editor.commit();
 
                 } catch (JSONException e) {
