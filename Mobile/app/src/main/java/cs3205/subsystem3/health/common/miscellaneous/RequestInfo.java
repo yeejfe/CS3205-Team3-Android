@@ -12,5 +12,8 @@ public class RequestInfo {
     public static final String HEADER_USERNAME = "username";
     public static final String GRANT_TYPE_PASSWORD = "password";
     public static final String HEADER_PASSWORD_HASH = "passhash";
+    public static final String URL_HEART_RATE_UPLOAD = "https://cs3205-3.comp.nus.edu.sg/session/heart";
+    public static final String URL_LOGIN = "https://cs3205-3.comp.nus.edu.sg/oauth/token";
+    public static final String QUERY_PARAMETER_TIMESTAMP = "timestamp";
 
 }

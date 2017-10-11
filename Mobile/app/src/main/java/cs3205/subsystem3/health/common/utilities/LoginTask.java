@@ -9,7 +9,6 @@ import android.util.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -28,7 +27,6 @@ import cs3205.subsystem3.health.ui.login.LoginActivity;
 
 
 public class LoginTask extends AsyncTask<Object, Void, Boolean> {
-    final static String LOGIN_URL = "https://cs3205-3.comp.nus.edu.sg/oauth/token";
     private Context context;
 
     @Override
@@ -54,7 +52,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     private boolean connectToServer(String body, String tag_password, Context context) {
-        Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
+        Invocation.Builder request = ClientBuilder.newClient().target(RequestInfo.URL_LOGIN).request();
         String nfcTokenHash = null;
         try {
             nfcTokenHash = Base64.encodeToString(Crypto.generateHash(tag_password.getBytes()), Base64.URL_SAFE);

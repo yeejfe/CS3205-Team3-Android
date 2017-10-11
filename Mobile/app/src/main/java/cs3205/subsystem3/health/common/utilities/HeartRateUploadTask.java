@@ -23,9 +23,6 @@ import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 
 public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
 
-    final static String UPLOAD_URL = "https://cs3205-3.comp.nus.edu.sg/session/heart" ;
-    final static String QUERY_PARAMETER_TIMESTAMP = "timestamp";
-
     private Context context;
 
     @Override
@@ -43,7 +40,9 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
         SharedPreferences pref = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
         String token = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, "");
         String nfcTokenHash = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH, "");
-        Invocation.Builder request = ClientBuilder.newClient().target(UPLOAD_URL).queryParam(QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
+        Invocation.Builder request = ClientBuilder.newClient()
+                .target(RequestInfo.URL_HEART_RATE_UPLOAD).
+                        queryParam(RequestInfo.QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
         Response response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + token).header(
                 RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).post(
                 Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
