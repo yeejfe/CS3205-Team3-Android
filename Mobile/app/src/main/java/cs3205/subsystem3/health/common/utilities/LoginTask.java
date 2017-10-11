@@ -57,7 +57,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         Invocation.Builder request = ClientBuilder.newClient().target(LOGIN_URL).request();
         String nfcTokenHash = null;
         try {
-            nfcTokenHash = Base64.encodeToString(Crypto.generateURLSafeHash(tag_password.getBytes()), Base64.URL_SAFE);
+            nfcTokenHash = Base64.encodeToString(Crypto.generateHash(tag_password.getBytes()), Base64.URL_SAFE);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return false;

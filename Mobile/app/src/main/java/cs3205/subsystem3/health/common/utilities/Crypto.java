@@ -11,12 +11,6 @@ import java.util.Random;
 
 public class Crypto {
 
-    public static byte[] generateURLSafeHash(byte[] input) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] result = digest.digest(input);
-        return result;
-    }
-
     public static byte[] generateHash(byte[] input) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] result = digest.digest(input);
