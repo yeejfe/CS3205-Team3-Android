@@ -102,7 +102,7 @@ public class StepSensorService extends Service implements SensorEventListener {
         reRegisterSensor();
         //updateNotificationState();
         SharedPreferences prefs = getSharedPreferences(STEPS, Context.MODE_PRIVATE);
-        //getSteps(prefs);
+        retrieveSteps(prefs);
     }
 
     @Override
@@ -220,8 +220,13 @@ public class StepSensorService extends Service implements SensorEventListener {
         }
     }
 
-    private void getSteps(SharedPreferences prefs){
-        String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeStamp()));
-        data = Repository.getFile(getApplicationContext().getExternalFilesDir(null).getAbsolutePath(), filename);
+    private void retrieveSteps(SharedPreferences prefs) {
+        if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
+            String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
+            prefs.edit().putString(FILENAME, filename);
+            data = Repository.getFile(getApplication().getExternalFilesDir(null).getAbsolutePath(), filename);
+        } else {
+            data = new Steps(0);
+        }
     }
 }

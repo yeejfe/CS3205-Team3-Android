@@ -35,12 +35,15 @@ import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.FIL
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.PAUSE_COUNT;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS_STOPPED;
+import static cs3205.subsystem3.health.logic.step.StepsUtil.updateSteps;
 
 /**
  * Created by Yee on 09/27/17.
  */
 
 public class StepSensorFragment extends Fragment implements SensorEventListener, OnClickListener {
+
+    private String TAG = this.getClass().getName();
 
     private TextView stepsView, totalView, averageView, textView;
     private Button buttonStart;
@@ -71,6 +74,8 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         totalView = (TextView) view.findViewById(R.id.total);
         averageView = (TextView) view.findViewById(R.id.average);
 
+        Log.d(TAG, "onCreateView");
+
         showSteps();
 
         return view;
@@ -97,8 +102,9 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     public void startStepsService() {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(STEPS_STOPPED, false).commit();
+        prefs.edit().putString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis())).commit();
 
-        retrieveSteps();
+        retrieveSteps("startStepsService");
 
         getActivity().startService(new Intent(getActivity(), StepSensorService.class));
         setViewServiceStarted();
@@ -118,6 +124,8 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     @Override
     public void onResume() {
         super.onResume();
+
+        setView();
 
         StepsDB db = new StepsDB(getActivity());
 
@@ -154,7 +162,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
         setTextView(steps_today);
 
-        retrieveSteps();
+        retrieveSteps("onResume");
     }
 
     @Override
@@ -179,7 +187,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
             db.close();
 
             //save to file
-            String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeStamp()));
+            String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
             Repository.writeFile(getActivity().getExternalFilesDir(null).getAbsolutePath(), filename, data);
         }
     }
@@ -210,10 +218,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
             setTextView(steps_today);
 
-            updateSteps(1, Timestamp.getEpochTimeStamp());
-
-            //save to file
-            JSONFileWriter.toFile(prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeStamp())), JSONUtil.stepsDataToJSON(data));
+            data = updateSteps(data, Timestamp.getEpochTimeMillis());
         }
     }
 
@@ -226,58 +231,9 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         }
     }
 
-    private void updateSteps(int steps, long timestamp) {
-        boolean timeValueExist = false;
-        int index = -1;
-
-        if (data.getTimestamp() == 0) {
-            data.setTimestamp(timestamp);
-        }
-
-        ArrayList<Integer> time = data.getTime();
-        if (time.size() == 0) {
-            time.add(0);
-        } else {
-            int timeValue = (int) (Timestamp.getEpochTimeStamp() - data.getTimestamp());
-            if (!time.contains(timeValue)) {
-                time.add(timeValue);
-            } else {
-                index = time.indexOf(timeValue);
-                timeValueExist = true;
-            }
-        }
-        data.setTime(time);
-
-        ArrayList<Steps.Channel> channels = data.getChannels();
-        ArrayList<Integer> values = new ArrayList<Integer>();
-        Steps.Channel channel = data.new Channel();
-        if (data.getChannels().size() == 0) {
-            values.add(steps);
-            channel.setValues(values);
-            channels.add(channel);
-        } else {
-            for (int i = 0; i < channels.size(); i++) {
-                values = channels.get(i).getValues();
-                if (timeValueExist) {
-                    int updatedValue = values.get(index) + steps;
-                    values.set(index, updatedValue);
-                } else {
-                    values.add(steps);
-                }
-                channel.setValues(values);
-                channels.set(i, channel);
-            }
-        }
-        data.setChannels(channels);
-    }
-
     private void showSteps() {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
-        if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
-            setViewServiceStarted();
-        } else {
-            setViewServiceStopped();
-        }
+        setView();
 
         StepsDB db = new StepsDB(getActivity());
 
@@ -296,19 +252,29 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
         int steps_today = Math.max(todayOffset + since_boot, 0);
 
-        Log.d(this.getClass().getName(), "UI - showSteps | Steps_today: " + steps_today);
+        Log.d(this.getClass().getName(), "UI - showSteps | Steps_today: " + steps_today + " | " + prefs.getString(FILENAME, "NONE"));
 
         setTextView(steps_today);
     }
 
-    private void retrieveSteps() {
+    private void retrieveSteps(String methodName) {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
         if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
-            String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeStamp()));
+            String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
             prefs.edit().putString(FILENAME, filename);
             data = Repository.getFile(getActivity().getExternalFilesDir(null).getAbsolutePath(), filename);
         } else {
             data = new Steps(0);
+            Log.d("Prefs","new STEPS | method: " + methodName);
+        }
+    }
+
+    private void setView(){
+        SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
+        if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
+            setViewServiceStarted();
+        } else {
+            setViewServiceStopped();
         }
     }
 

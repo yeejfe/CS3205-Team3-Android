@@ -7,26 +7,27 @@ import java.util.ArrayList;
  */
 
 public class Steps {
-    public static final String FIELD_INTERVAL = "interval";
+    public static final String FIELD_TIME_FORMAT = "timeFormat";
     public static final String FIELD_TYPE = "type";
-    public static final String FIELD_TIMESTAMP = "timestamp";
+    public static final String FIELD_RECORD = "timeOfRecord";
     public static final String FIELD_TIME = "time";
     public static final String FIELD_CHANNEL = "channel";
+    public static final String[] FIELD_CHANNELS_TYPES = {"noOfSteps","differenceInTime"};
 
-    private static final String INTERVAL = "seconds";
+    private static final String MILLISECONDS = "milliseconds";
     private static final String TYPE = "steps";
 
     private String type;
     private String interval;
     private long timestamp;
-    private ArrayList<Integer> time;
+    private ArrayList<Long> time;
     private ArrayList<Channel> channels;
 
     public Steps(long timestamp){
-        this.interval = INTERVAL;
+        this.interval = MILLISECONDS;
         this.type = TYPE;
         this.timestamp = timestamp;
-        this.time = new ArrayList<Integer>();
+        this.time = new ArrayList<Long>();
         this.channels = new ArrayList<Channel>();
     }
 
@@ -54,22 +55,22 @@ public class Steps {
         this.channels = channels;
     }
 
-    public ArrayList<Integer> getTime() {
+    public ArrayList<Long> getTime() {
         return time;
     }
 
-    public void setTime(ArrayList<Integer> time) {
+    public void setTime(ArrayList<Long> time) {
         this.time = time;
     }
 
     public class Channel {
-        private ArrayList<Integer> values;
+        private ArrayList<Long> values;
 
-        public ArrayList<Integer> getValues() {
+        public ArrayList<Long> getValues() {
             return values;
         }
 
-        public void setValues(ArrayList<Integer> values) {
+        public void setValues(ArrayList<Long> values) {
             this.values = values;
         }
     }

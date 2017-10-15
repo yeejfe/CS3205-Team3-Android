@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import cs3205.subsystem3.health.model.Steps;
 
+import static cs3205.subsystem3.health.model.Steps.FIELD_CHANNELS_TYPES;
+
 /**
  * Created by Yee on 10/08/17.
  */
@@ -19,12 +21,12 @@ public class JSONUtil {
 
     public static final Steps JSONtoSteps(@NonNull JSONObject jsonObject) {
         try {
-            Steps data = new Steps(jsonObject.getLong(Steps.FIELD_TIMESTAMP));
+            Steps data = new Steps(jsonObject.getLong(Steps.FIELD_RECORD));
 
             JSONArray jTimeArr = jsonObject.getJSONArray(Steps.FIELD_TIME);
-            ArrayList<Integer> time = new ArrayList<Integer>();
+            ArrayList<Long> time = new ArrayList<Long>();
             for (int i = 0; i < jTimeArr.length(); i++) {
-                time.add(jTimeArr.getInt(i));
+                time.add(jTimeArr.getLong(i));
             }
             data.setTime(time);
 
@@ -33,8 +35,8 @@ public class JSONUtil {
 
             for (int i = 0; i < jChannelsObj.length(); i++) {
                 Steps.Channel channel = data.new Channel();
-                JSONArray channelArry = jChannelsObj.getJSONArray(String.valueOf(i));
-                ArrayList<Integer> values = new ArrayList<Integer>();
+                JSONArray channelArry = jChannelsObj.getJSONArray(FIELD_CHANNELS_TYPES[i]);
+                ArrayList<Long> values = new ArrayList<Long>();
                 for (int j = 0; j < channelArry.length(); j++) {
                     values.get(channelArry.getInt(j));
                 }
@@ -56,8 +58,8 @@ public class JSONUtil {
         try {
             JSONObject jsonStepsObj = new JSONObject();
             jsonStepsObj.put(Steps.FIELD_TYPE, data.getType());
-            jsonStepsObj.put(Steps.FIELD_INTERVAL, data.getInterval());
-            jsonStepsObj.put(Steps.FIELD_TIMESTAMP, data.getTimestamp());
+            jsonStepsObj.put(Steps.FIELD_TIME_FORMAT, data.getInterval());
+            jsonStepsObj.put(Steps.FIELD_RECORD, data.getTimestamp());
 
             JSONArray jsonTimeArray = new JSONArray(data.getTime());
             jsonStepsObj.put(Steps.FIELD_TIME, jsonTimeArray);
@@ -78,8 +80,8 @@ public class JSONUtil {
         try {
             JSONObject jsonStepsObj = new JSONObject();
             jsonStepsObj.put(Steps.FIELD_TYPE, data.getType());
-            jsonStepsObj.put(Steps.FIELD_INTERVAL, data.getInterval());
-            jsonStepsObj.put(Steps.FIELD_TIMESTAMP, data.getTimestamp());
+            jsonStepsObj.put(Steps.FIELD_TIME_FORMAT, data.getInterval());
+            jsonStepsObj.put(Steps.FIELD_RECORD, data.getTimestamp());
 
             JSONArray jsonTimeArray = new JSONArray(data.getTime());
             jsonStepsObj.put(Steps.FIELD_TIME, jsonTimeArray);
@@ -125,7 +127,7 @@ public class JSONUtil {
         try {
             for (int i = 0; i < channels.size(); i++) {
                 JSONArray jsonValueArray = new JSONArray(channels.get(i).getValues());
-                channelObj.put(String.valueOf(i), jsonValueArray);
+                channelObj.put(FIELD_CHANNELS_TYPES[i], jsonValueArray);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
