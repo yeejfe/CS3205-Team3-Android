@@ -37,4 +37,8 @@ public abstract class Timestamp {
     public static long getEpochTimeStamp() {
         return System.currentTimeMillis() / 1000;
     }
+
+    public static long getEpochTimeMillis(){
+        return System.currentTimeMillis();
+    }
 }
