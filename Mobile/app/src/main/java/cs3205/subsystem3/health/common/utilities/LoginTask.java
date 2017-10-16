@@ -11,12 +11,14 @@ import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.ui.login.LoginActivity;
@@ -28,11 +30,21 @@ import cs3205.subsystem3.health.ui.login.LoginActivity;
 
 public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     private Context context;
+    private byte[] challenge;
+    private String salt;
+    private Client client;
+    private String body;
+    private String password;
+    private String tag_password;
 
     @Override
     protected Boolean doInBackground(Object... params) {
-        context = (Context) params[2];
-        return connectToServer((String) params[0], (String) params[1], context);
+        body = (String) params[0];
+        password = (String) params[1];
+        tag_password = (String) params[2];
+        context = (Context) params[3];
+        client = ClientBuilder.newClient();
+        return connectToServer();
     }
 
     @Override
@@ -51,16 +63,60 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         }
     }
 
-    private boolean connectToServer(String body, String tag_password, Context context) {
-        Invocation.Builder request = ClientBuilder.newClient().target(RequestInfo.URL_LOGIN).request();
+    private boolean connectToServer() {
+
+        //handle login challenge
+        if (!handleLoginChallenge()) {
+            return false;
+        }
+
+        //handle formal login
+        return handleFormalLogin();
+    }
+
+    private boolean handleLoginChallenge() {
+        Invocation.Builder LoginChallengeRequest = client.target(RequestInfo.URL_LOGIN).request();
+        Response response = LoginChallengeRequest.post(Entity.entity(body, MediaType.APPLICATION_JSON));
+
+        if (response.getStatus() == 401) {
+            JSONObject headers = null;
+            try {
+                headers = new JSONObject(response.getHeaderString("WWW-AUTHENTICATE"));
+                Log.d("LoginTask", "salt : " + headers.get(Value.KEY_VALUE_SALT) +
+                        "; encoded challenge: " + headers.get(Value.KEY_VALUE_CHALLENGE));
+                salt = (String)headers.get(Value.KEY_VALUE_SALT);
+                challenge = Base64.decode((String)headers.get(Value.KEY_VALUE_CHALLENGE), Base64.DEFAULT);
+                Log.d("LoginTask", "decoded challenge: " + challenge +
+                        "length of the challenge: " + challenge.length);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        } else {
+            Log.d("LoginTask", "error status code " + String.valueOf(response.getStatus()));
+            Log.d("LoginTask", "response content: " + response.toString());
+            return false;
+        }
+    }
+
+    private boolean handleFormalLogin() {
+        Invocation.Builder loginRequest = client.target(RequestInfo.URL_LOGIN).request();
         String nfcTokenHash = null;
+        String challengeResponse = null;
         try {
-            nfcTokenHash = Base64.encodeToString(Crypto.generateHash(tag_password.getBytes()), Base64.URL_SAFE);
+            nfcTokenHash = Base64.encodeToString(Crypto.generateHash(tag_password.getBytes()), Base64.DEFAULT);
+            challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(password + salt, challenge), Base64.DEFAULT);
+            Log.d("LoginTask", "challenge result: " + challengeResponse);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return false;
         }
-        Response response = request.header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+
+        Response response = loginRequest.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.CHALLENGE_RESPONSE_PREFIX + challengeResponse)
+                .header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash)
+                .post(Entity.entity(body, MediaType.APPLICATION_JSON));
+
         if (response.getStatus() != 200) {
             return false;
         } else {
@@ -77,6 +133,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    return false;
                 }
             }
             return true;

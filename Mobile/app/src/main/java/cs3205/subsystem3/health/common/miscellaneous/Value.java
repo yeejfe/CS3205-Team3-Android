@@ -11,4 +11,6 @@ public class Value {
     public static final String KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN = "access_token";
     public static final String KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH = "nfc_hash";
     public static final String KEY_VALUE_JWT_ACCESS_TOKEN = "access_token";
+    public static final String KEY_VALUE_SALT = "salt";
+    public static final String KEY_VALUE_CHALLENGE = "challenge";
 }

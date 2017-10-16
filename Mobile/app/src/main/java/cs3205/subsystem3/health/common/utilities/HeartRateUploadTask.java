@@ -12,6 +12,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
@@ -47,6 +48,7 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
                 RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).post(
                 Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
         if (response.getStatus() != 200) {
+            Log.i("HeartRateUploadTask", response.toString());
             return false;
         } else {
             return true;

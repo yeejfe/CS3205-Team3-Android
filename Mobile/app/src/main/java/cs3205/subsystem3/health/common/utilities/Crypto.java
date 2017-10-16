@@ -17,10 +17,10 @@ public class Crypto {
     }
 
 
-    public static byte[] generateChallengeResponse(String password, byte[] challenge) throws NoSuchAlgorithmException {
+    public static byte[] generateChallengeResponse(String saltedPassword, byte[] challenge) throws NoSuchAlgorithmException {
 
         //hash the password
-        byte[] passwordHash = generateHash(password.getBytes());
+        byte[] passwordHash = generateHash(saltedPassword.getBytes());
         //hash the password hash
         byte[] result = generateHash(passwordHash);
         //XOR result with challenge
@@ -43,13 +43,13 @@ public class Crypto {
 
     //for testing only
     public static boolean test() throws NoSuchAlgorithmException {
-        String password = "password";
-        byte[] passwordHash = generateHash(password.getBytes());
+        String saltedPassword = "password";
+        byte[] passwordHash = generateHash(saltedPassword.getBytes());
         byte[] expectedResult = generateHash(passwordHash);
 
         byte[] challenge = new byte[32];
         new Random().nextBytes(challenge);
-        byte[] response = generateChallengeResponse(password, challenge);
+        byte[] response = generateChallengeResponse(saltedPassword, challenge);
 
         //XOR hash of password hash with challenge
         byte[] actualResult = computeXOR(expectedResult, challenge);

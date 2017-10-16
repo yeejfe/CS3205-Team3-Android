@@ -2,6 +2,7 @@ package cs3205.subsystem3.health.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -45,6 +46,12 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+
 
         setContentView(R.layout.activity_login);
 
@@ -155,18 +162,10 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     body.put(RequestInfo.HEADER_GRANT_TYPE, RequestInfo.GRANT_TYPE_PASSWORD);
                     body.put(RequestInfo.HEADER_USERNAME, username);
-                    try {
-                        body.put(RequestInfo.HEADER_PASSWORD_HASH, Crypto.generateHash(password.getBytes()));
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                        Toast.makeText(this, AppMessage.TOAST_MESSAGE_GENERATION_OF_PASSWORD_HASH_FAILED, Toast.LENGTH_SHORT).show();
-                        onLoginFailed();
-                    }
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                new LoginTask().execute(body.toString(), tag_password, this);
+                new LoginTask().execute(body.toString(), password, tag_password, this);
             }
         }
 
