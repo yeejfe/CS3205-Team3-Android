@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="cs3205.subsystem3.health.ui.camera.CameraActivity"
+    android:padding="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:text="@string/button_image"
+            android:id="@+id/buttonImage"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:onClick="onClick_TakePhoto"/>
+        <Button
+            android:text="@string/button_video"
+            android:id="@+id/buttonVideo"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:onClick="onClick_TakeVideo"/>
+        <Button
+            android:text="@string/button_upload"
+            android:id="@+id/buttonGoToUpload"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:onClick="onClick_GoToUploadPage"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/pathName"/>
+
+    <ImageView
+        android:layout_height="wrap_content"
+
+        android:layout_width="wrap_content"
+        android:visibility="visible"
+        android:id="@+id/imageView1" />
+    <VideoView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+
+        android:visibility="invisible"
+        android:id="@+id/videoView1" />
+
+
+
+
+
+
+</LinearLayout>

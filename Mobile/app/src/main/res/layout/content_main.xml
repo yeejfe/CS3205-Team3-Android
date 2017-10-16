@@ -8,13 +8,11 @@
     tools:context="cs3205.subsystem3.health.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <fragment
-        android:name="cs3205.subsystem3.health.ui.step.StepSensorFragment"
+    <FrameLayout
+        android:id="@+id/fragment_placeholder"
         android:layout_width="368dp"
         android:layout_height="495dp"
-        android:id="@+id/steps_fragment"
         tools:layout_editor_absoluteY="8dp"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout="@layout/steps_fragment" />
+        tools:layout_editor_absoluteX="8dp" />
 
 </RelativeLayout >

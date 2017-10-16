@@ -2,6 +2,8 @@ package cs3205.subsystem3.health.common.core;
 
 import java.util.Calendar;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 /**
  * Created by Yee on 09/28/17.
  */
@@ -32,5 +34,13 @@ public abstract class Timestamp {
         c.set(Calendar.MILLISECOND, 0);
         c.add(Calendar.DATE, 1);
         return c.getTimeInMillis();
+    }
+
+    public static long getEpochTimeStamp() {
+        return System.currentTimeMillis() / 1000;
+    }
+
+    public static long getEpochTimeMillis(){
+        return System.currentTimeMillis();
     }
 }

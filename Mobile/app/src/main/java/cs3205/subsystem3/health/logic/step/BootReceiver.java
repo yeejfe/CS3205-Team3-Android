@@ -1,6 +1,5 @@
 package cs3205.subsystem3.health.logic.step;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,15 +7,15 @@ import android.content.SharedPreferences;
 import cs3205.subsystem3.health.BuildConfig;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.Tag;
-import cs3205.subsystem3.health.data.source.local.Database;
-import cs3205.subsystem3.health.data.source.local.LocalDataSource;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
+
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
 
 /**
  * Created by Yee on 09/28/17.
  */
 
-public class BootReceiver extends BroadcastReceiver {
+public class BootReceiver extends BaseBroadcastReceiver {
 
     private static final String TAG = Tag.STEP_SENSOR;
 
@@ -24,11 +23,11 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
         if (BuildConfig.DEBUG) Log.i(TAG, "booted");
 
-        SharedPreferences prefs = context.getSharedPreferences("steps", Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(STEPS, Context.MODE_PRIVATE);
 
         StepsDB db = new StepsDB(context);
 
-        if (!prefs.getBoolean("correctShutdown", false)) {
+        if (!prefs.getBoolean(CORRECT_SHUTDOWN, false)) {
             if (BuildConfig.DEBUG) Log.i(TAG, "Incorrect shutdown");
             // can we at least recover some steps?
             int steps = db.getCurrentSteps();
@@ -40,8 +39,9 @@ public class BootReceiver extends BroadcastReceiver {
         db.removeNegativeEntries();
         db.saveCurrentSteps(0);
         db.close();
-        prefs.edit().remove("correctShutdown").apply();
+        prefs.edit().remove(CORRECT_SHUTDOWN).apply();
 
-        context.startService(new Intent(context, StepSensorService.class));
+        if (checkServiceStoppedPref(context) == false)
+            context.startService(new Intent(context, StepSensorService.class));
     }
 }
