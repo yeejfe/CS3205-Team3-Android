@@ -81,7 +81,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         if (response.getStatus() == 401) {
             JSONObject headers = null;
             try {
-                headers = new JSONObject(response.getHeaderString("WWW-AUTHENTICATE"));
+                headers = new JSONObject(response.getHeaderString("www-authenticate"));
                 Log.d("LoginTask", "salt : " + headers.get(Value.KEY_VALUE_SALT) +
                         "; encoded challenge: " + headers.get(Value.KEY_VALUE_CHALLENGE));
                 salt = (String)headers.get(Value.KEY_VALUE_SALT);
