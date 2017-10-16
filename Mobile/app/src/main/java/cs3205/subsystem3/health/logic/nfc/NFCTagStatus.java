@@ -5,5 +5,5 @@ package cs3205.subsystem3.health.logic.nfc;
  */
 
 public enum NFCTagStatus {
-    TAG_VALID, TAG_INCOMPATIBLE_TYPE, TAG_INVALID_INFO, TAG_ABSENT
+    TAG_TYPE_VALID, TAG_INCOMPATIBLE_TYPE, TAG_ABSENT
 }

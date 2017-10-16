@@ -96,7 +96,6 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     public void onBackPressed() {
         // Disable going back to the MainActivity
@@ -180,8 +179,7 @@ public class LoginActivity extends AppCompatActivity {
         JSONObject body = new JSONObject();
         try {
             body.put(RequestInfo.HEADER_GRANT_TYPE, RequestInfo.GRANT_TYPE_PASSWORD);
-            body.put(RequestInfo.HEADER_USERNAME, "1");
-            body.put(RequestInfo.HEADER_PASSWORD_HASH, "hash");
+            body.put(RequestInfo.HEADER_USERNAME, "bob99");
         } catch (JSONException e) {
             e.printStackTrace();
         }

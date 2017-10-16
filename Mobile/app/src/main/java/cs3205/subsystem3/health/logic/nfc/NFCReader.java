@@ -40,20 +40,16 @@ public class NFCReader {
                 return NFCTagStatus.TAG_ABSENT;
             } else {
                 this.credentials = new String[2];
-                try {
-                    readTagCredentials(rawMsgs);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return NFCTagStatus.TAG_INVALID_INFO;
-                }
+                readTagCredentials(rawMsgs);
             }
+
         } else {
             return NFCTagStatus.TAG_INCOMPATIBLE_TYPE;
         }
-        return NFCTagStatus.TAG_VALID;
+        return NFCTagStatus.TAG_TYPE_VALID;
     }
 
-    private void readTagCredentials(Parcelable[] rawMsgs) throws Exception {
+    private void readTagCredentials(Parcelable[] rawMsgs) {
         NdefMessage ndefMessage = (NdefMessage) rawMsgs[0];
         NdefRecord ndefRecord1 = ndefMessage.getRecords()[0];
         NdefRecord ndefRecord2 = ndefMessage.getRecords()[1];

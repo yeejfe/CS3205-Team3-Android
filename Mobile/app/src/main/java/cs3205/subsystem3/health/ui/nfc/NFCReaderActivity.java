@@ -50,8 +50,7 @@ public class NFCReaderActivity extends AppCompatActivity {
         String action = intent.getAction();
         mNFCInstruction.setVisibility(TextView.INVISIBLE);
         switch (nfcReader.dispatchTagByType(action, intent)) {
-            case TAG_VALID:
-                Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_TAG_VALID, Toast.LENGTH_SHORT).show();
+            case TAG_TYPE_VALID:
                 credentials = nfcReader.readCredentials();
                 Intent returnToLoginIntent = new Intent();
                 returnToLoginIntent.putExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME, credentials[0]);
@@ -64,9 +63,6 @@ public class NFCReaderActivity extends AppCompatActivity {
                 break;
             case TAG_INCOMPATIBLE_TYPE:
                 Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_TAG_INCOMPATIBLE, Toast.LENGTH_SHORT).show();
-                break;
-            case TAG_INVALID_INFO:
-                Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_TAG_INVALID_INFO, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
