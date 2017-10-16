@@ -44,8 +44,8 @@ public class Repository {
 
         String filePath = dirPath + FRONT_SLASH + fileName;
 
-        if(data.getTimestamp() == 0)
-            data.setTimestamp(Timestamp.getEpochTimeStamp());
+        //if(data.getTimestamp() == 0)
+            //data.setTimestamp(Timestamp.getEpochTimeStamp());
 
         JSONObject jsonObject = JSONUtil.stepsDataToJSON(data);
 
