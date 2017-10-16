@@ -28,16 +28,10 @@ public class StepsUtil {
 
         ArrayList<Long> noOfSteps = new ArrayList<Long>();
         ArrayList<Long> timeDifferences = new ArrayList<Long>();
-        long timeDiff;
-        if(time.size() >= 1) {
-            timeDiff = Timestamp.getEpochTimeMillis() - data.getTimestamp();
-        } else {
-            timeDiff = Timestamp.getEpochTimeMillis() - data.getTimestamp();
-        }
 
         if (data.getChannels().size() == 0) {
             noOfSteps.add(NO_OF_STEPS);
-            timeDifferences.add(timeDiff);
+            timeDifferences.add(0L);
             noOfStepsChannel.setValues(noOfSteps);
             timeDifferencesChannel.setValues(timeDifferences);
             channels.add(noOfStepsChannel);
@@ -52,7 +46,7 @@ public class StepsUtil {
                     noOfStepsChannel.setValues(values);
                     channels.set(i, noOfStepsChannel);
                 } else {
-                    values.add(timeDiff);
+                    values.add(timestamp - time.get(time.size()-2));
                     timeDifferencesChannel.setValues(values);
                     channels.set(i, timeDifferencesChannel);
                 }

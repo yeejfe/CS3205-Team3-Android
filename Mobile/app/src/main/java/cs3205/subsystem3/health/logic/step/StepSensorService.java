@@ -25,10 +25,16 @@ import cs3205.subsystem3.health.model.Steps;
 
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.ACTION;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.ACTION_PAUSE;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.DIVISOR;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.EVENT_TIMESTAMP;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.FILENAME;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.OFFSET;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.PAUSE_COUNT;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS_STOPPED;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.SYSTEM_TIMESTAMP;
+import static cs3205.subsystem3.health.logic.step.StepsUtil.updateSteps;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * Created by Yee on 09/28/17.
@@ -48,6 +54,8 @@ public class StepSensorService extends Service implements SensorEventListener {
     private static long lastSaveTime;
 
     private Steps data;
+    private long divisor = 0;
+    private long offset = 0;
 
     public final static String ACTION_UPDATE_NOTIFICATION = "updateNotificationState";
 
@@ -85,8 +93,16 @@ public class StepSensorService extends Service implements SensorEventListener {
                 Log.i(TAG, "probably not a real value: " + sensorEvent.values[0]);
             return;
         } else {
+            SharedPreferences prefs = getSharedPreferences(STEPS, Context.MODE_PRIVATE);
+            getEventOffset(prefs, sensorEvent.timestamp, Timestamp.getEpochTimeMillis());
+
             steps = (int) sensorEvent.values[0];
-            updateIfNecessary();
+
+            if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
+                long eventTimestamp = getTime(sensorEvent.timestamp);
+                data = updateSteps(data, eventTimestamp);
+                updateIfNecessary();
+            }
         }
     }
 
@@ -115,7 +131,6 @@ public class StepSensorService extends Service implements SensorEventListener {
             prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
         }
 
-
         // Restart service in 500 ms
         /** ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
          .set(AlarmManager.RTC, System.currentTimeMillis() + 500, PendingIntent
@@ -142,8 +157,9 @@ public class StepSensorService extends Service implements SensorEventListener {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+        SharedPreferences prefs = getSharedPreferences(STEPS, Context.MODE_PRIVATE);
+
         if (intent != null && ACTION_PAUSE.equals(intent.getStringExtra(ACTION))) {
-            SharedPreferences prefs = getSharedPreferences(STEPS, Context.MODE_PRIVATE);
             prefs.edit().putBoolean(STEPS_STOPPED, false).commit();
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "onStartCommand action: " + intent.getStringExtra(ACTION));
@@ -176,6 +192,7 @@ public class StepSensorService extends Service implements SensorEventListener {
         if (intent != null && intent.getBooleanExtra(ACTION_UPDATE_NOTIFICATION, false)) {
             //updateNotificationState();
         } else {
+            retrieveSteps(prefs);
             updateIfNecessary();
         }
 
@@ -191,32 +208,37 @@ public class StepSensorService extends Service implements SensorEventListener {
     }
 
     private void updateIfNecessary() {
-        if (steps > lastSaveSteps + SAVE_OFFSET_STEPS ||
-                (steps > 0 && System.currentTimeMillis() > lastSaveTime + SAVE_OFFSET_TIME)) {
-            if (BuildConfig.DEBUG) Log.i(TAG,
-                    "saving steps: steps=" + steps + " lastSave=" + lastSaveSteps +
-                            " lastSaveTime=" + new Date(lastSaveTime));
-            StepsDB db = new StepsDB(this);
-            if (db.getSteps(Timestamp.getToday()) == Integer.MIN_VALUE) {
-                int pauseDifference = steps -
-                        getSharedPreferences(STEPS, Context.MODE_PRIVATE)
-                                .getInt(PAUSE_COUNT, steps);
-                db.insertNewDay(Timestamp.getToday(), steps - pauseDifference);
-                if (pauseDifference > 0) {
-                    // update pauseCount for the new day
-                    getSharedPreferences(STEPS, Context.MODE_PRIVATE).edit()
-                            .putInt(PAUSE_COUNT, steps).commit();
-                }
-            }
-            int prevSteps = db.getCurrentSteps();
-            db.saveCurrentSteps(steps);
-            db.close();
-            lastSaveSteps = steps;
-            lastSaveTime = System.currentTimeMillis();
-            //updateNotificationState();
+        SharedPreferences prefs = getApplication().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
 
-            //save to file
-            //saveToFile(getApplicationContext().getExternalFilesDir(null).getAbsolutePath(), steps - prevSteps);
+        if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
+            if (steps > lastSaveSteps + SAVE_OFFSET_STEPS ||
+                    (steps > 0 && System.currentTimeMillis() > lastSaveTime + SAVE_OFFSET_TIME)) {
+                if (BuildConfig.DEBUG) Log.i(TAG,
+                        "saving steps: steps=" + steps + " lastSave=" + lastSaveSteps +
+                                " lastSaveTime=" + new Date(lastSaveTime));
+                StepsDB db = new StepsDB(this);
+                if (db.getSteps(Timestamp.getToday()) == Integer.MIN_VALUE) {
+                    int pauseDifference = steps -
+                            getSharedPreferences(STEPS, Context.MODE_PRIVATE)
+                                    .getInt(PAUSE_COUNT, steps);
+                    db.insertNewDay(Timestamp.getToday(), steps - pauseDifference);
+                    if (pauseDifference > 0) {
+                        // update pauseCount for the new day
+                        getSharedPreferences(STEPS, Context.MODE_PRIVATE).edit()
+                                .putInt(PAUSE_COUNT, steps).commit();
+                    }
+                }
+                int prevSteps = db.getCurrentSteps();
+                db.saveCurrentSteps(steps);
+                db.close();
+                lastSaveSteps = steps;
+                lastSaveTime = System.currentTimeMillis();
+                //updateNotificationState();
+
+                //save to file
+                String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
+                Repository.writeFile(getApplication().getExternalFilesDir(null).getAbsolutePath(), filename, data);
+            }
         }
     }
 
@@ -227,6 +249,50 @@ public class StepSensorService extends Service implements SensorEventListener {
             data = Repository.getFile(getApplication().getExternalFilesDir(null).getAbsolutePath(), filename);
         } else {
             data = new Steps(0);
+        }
+    }
+
+    private long getTime(long eventTimestamp) {
+        long eventTimeMillis;
+        if(divisor != 0) {
+            eventTimeMillis = Timestamp.getEpochTimeMillis();
+        } else {
+            eventTimeMillis = (eventTimestamp / divisor) + offset;
+        }
+        return eventTimeMillis;
+    }
+
+    private void getEventOffset(SharedPreferences prefs, long nanoEventTimestamp, long sysTimeMillis) {
+        if (!prefs.contains(OFFSET) && !prefs.contains(DIVISOR)) {
+            if (!prefs.contains(EVENT_TIMESTAMP)) {
+                prefs.edit().putLong(EVENT_TIMESTAMP, nanoEventTimestamp);
+                prefs.edit().putLong(SYSTEM_TIMESTAMP, sysTimeMillis);
+                return;
+            }
+
+            long event1TimeStamp = prefs.getLong(EVENT_TIMESTAMP, Timestamp.getEpochTimeMillis());
+            long sysTimeMillis1TimeStamp = prefs.getLong(SYSTEM_TIMESTAMP, Timestamp.getEpochTimeMillis());
+
+            long timestampDelta = nanoEventTimestamp - event1TimeStamp;
+            long sysTimeDelta = sysTimeMillis - sysTimeMillis1TimeStamp;
+
+            long divisor;
+            long offset;
+            if (timestampDelta/sysTimeDelta > 1000) { // in reality ~1 vs ~1,000,000
+                // timestamps are in nanoseconds
+                divisor = 1000000;
+            } else {
+                // timestamps are in milliseconds
+                divisor = 1;
+            }
+
+            offset = sysTimeMillis1TimeStamp - (event1TimeStamp / divisor);
+
+            prefs.edit().putLong(OFFSET, offset);
+            prefs.edit().putLong(DIVISOR, divisor);
+        } else {
+            offset = prefs.getLong(OFFSET, 1000);
+            divisor = prefs.getLong(DIVISOR, 1);
         }
     }
 }

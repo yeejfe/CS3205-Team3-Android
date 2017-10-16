@@ -17,25 +17,26 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import cs3205.subsystem3.health.BuildConfig;
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.common.core.JSONFileWriter;
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.Tag;
-import cs3205.subsystem3.health.common.utilities.JSONUtil;
 import cs3205.subsystem3.health.data.source.local.Repository;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
 import cs3205.subsystem3.health.logic.step.StepSensorService;
 import cs3205.subsystem3.health.model.Steps;
 
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.DIVISOR;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.EVENT_TIMESTAMP;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.FILENAME;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.OFFSET;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.PAUSE_COUNT;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS_STOPPED;
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.SYSTEM_TIMESTAMP;
 import static cs3205.subsystem3.health.logic.step.StepsUtil.updateSteps;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * Created by Yee on 09/27/17.
@@ -54,6 +55,8 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     private int todayOffset, total_start, since_boot, total_days;
 
     private Steps data;
+    private long divisor = 0;
+    private long offset = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -195,8 +198,9 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
-        if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
+        getEventOffset(prefs, sensorEvent.timestamp, Timestamp.getEpochTimeMillis());
 
+        if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
             if (BuildConfig.DEBUG)
                 Log.i(Tag.STEP_SENSOR, "UI - sensorChanged | todayOffset: " + todayOffset + " since boot: " +
                         +since_boot + " | sensorName: " + sensorEvent.sensor.getName());
@@ -218,7 +222,9 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
             setTextView(steps_today);
 
-            data = updateSteps(data, Timestamp.getEpochTimeMillis());
+            long eventTimestamp = getTime(sensorEvent.timestamp);
+
+            data = updateSteps(data, eventTimestamp);
         }
     }
 
@@ -265,11 +271,11 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
             data = Repository.getFile(getActivity().getExternalFilesDir(null).getAbsolutePath(), filename);
         } else {
             data = new Steps(0);
-            Log.d("Prefs","new STEPS | method: " + methodName);
+            Log.d("Prefs", "new STEPS | method: " + methodName);
         }
     }
 
-    private void setView(){
+    private void setView() {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
         if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
             setViewServiceStarted();
@@ -278,7 +284,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         }
     }
 
-    private void setViewServiceStarted(){
+    private void setViewServiceStarted() {
         textView.setText(START_SERVICE);
         buttonStart.setClickable(false);
         buttonStart.setEnabled(false);
@@ -286,7 +292,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         buttonStop.setEnabled(true);
     }
 
-    private void setViewServiceStopped(){
+    private void setViewServiceStopped() {
         textView.setText(STOP_SERVICE);
         buttonStart.setClickable(true);
         buttonStart.setEnabled(true);
@@ -298,5 +304,49 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         stepsView.setText(String.valueOf(steps_today));
         totalView.setText(String.valueOf((total_start + steps_today)));
         averageView.setText(String.valueOf(((total_start + steps_today) / total_days)));
+    }
+
+    private long getTime(long eventTimestamp) {
+        long eventTimeMillis;
+        if(divisor != 0) {
+            eventTimeMillis = Timestamp.getEpochTimeMillis();
+        } else {
+            eventTimeMillis = (eventTimestamp / divisor) + offset;
+        }
+        return eventTimeMillis;
+    }
+
+    private void getEventOffset(SharedPreferences prefs, long nanoEventTimestamp, long sysTimeMillis) {
+        if (!prefs.contains(OFFSET) && !prefs.contains(DIVISOR)) {
+            if (!prefs.contains(EVENT_TIMESTAMP)) {
+                prefs.edit().putLong(EVENT_TIMESTAMP, nanoEventTimestamp);
+                prefs.edit().putLong(SYSTEM_TIMESTAMP, sysTimeMillis);
+                return;
+            }
+
+            long event1TimeStamp = prefs.getLong(EVENT_TIMESTAMP, Timestamp.getEpochTimeMillis());
+            long sysTimeMillis1TimeStamp = prefs.getLong(SYSTEM_TIMESTAMP, Timestamp.getEpochTimeMillis());
+
+            long timestampDelta = nanoEventTimestamp - event1TimeStamp;
+            long sysTimeDelta = sysTimeMillis - sysTimeMillis1TimeStamp;
+
+            long divisor;
+            long offset;
+            if (timestampDelta/sysTimeDelta > 1000) { // in reality ~1 vs ~1,000,000
+                // timestamps are in nanoseconds
+                divisor = 1000000;
+            } else {
+                // timestamps are in milliseconds
+                divisor = 1;
+            }
+
+            offset = sysTimeMillis1TimeStamp - (event1TimeStamp / divisor);
+
+            prefs.edit().putLong(OFFSET, offset);
+            prefs.edit().putLong(DIVISOR, divisor);
+        } else {
+            offset = prefs.getLong(OFFSET, 1000);
+            divisor = prefs.getLong(DIVISOR, 1);
+        }
     }
 }
