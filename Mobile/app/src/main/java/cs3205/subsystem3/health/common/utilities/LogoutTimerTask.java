@@ -4,6 +4,8 @@ import android.content.Context;
 
 import java.util.TimerTask;
 
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
+
 /**
  * Created by danwen on 11/10/17.
  */
@@ -17,9 +19,7 @@ public class LogoutTimerTask extends TimerTask {
 
     @Override
     public void run() {
-
         //redirect user to login screen
-        LogoutHelper.logout(context);
-
+        LogoutHelper.logout(context, AppMessage.TOAST_MESSAGE_SESSION_EXPIRED);
     }
 }

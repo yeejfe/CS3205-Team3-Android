@@ -129,13 +129,12 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                 new HeartRateUploadTask().execute(String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);
                 return true;
             case R.id.logout:
-                LogoutHelper.logout(this);
+                LogoutHelper.logout(this, AppMessage.TOAST_MESSAGE_LOGOUT_SUCCESS);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     private int computeAverageHeartRate() {
         float sum = 0;

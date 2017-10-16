@@ -24,6 +24,7 @@ public class AppMessage {
     public static final String TOAST_MESSAGE_BODY_SENSOR_PERMISSION_DENIED = "BODY SENSOR PERMISSION DENIED";
     public static final String TOAST_MESSAGE_STOP_BEFORE_CLEAR = "STOP SENSOR BEFORE CLEAR";
     public static final String TOAST_MESSAGE_STOP_BEFORE_UPLOAD = "STOP SENSOR BEFORE UPLOAD";
+    public static final String TOAST_MESSAGE_LOGOUT_SUCCESS = "LOGOUT SUCCESSFUL";
     public static final String ERROR_MESSAGE_EMPTY_USERNAME = "Username must not be empty";
     public static final String ERROR_MESSAGE_INVALID_PASSWORD_LENGTH = "Password must be between 8 and 20 alphanumeric characters";
 

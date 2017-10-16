@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = new ProgressBar(LoginActivity.this, null, R.style.AppTheme_Dark_Dialog);
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.VISIBLE);
-        
+
         authenticate();
 
 //for test

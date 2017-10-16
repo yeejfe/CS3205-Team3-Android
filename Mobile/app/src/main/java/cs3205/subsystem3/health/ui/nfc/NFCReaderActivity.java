@@ -13,6 +13,7 @@ import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.logic.nfc.NFCReader;
+import cs3205.subsystem3.health.model.Session;
 
 public class NFCReaderActivity extends AppCompatActivity {
 
@@ -82,6 +83,8 @@ public class NFCReaderActivity extends AppCompatActivity {
         super.onResume();
         if (SessionManager.isTimerSet()) {
             SessionManager.cancelTimer();
+        } else {
+            SessionManager.setTimer(this);
         }
         if (nfcReader.getAdapter() != null) {
             nfcReader.getAdapter().enableForegroundDispatch(this, mPendingIntent, null, null);

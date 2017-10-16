@@ -128,7 +128,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
             case R.id.action_settings:
                 return true;
             case R.id.logout:
-                LogoutHelper.logout(this);
+                LogoutHelper.logout(this, AppMessage.TOAST_MESSAGE_LOGOUT_SUCCESS);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
