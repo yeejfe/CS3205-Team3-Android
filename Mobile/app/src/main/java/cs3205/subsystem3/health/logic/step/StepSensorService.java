@@ -101,6 +101,7 @@ public class StepSensorService extends Service implements SensorEventListener {
             if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
                 long eventTimestamp = getTime(sensorEvent.timestamp);
                 data = updateSteps(data, eventTimestamp);
+                Log.i(TAG, " updatedSteps | " + data.toString());
                 updateIfNecessary();
             }
         }
@@ -254,7 +255,7 @@ public class StepSensorService extends Service implements SensorEventListener {
 
     private long getTime(long eventTimestamp) {
         long eventTimeMillis;
-        if(divisor != 0) {
+        if(divisor == 0) {
             eventTimeMillis = Timestamp.getEpochTimeMillis();
         } else {
             eventTimeMillis = (eventTimestamp / divisor) + offset;

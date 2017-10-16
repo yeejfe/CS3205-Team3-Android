@@ -308,7 +308,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
     private long getTime(long eventTimestamp) {
         long eventTimeMillis;
-        if(divisor != 0) {
+        if(divisor == 0) {
             eventTimeMillis = Timestamp.getEpochTimeMillis();
         } else {
             eventTimeMillis = (eventTimestamp / divisor) + offset;
