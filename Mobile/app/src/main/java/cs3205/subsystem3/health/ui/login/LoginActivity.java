@@ -23,6 +23,8 @@ import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.Crypto;
 import cs3205.subsystem3.health.common.utilities.LoginTask;
+import cs3205.subsystem3.health.common.utilities.SessionManager;
+import cs3205.subsystem3.health.model.Session;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 
@@ -84,8 +86,7 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = new ProgressBar(LoginActivity.this, null, R.style.AppTheme_Dark_Dialog);
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.VISIBLE);
-
-        // TODO: Implement/call authentication logic here.
+        
         authenticate();
 
 //for test
@@ -110,7 +111,9 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), AppMessage.TOAST_MESSAGE_LOGIN_FAILURE, Toast.LENGTH_LONG).show();
-
+        if (SessionManager.isTimerSet()) {
+            SessionManager.cancelTimer();
+        }
         _loginButton.setEnabled(true);
     }
 
