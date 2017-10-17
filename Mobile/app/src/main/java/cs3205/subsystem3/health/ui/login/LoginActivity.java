@@ -14,17 +14,13 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.NoSuchAlgorithmException;
-
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
-import cs3205.subsystem3.health.common.utilities.Crypto;
 import cs3205.subsystem3.health.common.utilities.LoginTask;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
-import cs3205.subsystem3.health.model.Session;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 
