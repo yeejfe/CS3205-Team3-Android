@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Start"
-        android:textSize="22sp"
+        android:textSize="15sp"
         android:onClick="start"/>
     <Button
         android:id="@+id/stop_sensor"
@@ -21,21 +21,25 @@
         android:layout_height="wrap_content"
         android:text="Stop"
         android:enabled="false"
-        android:textSize="22sp"
+        android:textSize="15sp"
         android:onClick="stop"/>
     <Button
         android:id="@+id/clear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Clear Readings"
-        android:textSize="22sp"
+        android:textSize="15sp"
         android:onClick="clear"/>
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="300dip"
+        android:id="@+id/graph" />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/hear_rate_reading"
         android:gravity="center"
-        android:textSize="80sp"
-        android:text="0.0"/>
+        android:textSize="70sp"
+        android:text="0.0" />
 
 </LinearLayout>
