@@ -5,6 +5,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +15,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
@@ -23,6 +30,8 @@ import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 
 public class HeartRateReaderActivity extends AppCompatActivity implements SensorEventListener{
+
+    private final Handler mHandler = new Handler();
     private SensorManager mSensorManager;
     private Sensor mHeartRateSensor;
     private float heartRate;
@@ -30,6 +39,11 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     private TextView mHeartRateReading;
     private Button mStart;
     private Button mStop;
+    private GraphView mGraph;
+    private LineGraphSeries<DataPoint> mSeries;
+    private Runnable mGraphUpdater;
+    private int mCounter;
+    private static final DecimalFormat df = new DecimalFormat("#.#");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +54,15 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         mHeartRateReading = (TextView) findViewById(R.id.hear_rate_reading);
         mStart = (Button) findViewById(R.id.start_sensor);
         mStop = (Button) findViewById(R.id.stop_sensor);
+
+        mGraph = (GraphView) findViewById(R.id.graph);
+        GridLabelRenderer glr= mGraph.getGridLabelRenderer();
+        glr.setPadding(80);
+        mGraph.getViewport().setXAxisBoundsManual(true);
+        mGraph.getViewport().setMinX(0);
+        mGraph.getViewport().setMaxX(8);
+        mSeries = new LineGraphSeries<>();
+        mGraph.addSeries(mSeries);
     }
 
     @Override
@@ -49,7 +72,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
             if (heartRate != 0.0) {
                 heartRates.add(heartRate);
             }
-            mHeartRateReading.setText(String.valueOf(heartRate));
+            mHeartRateReading.setText(String.valueOf(df.format(heartRate)));
         }
     }
 
@@ -62,6 +85,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         }
         mStart.setEnabled(false);
         mStop.setEnabled(true);
+        mHandler.postDelayed(mGraphUpdater, 300);
     }
 
     public void stop(View view) {
@@ -72,6 +96,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         }
         mStop.setEnabled(false);
         mStart.setEnabled(true);
+        mHandler.removeCallbacks(mGraphUpdater);
     }
 
     public void clear(View view) {
@@ -94,12 +119,19 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
             SessionManager.cancelTimer();
         }
         mSensorManager.registerListener(this, mHeartRateSensor,SensorManager.SENSOR_DELAY_NORMAL);
-
+        mGraphUpdater = new Runnable() {
+            @Override
+            public void run() {
+                mSeries.appendData(new DataPoint(++mCounter, Math.round(heartRate)), true, 8);
+                mHandler.postDelayed(this, 300);
+            }
+        };
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        mHandler.removeCallbacks(mGraphUpdater);
         if (SessionManager.isTimerSet()) {
             SessionManager.resetTimer(this);
         } else {
