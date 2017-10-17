@@ -33,12 +33,12 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.jjoe64:graphview:4.2.1'
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support:design:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.guava:guava:20.0'
     compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
+    compile 'com.jjoe64:graphview:4.2.1'
     compile(group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.16') {
         exclude module: 'javax.inject'
     }
