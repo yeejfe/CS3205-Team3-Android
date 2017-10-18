@@ -8,6 +8,7 @@ public class AppMessage {
     public static final String MESSAGE_SCAN_NFC_TAG = "Please scan your NFC tag";
     public static final String TOAST_MESSAGE_NFC_AVAILABLE = "NFC AVAILABLE :)";
     public static final String TOAST_MESSAGE_NFC_UNAVAILABLE = "NFC UNAVAILABLE :(";
+    public static final String TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED = "UPLOAD AUTHENTICATION FAILED";
     public static final String TOAST_MESSAGE_NO_NFC_TAG_DISCOVERED = "NO NFC TAG DISCOVERED";
     public static final String TOAST_MESSAGE_NFC_TAG_INCOMPATIBLE = "NFC TAG INCOMPATIBLE";
     public static final String TOAST_MESSAGE_UPLOAD_SUCCESS = "UPLOAD SUCCESSFUL";

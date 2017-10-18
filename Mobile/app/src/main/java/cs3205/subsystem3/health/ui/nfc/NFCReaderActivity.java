@@ -35,13 +35,13 @@ public class NFCReaderActivity extends AppCompatActivity {
     private void checkNFCStatus() {
         NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter!= null && nfcAdapter.isEnabled()) {
-            Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_AVAILABLE, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_AVAILABLE, Toast.LENGTH_SHORT).show();
             nfcReader = new NFCReader();
             nfcReader.setAdapter(nfcAdapter);
             mPendingIntent = PendingIntent.getActivity(this, 0,
                     new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         } else {
-            Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_SHORT).show();
             finish();
         }
     }
@@ -52,10 +52,10 @@ public class NFCReaderActivity extends AppCompatActivity {
         switch (nfcReader.dispatchTagByType(action, intent)) {
             case TAG_TYPE_VALID:
                 credentials = nfcReader.readCredentials();
-                Intent returnToLoginIntent = new Intent();
-                returnToLoginIntent.putExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME, credentials[0]);
-                returnToLoginIntent.putExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD, credentials[1]);
-                setResult(RESULT_OK, returnToLoginIntent);
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME, credentials[0]);
+                returnIntent.putExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD, credentials[1]);
+                setResult(RESULT_OK, returnIntent);
                 finish();
                 break;
             case TAG_ABSENT:

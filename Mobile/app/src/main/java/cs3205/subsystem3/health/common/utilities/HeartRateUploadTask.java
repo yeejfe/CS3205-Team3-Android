@@ -28,19 +28,25 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Object... params) {
-        String timeStamp = (String)params[0];
-        String avgHeartRate = (String)params[1];
-        context = (Context)params[2];
-        if (upload(timeStamp, avgHeartRate)) {
+        String tag_username = (String) params[0];
+        String nfcTokenHash = (String) params[1];
+        String timeStamp = (String)params[2];
+        String avgHeartRate = (String)params[3];
+        context = (Context)params[4];
+        if (upload(tag_username, nfcTokenHash, timeStamp, avgHeartRate)) {
             return true;
         }
         return false;
     }
 
-    private boolean upload(String timeStamp, String avgHeartRate) {
-        SharedPreferences pref = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
+    private boolean upload(String tag_username, String nfcTokenHash, String timeStamp, String avgHeartRate) {
+        SharedPreferences pref = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE, Activity.MODE_PRIVATE);
+        String username = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_USERNAME, "");
+        if (!username.equals(tag_username)) {
+            Log.d("HeartRateUploadTask", "username mismatch: " + username + " and " + tag_username);
+            return false;
+        }
         String token = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, "");
-        String nfcTokenHash = pref.getString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH, "");
         Invocation.Builder request = ClientBuilder.newClient()
                 .target(RequestInfo.URL_HEART_RATE_UPLOAD).
                         queryParam(RequestInfo.QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
@@ -48,7 +54,7 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
                 RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).post(
                 Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
         if (response.getStatus() != 200) {
-            Log.i("HeartRateUploadTask", response.toString());
+            Log.d("HeartRateUploadTask", response.toString());
             return false;
         } else {
             return true;

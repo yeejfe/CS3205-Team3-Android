@@ -163,7 +163,7 @@ public class LoginActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                new LoginTask().execute(body.toString(), password, tag_password, this);
+                new LoginTask().execute(body, password, tag_password, this);
             }
         }
 

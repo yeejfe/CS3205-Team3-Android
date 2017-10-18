@@ -1,5 +1,6 @@
 package cs3205.subsystem3.health.ui.heartrate;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -7,6 +8,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,14 +22,18 @@ import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
+import cs3205.subsystem3.health.common.utilities.Crypto;
 import cs3205.subsystem3.health.common.utilities.HeartRateUploadTask;
 import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
+import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 public class HeartRateReaderActivity extends AppCompatActivity implements SensorEventListener{
 
@@ -158,7 +164,8 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                     Toast.makeText(this, AppMessage.TOAST_MESSAGE_NOTHING_TO_UPLOAD, Toast.LENGTH_SHORT).show();
                     return false;
                 }
-                new HeartRateUploadTask().execute(String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);
+                Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
+                startActivityForResult(startNFCReadingActivity, 50);
                 return true;
             case R.id.logout:
                 LogoutHelper.logout(this, AppMessage.TOAST_MESSAGE_LOGOUT_SUCCESS);
@@ -180,5 +187,20 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         heartRates.clear();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 50) {
+            String tag_username = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME);
+            String tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
+            try {
+                new HeartRateUploadTask().execute(tag_username, Base64.encodeToString(Crypto.generateHash(tag_password.getBytes()), Base64.DEFAULT),
+                        String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                Toast.makeText(this, AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }
 

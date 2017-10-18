@@ -18,7 +18,7 @@ public class LogoutHelper {
     public static void logout(final Context context, final String message) {
         //clean up
         SharedPreferences sharedpreferences = context.getSharedPreferences
-                (Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Context.MODE_PRIVATE);
+                (Value.KEY_VALUE_SHARED_PREFERENCE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.clear();
         editor.commit();

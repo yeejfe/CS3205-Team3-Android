@@ -33,13 +33,13 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     private byte[] challenge;
     private String salt;
     private Client client;
-    private String body;
+    private JSONObject body;
     private String password;
     private String tag_password;
 
     @Override
     protected Boolean doInBackground(Object... params) {
-        body = (String) params[0];
+        body = (JSONObject) params[0];
         password = (String) params[1];
         tag_password = (String) params[2];
         context = (Context) params[3];
@@ -48,8 +48,8 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     @Override
-    protected void onPostExecute(Boolean aBoolean) {
-        if (aBoolean) {
+    protected void onPostExecute(Boolean isLoginSuccessful) {
+        if (isLoginSuccessful) {
             new android.os.Handler().postDelayed(
                     new Runnable() {
                         public void run() {
@@ -76,7 +76,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
 
     private boolean handleLoginChallenge() {
         Invocation.Builder LoginChallengeRequest = client.target(RequestInfo.URL_LOGIN).request();
-        Response response = LoginChallengeRequest.post(Entity.entity(body, MediaType.APPLICATION_JSON));
+        Response response = LoginChallengeRequest.post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
 
         if (response.getStatus() == 401) {
             JSONObject headers = null;
@@ -115,7 +115,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
 
         Response response = loginRequest.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.CHALLENGE_RESPONSE_PREFIX + challengeResponse)
                 .header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash)
-                .post(Entity.entity(body, MediaType.APPLICATION_JSON));
+                .post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
 
         if (response.getStatus() != 200) {
             return false;
@@ -125,10 +125,10 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 try {
                     JSONObject jsonResponse = new JSONObject(strResponse);
                     String accessToken = jsonResponse.get(Value.KEY_VALUE_JWT_ACCESS_TOKEN).toString();
-                    SharedPreferences savedSession = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE_TOKEN, Activity.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = savedSession.edit();
+                    SharedPreferences sharedPreferences = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE, Activity.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, accessToken);
-                    editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_NFC_TOKEN_HASH,nfcTokenHash);
+                    editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_USERNAME, body.getString(RequestInfo.HEADER_USERNAME));
                     editor.commit();
 
                 } catch (JSONException e) {

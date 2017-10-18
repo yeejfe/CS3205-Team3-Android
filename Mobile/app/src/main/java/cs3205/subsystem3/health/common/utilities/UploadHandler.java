@@ -71,7 +71,7 @@ public class UploadHandler extends AppCompatActivity {
         getToken();
         getNfcHash();
         try {
-            if(choice.equals("image")) {
+            if(choice.equals("IMAGE")) {
                 upload();
             }
             else{
@@ -96,10 +96,8 @@ public class UploadHandler extends AppCompatActivity {
 
 
     private String getNfcHash(){
-        SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-        hash = pref.getString("nfc_hash", "");
-        System.out.println("hash is "+ hash);
-        return hash;
+        //TODO: get nfc token hash here
+        return "nfc_hash";
     }
 
 
@@ -120,8 +118,8 @@ public class UploadHandler extends AppCompatActivity {
             Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(),Long.valueOf(Timestamp.getEpochTimeStamp()),choice);
 
             rDS.close();
-            // Check Response
 
+            // Check Response
             if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
                 showAlert(MESSAGE_SUCCESSFUL);
                 return true;
