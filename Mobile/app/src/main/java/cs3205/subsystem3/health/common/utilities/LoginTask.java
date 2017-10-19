@@ -107,6 +107,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         String challengeResponse = null;
         try {
             nfcTokenHash = Crypto.generateTOTP(tag_password);
+            Log.d("LoginTask", "nfc token hash: " + nfcTokenHash);
             challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(password + salt, challenge), Base64.DEFAULT);
             Log.d("LoginTask", "challenge result: " + challengeResponse);
         } catch (NoSuchAlgorithmException e) {
