@@ -124,7 +124,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
 
         if (response.getStatus() != 200) {
             Log.d("LoginTask", "error status code on challenge response: " + response.getStatus());
-            Log.d("LoginTask", "response content aon challenge response" + response.toString());
+            Log.d("LoginTask", "response content aon challenge response: " + response.toString());
             return false;
         } else {
             String strResponse = response.readEntity(String.class);
