@@ -9,6 +9,7 @@ import android.util.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.client.Client;
@@ -105,10 +106,13 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         String nfcTokenHash = null;
         String challengeResponse = null;
         try {
-            nfcTokenHash = Base64.encodeToString(Crypto.generateHash(tag_password.getBytes()), Base64.DEFAULT);
+            nfcTokenHash = Crypto.generateTOTP(tag_password);
             challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(password + salt, challenge), Base64.DEFAULT);
             Log.d("LoginTask", "challenge result: " + challengeResponse);
         } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return false;
+        } catch (InvalidKeyException e) {
             e.printStackTrace();
             return false;
         }

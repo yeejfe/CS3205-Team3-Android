@@ -22,6 +22,7 @@ import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -194,9 +195,12 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
             String tag_username = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME);
             String tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
             try {
-                new HeartRateUploadTask().execute(tag_username, Base64.encodeToString(Crypto.generateHash(tag_password.getBytes()), Base64.DEFAULT),
+                new HeartRateUploadTask().execute(tag_username, Crypto.generateTOTP(tag_password),
                         String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);
             } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                Toast.makeText(this, AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED, Toast.LENGTH_SHORT).show();
+            } catch (InvalidKeyException e) {
                 e.printStackTrace();
                 Toast.makeText(this, AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED, Toast.LENGTH_SHORT).show();
             }

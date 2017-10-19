@@ -1,9 +1,15 @@
 package cs3205.subsystem3.health.common.utilities;
 
+import android.util.Base64;
+
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Created by danwen on 6/10/17.
@@ -11,7 +17,7 @@ import java.util.Random;
 
 public class Crypto {
 
-    public static byte[] generateHash(byte[] input) throws NoSuchAlgorithmException {
+    private static byte[] generateHash(byte[] input) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return digest.digest(input);
     }
@@ -62,6 +68,13 @@ public class Crypto {
 
         return Arrays.equals(actualResult, expectedResult);
 
+    }
+
+    public static String generateTOTP(String nfcToken) throws NoSuchAlgorithmException, InvalidKeyException {
+        Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
+        long timeCounter = System.currentTimeMillis() / 30000;
+        hmacSHA256.init(new SecretKeySpec(nfcToken.getBytes(), "SHA-256"));
+        return Base64.encodeToString(hmacSHA256.doFinal(String.valueOf(timeCounter).getBytes()), Base64.DEFAULT);
     }
 }
 
