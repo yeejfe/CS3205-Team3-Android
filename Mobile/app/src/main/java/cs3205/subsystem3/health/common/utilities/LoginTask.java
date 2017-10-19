@@ -95,8 +95,8 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             }
             return true;
         } else {
-            Log.d("LoginTask", "error status code " + String.valueOf(response.getStatus()));
-            Log.d("LoginTask", "response content: " + response.toString());
+            Log.d("LoginTask", "error status code on requesting challenge" + String.valueOf(response.getStatus()));
+            Log.d("LoginTask", "response content on requesting challenge: " + response.toString());
             return false;
         }
     }
@@ -123,6 +123,8 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 .post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
 
         if (response.getStatus() != 200) {
+            Log.d("LoginTask", "error status code on challenge response: " + response.getStatus());
+            Log.d("LoginTask", "response content aon challenge response" + response.toString());
             return false;
         } else {
             String strResponse = response.readEntity(String.class);
