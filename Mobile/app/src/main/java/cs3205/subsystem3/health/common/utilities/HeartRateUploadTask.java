@@ -43,7 +43,8 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     private boolean upload(String tag_username, String tag_password, String timeStamp, String avgHeartRate) {
-        SecurePreferences securePreferences = new SecurePreferences(context.getApplicationContext(), tag_password,Value.CUSTOM_SHARED_PREFERENCE_FILENAME);
+        SecurePreferences securePreferences = new SecurePreferences(context.getApplicationContext(),
+                tag_password, Value.CUSTOM_SHARED_PREFERENCE_FILENAME);
         String username = securePreferences.getString(Value.KEY_VALUE_SHARED_PREFERENCE_USERNAME, "");
 
         if (!username.equals(tag_username)) {
