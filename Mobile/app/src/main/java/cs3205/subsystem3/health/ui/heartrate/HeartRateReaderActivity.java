@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.Crypto;
@@ -51,6 +52,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     private Runnable mGraphUpdater;
     private int mCounter;
     private static final DecimalFormat df = new DecimalFormat("#.#");
+    private static final DataPoint[] emptyDataPoints = new DataPoint[10];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,9 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         mGraph.getViewport().setMaxX(8);
         mSeries = new LineGraphSeries<>();
         mGraph.addSeries(mSeries);
+        for (int i = 0; i < emptyDataPoints.length; i++) {
+            emptyDataPoints[i] = new DataPoint(0, 0);
+        }
     }
 
     @Override
@@ -104,6 +109,8 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         mStop.setEnabled(false);
         mStart.setEnabled(true);
         mHandler.removeCallbacks(mGraphUpdater);
+        mSeries.resetData(emptyDataPoints);
+        mHeartRateReading.setText(String.valueOf(0));
     }
 
     public void clear(View view) {
@@ -117,6 +124,19 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
+        switch (i) {
+            case -1:
+                Log.d("HeartRateReaderActivity", "sensor accuracy: no contact");
+            case 0:
+                Log.d("HeartRateReaderActivity", "sensor accuracy: unreliable");
+            case 1:
+                Log.d("HeartRateReaderActivity", "sensor accuracy: low");
+            case 2:
+                Log.d("HeartRateReaderActivity", "sensor accuracy: medium");
+            case 3:
+                Log.d("HeartRateReaderActivity", "sensor accuracy: high");
+
+        }
     }
 
     @Override
