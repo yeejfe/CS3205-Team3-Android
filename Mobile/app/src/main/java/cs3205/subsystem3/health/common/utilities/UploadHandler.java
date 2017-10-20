@@ -1,11 +1,9 @@
 package cs3205.subsystem3.health.common.utilities;
 
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -88,8 +86,8 @@ public class UploadHandler extends AppCompatActivity {
 
 
     private void getToken(){
-        SharedPreferences pref = getSharedPreferences("Token_SharedPreferences", Activity.MODE_PRIVATE);
-        token = pref.getString("access_token", "");
+        token = "";
+        //TODO: get the access token here, follow the code in LoginTask and HeartRateUploadTask, you will need to scan the NFC tag to get the securePref
         textView.setText(token);
         System.out.println("token is "+ token);
     }

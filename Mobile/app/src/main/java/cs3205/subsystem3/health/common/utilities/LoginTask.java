@@ -1,10 +1,10 @@
 package cs3205.subsystem3.health.common.utilities;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Base64;
+
+import com.securepreferences.SecurePreferences;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -132,8 +132,8 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 try {
                     JSONObject jsonResponse = new JSONObject(strResponse);
                     String accessToken = jsonResponse.get(Value.KEY_VALUE_JWT_ACCESS_TOKEN).toString();
-                    SharedPreferences sharedPreferences = context.getSharedPreferences(Value.KEY_VALUE_SHARED_PREFERENCE, Activity.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    SecurePreferences securePreferences = new SecurePreferences(context.getApplicationContext(), tag_password,Value.CUSTOM_SHARED_PREFERENCE_FILENAME);
+                    SecurePreferences.Editor editor = securePreferences.edit();
                     editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, accessToken);
                     editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_USERNAME, body.getString(RequestInfo.HEADER_USERNAME));
                     editor.commit();
