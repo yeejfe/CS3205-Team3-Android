@@ -208,9 +208,8 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 50) {
-            String tag_username = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME);
             String tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
-            new HeartRateUploadTask().execute(tag_username, tag_password,
+            new HeartRateUploadTask().execute(tag_password,
                     String.valueOf(System.currentTimeMillis()), String.valueOf(computeAverageHeartRate()), this);
         }
     }

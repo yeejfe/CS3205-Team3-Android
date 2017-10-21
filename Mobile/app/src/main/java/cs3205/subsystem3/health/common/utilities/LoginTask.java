@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Base64;
 
-import com.securepreferences.SecurePreferences;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -132,12 +130,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 try {
                     JSONObject jsonResponse = new JSONObject(strResponse);
                     String accessToken = jsonResponse.get(Value.KEY_VALUE_JWT_ACCESS_TOKEN).toString();
-                    SecurePreferences securePreferences = new SecurePreferences(context, tag_password,Value.CUSTOM_SHARED_PREFERENCE_FILENAME);
-                    SecurePreferences.Editor editor = securePreferences.edit();
-                    editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, accessToken);
-                    editor.putString(Value.KEY_VALUE_SHARED_PREFERENCE_USERNAME, body.getString(RequestInfo.HEADER_USERNAME));
-                    editor.commit();
-
+                    JSONWebToken.getInstance().setData(accessToken);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return false;

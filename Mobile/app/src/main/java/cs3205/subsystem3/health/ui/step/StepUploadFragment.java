@@ -81,7 +81,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
     private void upload() {
         SharedPreferences pref = getActivity().getSharedPreferences(TOKEN_SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-        //TODO: get the access token here, follow the code in LoginTask and HeartRateUploadTask, you will need to scan the NFC tag to get the securePref
+        //TODO: use JSONWebToken.getInstance().getData() to get the jwt instead, no more shared preference
         String token = pref.getString(ACCESS_TOKEN, EMPTY_STRING);
         String hash = pref.getString(NFC_HASH, EMPTY_STRING);
 

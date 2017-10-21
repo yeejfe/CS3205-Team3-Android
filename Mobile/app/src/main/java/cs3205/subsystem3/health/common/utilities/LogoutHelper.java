@@ -17,12 +17,6 @@ import cs3205.subsystem3.health.common.logger.Log;
 public class LogoutHelper {
 
     public static void logout(final Context context, final String message) {
-        File sharedPreferenceFile = new File("/data/data/"+ context.getPackageName() + "/shared_prefs/");
-        Log.d("LogoutHelper", "Number of shared preference files created: " + sharedPreferenceFile.listFiles().length);
-        for (File file : sharedPreferenceFile.listFiles()) {
-            file.delete();
-        }
-        Log.d("LogoutHelper", "Number of shared preference files left on logout: " + sharedPreferenceFile.listFiles().length);
 
         //show toast message
         ((Activity)context).runOnUiThread(new Runnable() {

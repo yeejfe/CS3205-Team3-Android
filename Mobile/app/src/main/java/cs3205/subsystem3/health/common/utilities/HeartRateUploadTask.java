@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.securepreferences.SecurePreferences;
-
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -31,34 +29,26 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Object... params) {
-        String tag_username = (String) params[0];
-        String tag_password = (String) params[1];
-        String timeStamp = (String)params[2];
-        String avgHeartRate = (String)params[3];
-        context = (Context)params[4];
-        if (upload(tag_username, tag_password, timeStamp, avgHeartRate)) {
+        String tag_password = (String) params[0];
+        String timeStamp = (String)params[1];
+        String avgHeartRate = (String)params[2];
+        context = (Context)params[3];
+        if (upload(tag_password, timeStamp, avgHeartRate)) {
             return true;
         }
         return false;
     }
 
-    private boolean upload(String tag_username, String tag_password, String timeStamp, String avgHeartRate) {
-        SecurePreferences securePreferences = new SecurePreferences(context,
-                tag_password, Value.CUSTOM_SHARED_PREFERENCE_FILENAME);
-        String username = securePreferences.getString(Value.KEY_VALUE_SHARED_PREFERENCE_USERNAME, "");
+    private boolean upload(String tag_password, String timeStamp, String avgHeartRate) {
 
-        if (!username.equals(tag_username)) {
-            Log.d("HeartRateUploadTask", "username mismatch: " + username + " and " + tag_username);
-            return false;
-        }
-        String accessToken = securePreferences.getString(Value.KEY_VALUE_SHARED_PREFERENCE_ACCESS_TOKEN, "");
+        String jwt = JSONWebToken.getInstance().getData();
         Invocation.Builder request = ClientBuilder.newClient()
                 .target(RequestInfo.URL_HEART_RATE_UPLOAD).
                         queryParam(RequestInfo.QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
 
         Response response = null;
         try {
-            response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + accessToken).header(
+            response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + jwt).header(
                     RequestInfo.HEADER_NFC_TOKEN_HASH, Crypto.generateTOTP(tag_password)).post(
                     Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
         } catch (NoSuchAlgorithmException e) {

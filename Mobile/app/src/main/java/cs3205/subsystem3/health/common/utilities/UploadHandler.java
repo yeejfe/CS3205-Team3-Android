@@ -87,7 +87,7 @@ public class UploadHandler extends AppCompatActivity {
 
     private void getToken(){
         token = "";
-        //TODO: get the access token here, follow the code in LoginTask and HeartRateUploadTask, you will need to scan the NFC tag to get the securePref
+        //TODO: use JSONWebToken.getInstance().getData() to get the jwt instead, no more shared preference
         textView.setText(token);
         System.out.println("token is "+ token);
     }
