@@ -2,6 +2,7 @@ package cs3205.subsystem3.health.common.utilities;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Base64;
 
 import org.json.JSONException;
@@ -49,12 +50,10 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean isLoginSuccessful) {
         if (isLoginSuccessful) {
-            new android.os.Handler().postDelayed(
+            new Handler().postDelayed(
                     new Runnable() {
                         public void run() {
-                            // On complete call either onLoginSuccess or onLoginFailed
                             ((LoginActivity) context).onLoginSuccess();
-
                         }
                     }, 3000);
         } else {

@@ -2,6 +2,8 @@ package cs3205.subsystem3.health.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -34,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText _usernameText;
     EditText _passwordText;
     Button _loginButton;
+    private TextView mLoginTimer;
     private String username;
     private String password;
     private String tag_username;
@@ -56,6 +60,7 @@ public class LoginActivity extends AppCompatActivity {
         _usernameText = (EditText) findViewById(R.id.input_username);
         _passwordText = (EditText) findViewById(R.id.input_password);
         _loginButton = (Button) findViewById(R.id.btn_login);
+        mLoginTimer = (TextView) findViewById(R.id.login_timer);
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -99,17 +104,36 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
-        _loginButton.setEnabled(true);
         finish();
         progressBar.setVisibility(View.GONE);
     }
 
     public void onLoginFailed() {
+        _loginButton.setEnabled(false);
         Toast.makeText(getBaseContext(), AppMessage.TOAST_MESSAGE_LOGIN_FAILURE, Toast.LENGTH_LONG).show();
+
+        //TODO: set this value based on number of login failures so far
+        final int loginDelayMillis = 5000;
+        new Handler().postDelayed(//enable the login button after the time delay and display the count down to user
+                new Runnable() {
+                    public void run() {
+                        mLoginTimer.setVisibility(View.VISIBLE);
+                        new CountDownTimer(loginDelayMillis, 1000) {
+
+                            public void onTick(long millisUntilFinished) {
+                                mLoginTimer.setText("you can retry in " + millisUntilFinished / 1000 + " seconds");
+                            }
+
+                            public void onFinish() {
+                                mLoginTimer.setVisibility(View.INVISIBLE);
+                                _loginButton.setEnabled(true);
+                            }
+                        }.start();
+                    }
+                }, loginDelayMillis);
         if (SessionManager.isTimerSet()) {
             SessionManager.cancelTimer();
         }
-        _loginButton.setEnabled(true);
     }
 
     public boolean validate(String username, String password) {
