@@ -20,7 +20,9 @@ import javax.ws.rs.core.Response;
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
+import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 
 public class UploadHandler extends AppCompatActivity {
@@ -36,9 +38,11 @@ public class UploadHandler extends AppCompatActivity {
 
 
     private String path;
-    private String token;
-    private String hash;
+    private String jwtToken;
+    private String nfcToken;
     private RemoteDataSource.Type choice;
+    private String tag_username;
+    private String tag_password;
 
     long totalSize = 0;
 
@@ -66,8 +70,9 @@ public class UploadHandler extends AppCompatActivity {
 
 
 
-        getToken();
-        getNfcHash();
+        getJwtToken();
+        getNfcToken();
+
         try {
             if(choice.equals("IMAGE")) {
                 upload();
@@ -85,17 +90,35 @@ public class UploadHandler extends AppCompatActivity {
 
 
 
-    private void getToken(){
-        token = "";
-        //TODO: use JSONWebToken.getInstance().getData() to get the jwt instead, no more shared preference
-        textView.setText(token);
-        System.out.println("token is "+ token);
+    private void getJwtToken(){
+        jwtToken = "";
+        jwtToken =  JSONWebToken.getInstance().getData();
+        textView.setText(jwtToken);
+        Log.d("JWT Token for Upload", jwtToken);
     }
 
 
-    private String getNfcHash(){
-        //TODO: get nfc token hash here
-        return "nfc_hash";
+    private void getNfcToken(){
+        Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
+        startActivityForResult(startNFCReadingActivity, 30);
+    }
+
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 30) {
+            if (resultCode == RESULT_OK) {
+                nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
+                Log.d("NFC Read for Upload ", "NFC token is "+nfcToken);
+            }
+            if (nfcToken == null ) {
+                Log.d("NFC Read for Upload ", "NFC token is null");
+            } else {
+                Log.d("NFC Read for Upload ", "NFC token is null");
+            }
+        } else {
+            Log.d("NFC Read for Upload ", "request fail");
+        }
     }
 
 
@@ -113,7 +136,7 @@ public class UploadHandler extends AppCompatActivity {
             }
 
             RemoteDataSource rDS = new RemoteDataSource();
-            Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(),Long.valueOf(Timestamp.getEpochTimeStamp()),choice);
+            Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken,Long.valueOf(Timestamp.getEpochTimeStamp()),choice);
 
             rDS.close();
 
@@ -185,7 +208,7 @@ public class UploadHandler extends AppCompatActivity {
                     }
 
                     RemoteDataSource rDS = new RemoteDataSource();
-                    Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(), Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
+                    Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
 
                     rDS.close();
                     // Check Response

@@ -1,6 +1,5 @@
 package cs3205.subsystem3.health.ui.camera;
 
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -22,7 +22,7 @@ import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.common.utilities.UploadHandler;
 
 
-public class UploadPageActivity extends Activity implements View.OnClickListener {
+public class UploadPageActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final int RESULT_LOAD_VIDEO = 2;
@@ -82,7 +82,8 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
         switch (view.getId()) {
             case R.id.imageToUpload:
                 Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(imageGalleryIntent, RESULT_LOAD_IMAGE);
+                imageGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                startActivityForResult(Intent.createChooser(imageGalleryIntent,"Select Picture"), RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
                 Intent imageUploader = new Intent(this, UploadHandler.class);

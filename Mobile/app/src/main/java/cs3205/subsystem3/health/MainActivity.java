@@ -20,14 +20,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-
 import cs3205.subsystem3.health.common.activities.ActivityBase;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.ui.camera.CameraActivity;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
-import cs3205.subsystem3.health.ui.login.LoginActivity;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 import cs3205.subsystem3.health.ui.step.StepSensorFragment;
 
@@ -41,8 +39,8 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         setContentView(R.layout.activity_main);
         isOnCreate = true;
 
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+   //     Intent intent = new Intent(this, LoginActivity.class);
+   //     startActivity(intent);
 
         loggedIn();
     }

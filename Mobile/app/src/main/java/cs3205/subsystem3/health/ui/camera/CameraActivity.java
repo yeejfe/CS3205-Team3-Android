@@ -1,8 +1,6 @@
 package cs3205.subsystem3.health.ui.camera;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -10,7 +8,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,7 +28,7 @@ import cs3205.subsystem3.health.logic.camera.AlbumStorageDirFactory;
 import cs3205.subsystem3.health.logic.camera.BaseAlbumDirFactory;
 import cs3205.subsystem3.health.logic.camera.FroyoAlbumDirFactory;
 
-public class CameraActivity extends Activity {
+public class CameraActivity extends AppCompatActivity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int REQUEST_TAKE_VIDEO = 2;
@@ -67,6 +68,13 @@ public class CameraActivity extends Activity {
             mAlbumStorageDirFactory = new BaseAlbumDirFactory();
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.logout, menu);
+        return true;
     }
 
 

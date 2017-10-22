@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
 //for test
         //skip NFC authentication
 
-        //skipNfcTest();
+    //    skipNfcTest();
 
     }
 
@@ -172,13 +172,17 @@ public class LoginActivity extends AppCompatActivity {
     //For test
     //skip nfc
     public void skipNfcTest(){
+        tag_username = "username";
+        tag_password = "password";
+        Log.d("test skip","get tag_user and tag_password");
         JSONObject body = new JSONObject();
         try {
             body.put(RequestInfo.HEADER_GRANT_TYPE, RequestInfo.GRANT_TYPE_PASSWORD);
-            body.put(RequestInfo.HEADER_USERNAME, "bob99");
+            body.put(RequestInfo.HEADER_USERNAME, username);
+            Log.d("test skip","body info prepared");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        new LoginTask().execute(body.toString(), tag_password, this);
+        new LoginTask().execute(body, password, tag_password, this);
     }
 }
