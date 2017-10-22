@@ -58,6 +58,17 @@
             android:padding="12dp"
             android:text="Login"/>
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/login_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            />
+
         <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"
