@@ -9,7 +9,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.utilities.Crypto;
 
 /**
  * Created by Yee on 09/30/17.
@@ -40,7 +40,7 @@ public class RemoteDataSource {
         client = ClientBuilder.newClient();
     }
 
-    public Response buildFileUploadRequest(InputStream stream, String token, String hash, Long time, Type type) {
+    public Response buildFileUploadRequest(InputStream stream, String jwtToken, String nfcToken, Long time, Type type) {
         Invocation.Builder builder = null;
 
         if (type.equals(Type.STEPS)) {
@@ -54,10 +54,18 @@ public class RemoteDataSource {
                     .request();
         }
 
-        return builder
-                .header(X_NFC_TOKEN, hash)
-                .header(AUTHORIZATION, BEARER + token)
-                .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
+        String nfcTokenHash = "";
+        try {
+            nfcTokenHash = Crypto.generateTOTP(nfcToken);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+       return builder
+               .header(X_NFC_TOKEN,nfcTokenHash)
+               .header(AUTHORIZATION, BEARER + jwtToken)
+               .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
+
     }
 
     public void close() {

@@ -2,6 +2,7 @@ package cs3205.subsystem3.health.common.utilities;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -39,12 +40,12 @@ public class UploadHandler extends AppCompatActivity {
     private TextView txtPercentage;
 
 
+    private Context context;
     private String path;
     private String jwtToken;
     private String nfcToken;
     private RemoteDataSource.Type choice;
-    private String tag_username;
-    private String tag_password;
+
 
     long totalSize = 0;
 
@@ -54,6 +55,7 @@ public class UploadHandler extends AppCompatActivity {
         try {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_upload_handler);
+            context = this;
             Intent intent = getIntent();
             path = intent.getStringExtra("path");
             choice = RemoteDataSource.Type.valueOf(intent.getStringExtra("choice").toUpperCase());
