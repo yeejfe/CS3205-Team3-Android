@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +32,7 @@ public class UploadHandler extends AppCompatActivity {
     public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
     public static final String MESSAGE_SUCCESSFUL = "Successful";
     public static final String MESSAGE_FAIL = "Fail";
+    public static final String MESSAGE_NFC_READ_FAIL = "NFC read fail";
 
     private TextView textView;
     private ProgressBar progressBar;
@@ -113,12 +115,19 @@ public class UploadHandler extends AppCompatActivity {
             }
             if (nfcToken == null ) {
                 Log.d("NFC Read for Upload ", "NFC token is null");
+                failNfcRead();
             } else {
                 Log.d("NFC Read for Upload ", "NFC token is null");
+                failNfcRead();
             }
         } else {
             Log.d("NFC Read for Upload ", "request fail");
+            failNfcRead();
         }
+    }
+
+    private void failNfcRead(){
+        Toast.makeText(this, MESSAGE_NFC_READ_FAIL , Toast.LENGTH_SHORT).show();
     }
 
 
