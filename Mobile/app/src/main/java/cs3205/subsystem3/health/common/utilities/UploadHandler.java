@@ -104,23 +104,17 @@ public class UploadHandler extends AppCompatActivity {
 
     private void getNfcToken(){
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
-        startActivityForResult(startNFCReadingActivity, 30);
+        startActivityForResult(startNFCReadingActivity, 70);
     }
 
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 30) {
+        Log.d("UploadHandler", "request code: " + requestCode);
+        if (requestCode == 70) {
             if (resultCode == RESULT_OK) {
                 nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
-                Log.d("NFC Read for Upload ", "NFC token is "+nfcToken);
-            }
-            if (nfcToken == null ) {
-                Log.d("NFC Read for Upload ", "NFC token is null");
-                failNfcRead();
-            } else {
-                Log.d("NFC Read for Upload ", "NFC token is null");
-                failNfcRead();
+                Log.d("UploadHandler", "NFC token is "+nfcToken);
             }
         } else {
             Log.d("NFC Read for Upload ", "request fail");
