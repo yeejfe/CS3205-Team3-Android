@@ -18,8 +18,10 @@ public class StepsUtil {
             data.setTimestamp(timestamp);
         }
 
-        ArrayList<Long> time = data.getTime();
-        time.add(timestamp);
+        Steps.Time time = data.getTime();
+        ArrayList<Long> timeValues = time.getValues();
+        timeValues.add(timestamp);
+        time.setValues(timeValues);
         data.setTime(time);
 
         ArrayList<Steps.Channel> channels = data.getChannels();
@@ -46,57 +48,10 @@ public class StepsUtil {
                     noOfStepsChannel.setValues(values);
                     channels.set(i, noOfStepsChannel);
                 } else {
-                    values.add(timestamp - time.get(time.size()-2));
+                    values.add(timestamp - timeValues.get(timeValues.size()-2));
                     timeDifferencesChannel.setValues(values);
                     channels.set(i, timeDifferencesChannel);
                 }
-            }
-        }
-        data.setChannels(channels);
-
-        return data;
-    }
-
-    private static Steps updateSteps(Steps data, Long steps, long timestamp) {
-        boolean timeValueExist = false;
-        int index = -1;
-
-        if (data.getTimestamp() == 0) {
-            data.setTimestamp(timestamp);
-        }
-
-        ArrayList<Long> time = data.getTime();
-        if (time.size() == 0) {
-            time.add((long) 0);
-        } else {
-            long timeValue = Timestamp.getEpochTimeMillis() - data.getTimestamp();
-            if (!time.contains(timeValue)) {
-                time.add(timeValue);
-            } else {
-                index = time.indexOf(timeValue);
-                timeValueExist = true;
-            }
-        }
-        data.setTime(time);
-
-        ArrayList<Steps.Channel> channels = data.getChannels();
-        ArrayList<Long> values = new ArrayList<Long>();
-        Steps.Channel channel = data.new Channel();
-        if (data.getChannels().size() == 0) {
-            values.add(steps);
-            channel.setValues(values);
-            channels.add(channel);
-        } else {
-            for (int i = 0; i < channels.size(); i++) {
-                values = channels.get(i).getValues();
-                if (timeValueExist) {
-                    long updatedValue = values.get(index) + steps;
-                    values.set(index, updatedValue);
-                } else {
-                    values.add(steps);
-                }
-                channel.setValues(values);
-                channels.set(i, channel);
             }
         }
         data.setChannels(channels);

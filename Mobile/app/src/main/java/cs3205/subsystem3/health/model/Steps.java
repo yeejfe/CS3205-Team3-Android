@@ -7,32 +7,36 @@ import java.util.ArrayList;
  */
 
 public class Steps {
-    public static final String FIELD_TIME_FORMAT = "timeFormat";
+    public static final String FIELD_UNIT = "unit";
+    public static final String FIELD_MULTIPLIER = "multiplier";
+    public static final String FIELD_NAME = "name";
     public static final String FIELD_TYPE = "type";
-    public static final String FIELD_RECORD = "timeOfRecord";
+    public static final String FIELD_RECORD = "sessionTime";
     public static final String FIELD_TIME = "time";
     public static final String FIELD_CHANNEL = "channel";
+    public static final String FIELD_AXIS_X = "x-axis";
+    public static final String FIELD_AXIS_Y = "y-axis";
+    public static final String FIELD_VALUE = "value";
     public static final String[] FIELD_CHANNELS_TYPES = {"noOfSteps","differenceInTime"};
 
     private static final String MILLISECONDS = "milliseconds";
     private static final String TYPE = "steps";
+    private static final String MULTIPLIER = "0.001";
 
+    private String name;
     private String type;
-    private String interval;
     private long timestamp;
-    private ArrayList<Long> time;
+    private String x;
+    private String y;
+    private Time time;
     private ArrayList<Channel> channels;
 
-    public Steps(long timestamp){
-        this.interval = MILLISECONDS;
+    public Steps(long timestamp, String name) {
         this.type = TYPE;
+        this.name = name;
         this.timestamp = timestamp;
-        this.time = new ArrayList<Long>();
-        this.channels = new ArrayList<Channel>();
-    }
-
-    public String getInterval() {
-        return interval;
+        this.x = FIELD_TIME;
+        this.y = FIELD_CHANNEL;
     }
 
     public String getType() {
@@ -55,15 +59,54 @@ public class Steps {
         this.channels = channels;
     }
 
-    public ArrayList<Long> getTime() {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Time getTime() {
         return time;
     }
 
-    public void setTime(ArrayList<Long> time) {
+    public void setTime(Time time) {
         this.time = time;
     }
 
+    public String getX() {
+        return x;
+    }
+
+    public String getY() {
+        return y;
+    }
+
+    public class Time {
+        private String unit = MILLISECONDS;
+        private String multiplier = MULTIPLIER;
+        private ArrayList<Long> values;
+
+        public String getUnit() {
+            return unit;
+        }
+
+        public String getMultiplier() {
+            return multiplier;
+        }
+
+        public ArrayList<Long> getValues() {
+            return values;
+        }
+
+        public void setValues(ArrayList<Long> values) {
+            this.values = values;
+        }
+    }
+
     public class Channel {
+        private String name;
         private ArrayList<Long> values;
 
         public ArrayList<Long> getValues() {
@@ -72,6 +115,14 @@ public class Steps {
 
         public void setValues(ArrayList<Long> values) {
             this.values = values;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
     }
 }
