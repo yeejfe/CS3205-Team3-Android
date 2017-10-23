@@ -17,6 +17,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
@@ -96,7 +98,13 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
         RemoteDataSource rDS = new RemoteDataSource();
         Log.i("UPload", "Upload");
-        rDS.buildFileUploadRequest(stream, token, hash, Long.valueOf(file.getName()), RemoteDataSource.Type.STEPS);
+        try {
+            rDS.buildFileUploadRequest(stream, token, hash, Long.valueOf(file.getName()), RemoteDataSource.Type.STEPS);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        }
         Toast.makeText(getActivity(), "Upload Successful.", Toast.LENGTH_SHORT).show();
         Log.i("UPload", rDS.toString());
         rDS.close();
