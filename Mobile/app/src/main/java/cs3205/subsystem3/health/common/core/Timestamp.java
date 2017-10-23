@@ -1,5 +1,6 @@
 package cs3205.subsystem3.health.common.core;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -9,6 +10,8 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  */
 
 public abstract class Timestamp {
+    public static final String DATE_FORMAT = "yyyy-MM-dd_HH:mm:ss";
+
     /**
      * @return milliseconds since 1.1.1970 for today 0:00:00 local timezone
      */
@@ -42,5 +45,9 @@ public abstract class Timestamp {
 
     public static long getEpochTimeMillis(){
         return System.currentTimeMillis();
+    }
+
+    public static String getFormattedCurrentTimestamp(){
+        return new SimpleDateFormat(DATE_FORMAT).format(Calendar.getInstance().getTime());
     }
 }

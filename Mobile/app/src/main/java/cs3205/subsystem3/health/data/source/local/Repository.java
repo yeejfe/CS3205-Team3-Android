@@ -21,9 +21,12 @@ import static cs3205.subsystem3.health.common.core.JSONFileWriter.FRONT_SLASH;
  */
 
 public class Repository {
-    public static Steps getFile(String dirPath, String fileName) {
+    public static final int filePaths = 0;
+    public static final int sessionNames = 1;
+
+    public static Steps getFile(String dirPath, String fileName, String sessionName) {
         File file = new File(dirPath, fileName);
-        Steps data = new Steps(0);
+        Steps data = new Steps(0, sessionName);
 
         if (file.exists()) {
             try {
@@ -52,17 +55,37 @@ public class Repository {
         JSONFileWriter.toFile(filePath, jsonObject);
     }
 
-    public static ArrayList<String> getFiles(String dirPath) {
-        ArrayList<String> arrayListOfFiles = new ArrayList<String>();
+    public static ArrayList<ArrayList<String>> getFiles(String dirPath) {
+        ArrayList<ArrayList<String>> filesInFolder = new ArrayList<ArrayList<String>>();
+
+        ArrayList<String> arrayListOfFilesPath = new ArrayList<String>();
+        ArrayList<String> arrayListOfFileSessionNames = new ArrayList<String>();
+
         File f = new File(dirPath);
         f.mkdirs();
         File[] listFiles = f.listFiles();
         if (listFiles.length == 0) {
-            return new ArrayList<String>();
+            return new ArrayList<ArrayList<String>>();
         } else {
-            for (int i = 0; i < listFiles.length; i++)
-                arrayListOfFiles.add(listFiles[i].getAbsolutePath());
+            for (int i = 0; i < listFiles.length; i++) {
+                String filePath = listFiles[i].getAbsolutePath();
+
+                arrayListOfFilesPath.add(filePath);
+
+                JSONObject stepsJSON = null;
+                try {
+                    stepsJSON = JSONFileReader.toJSONObj(filePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Steps data = JSONUtil.JSONtoSteps(stepsJSON);
+                arrayListOfFileSessionNames.add(data.getName());
+            }
         }
-        return arrayListOfFiles;
+
+        filesInFolder.add(arrayListOfFilesPath);
+        filesInFolder.add(arrayListOfFileSessionNames);
+
+        return filesInFolder;
     }
 }

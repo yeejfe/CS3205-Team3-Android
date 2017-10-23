@@ -60,7 +60,6 @@ public class RemoteDataSource {
                .header(X_NFC_TOKEN,Crypto.generateTOTP(nfcToken))
                .header(AUTHORIZATION, BEARER + jwtToken)
                .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
-
     }
 
     public void close() {

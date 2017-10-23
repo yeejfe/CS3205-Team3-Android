@@ -53,6 +53,7 @@ public class StepSensorService extends Service implements SensorEventListener {
     private static int lastSaveSteps;
     private static long lastSaveTime;
 
+    private String sessionName = "session";
     private Steps data;
     private long divisor = 0;
     private long offset = 0;
@@ -238,7 +239,7 @@ public class StepSensorService extends Service implements SensorEventListener {
 
                 //save to file
                 String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
-                Repository.writeFile(getApplication().getExternalFilesDir(null).getAbsolutePath(), filename, data);
+                Repository.writeFile(getApplication().getFilesDir().getAbsolutePath(), filename, data);
             }
         }
     }
@@ -247,9 +248,9 @@ public class StepSensorService extends Service implements SensorEventListener {
         if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
             String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
             prefs.edit().putString(FILENAME, filename);
-            data = Repository.getFile(getApplication().getExternalFilesDir(null).getAbsolutePath(), filename);
+            data = Repository.getFile(getApplication().getFilesDir().getAbsolutePath(), filename, sessionName);
         } else {
-            data = new Steps(0);
+            data = new Steps(0, sessionName);
         }
     }
 

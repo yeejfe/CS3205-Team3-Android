@@ -9,6 +9,8 @@ import android.os.AsyncTask;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.core.Response;
 
@@ -79,7 +81,6 @@ public class UploadHandler{
             }
 
             try {
-
                 RemoteDataSource rDS = new RemoteDataSource();
                 Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
 
@@ -132,7 +133,6 @@ public class UploadHandler{
                     }
 
                     try {
-
                         RemoteDataSource rDS = new RemoteDataSource();
                         Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
 

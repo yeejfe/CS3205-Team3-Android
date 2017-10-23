@@ -1,6 +1,8 @@
 package cs3205.subsystem3.health.ui.step;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -10,18 +12,22 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import cs3205.subsystem3.health.BuildConfig;
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.Tag;
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.data.source.local.Repository;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
 import cs3205.subsystem3.health.logic.step.StepSensorService;
@@ -45,6 +51,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 public class StepSensorFragment extends Fragment implements SensorEventListener, OnClickListener {
 
     private String TAG = this.getClass().getName();
+    private String sessionName = "session ";
 
     private TextView stepsView, totalView, averageView, textView;
     private Button buttonStart;
@@ -94,6 +101,10 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
                 stopStepsService();
                 break;
             case R.id.btn_go_step_upload:
+                if(buttonStop.isEnabled()) {
+                    Toast.makeText(getActivity(), AppMessage.TOAST_MESSAGE_STOP_BEFORE_UPLOAD, Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.replace(R.id.fragment_placeholder, new StepUploadFragment(), null);
                 ft.addToBackStack(null);
@@ -106,6 +117,8 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(STEPS_STOPPED, false).commit();
         prefs.edit().putString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis())).commit();
+
+        getSessionName();
 
         retrieveSteps("startStepsService");
 
@@ -191,7 +204,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
             //save to file
             String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
-            Repository.writeFile(getActivity().getExternalFilesDir(null).getAbsolutePath(), filename, data);
+            Repository.writeFile(getActivity().getFilesDir().getAbsolutePath(), filename, data);
         }
     }
 
@@ -268,9 +281,9 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
             String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
             prefs.edit().putString(FILENAME, filename);
-            data = Repository.getFile(getActivity().getExternalFilesDir(null).getAbsolutePath(), filename);
+            data = Repository.getFile(getActivity().getFilesDir().getAbsolutePath(), filename, sessionName);
         } else {
-            data = new Steps(0);
+            data = new Steps(0, sessionName);
             Log.d("Prefs", "new STEPS | method: " + methodName);
         }
     }
@@ -304,6 +317,35 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         stepsView.setText(String.valueOf(steps_today));
         totalView.setText(String.valueOf((total_start + steps_today)));
         averageView.setText(String.valueOf(((total_start + steps_today) / total_days)));
+    }
+
+    private void getSessionName(){
+        sessionName += Timestamp.getFormattedCurrentTimestamp();
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setTitle("Session Name");
+
+        final EditText input = new EditText(getActivity());
+        input.setText(sessionName);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+        alertDialogBuilder.setView(input);
+
+        alertDialogBuilder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                sessionName = input.getText().toString();
+                data.setName(sessionName);
+            }
+        });
+        alertDialogBuilder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     private long getTime(long eventTimestamp) {

@@ -26,5 +26,5 @@ public class AppMessage {
     public static final String TOAST_MESSAGE_LOGOUT_SUCCESS = "LOGOUT SUCCESSFUL";
     public static final String ERROR_MESSAGE_EMPTY_USERNAME = "Username must not be empty";
     public static final String ERROR_MESSAGE_INVALID_PASSWORD_LENGTH = "Password must be between 8 and 20 alphanumeric characters";
-
+    public static final String TOAST_MESSAGE_NO_FILE_SELECTED = "No files selected";
 }
