@@ -18,7 +18,7 @@ import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
 
-public class UploadHandler extends AppCompatActivity {
+public class UploadHandler {
 
     public static final String MESSAGE_EXCEED_MAX_SIZE = "Exceeded the maximum size: 50MB";
     public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
@@ -167,7 +167,7 @@ public class UploadHandler extends AppCompatActivity {
     }
 
     private void showAlert(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(message).setTitle(MESSAGE_RESPONSE_TITLE)
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
