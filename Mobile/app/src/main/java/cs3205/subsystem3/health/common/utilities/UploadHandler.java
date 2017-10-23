@@ -2,14 +2,9 @@ package cs3205.subsystem3.health.common.utilities;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,64 +14,50 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.core.Response;
 
-import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
 
-public class UploadHandler extends AppCompatActivity {
+
+public class UploadHandler{
+
 
     public static final String MESSAGE_EXCEED_MAX_SIZE = "Exceeded the maximum size: 50MB";
     public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
     public static final String MESSAGE_SUCCESSFUL = "Successful";
     public static final String MESSAGE_FAIL = "Fail";
-
-    private TextView textView;
-    private ProgressBar progressBar;
-    private TextView txtPercentage;
+    public static final String MESSAGE_NFC_READ_FAIL = "NFC read fail";
+    public static final String IMAGE = "IMAGE";
 
 
+
+    private Context context;
     private String path;
-    private String token;
-    private String hash;
+    private String jwtToken;
+    private String nfcToken;
     private RemoteDataSource.Type choice;
+
 
     long totalSize = 0;
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public UploadHandler(String path,RemoteDataSource.Type choice, Context context,String jwtToken, String nfcToken){
+        this.context = context;
+        this.path = path;
+        this.choice = choice;
+        this.jwtToken = jwtToken;
+        this.nfcToken = nfcToken;
+
+    }
+
+    public void startUpload(){
         try {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_upload_handler);
-            Intent intent = getIntent();
-            path = intent.getStringExtra("path");
-            choice = RemoteDataSource.Type.valueOf(intent.getStringExtra("choice").toUpperCase());
-            textView = (TextView) findViewById(R.id.textView2);
-            progressBar = (ProgressBar) findViewById(R.id.progressBar);
-            txtPercentage = (TextView) findViewById(R.id.txtPercentage);
-
-          //     getSupportActionBar().setBackgroundDrawable(
-          //             new ColorDrawable(Color.parseColor(getResources().getString(
-           //                    0+R.color.action_bar))));
-
-        }
-        catch (Exception ex){
-            ex.printStackTrace();
-        }
-
-
-
-        getToken();
-        getNfcHash();
-        try {
-            if(choice.equals("IMAGE")) {
+            if(choice.equals(IMAGE)) {
                 upload();
             }
             else{
                 new UploadAsync().execute();
-
             }
         }
         catch (Exception ex){
@@ -87,23 +68,8 @@ public class UploadHandler extends AppCompatActivity {
 
 
 
-    private void getToken(){
-        token = "";
-        //TODO: use JSONWebToken.getInstance().getData() to get the jwt instead, no more shared preference
-        textView.setText(token);
-        System.out.println("token is "+ token);
-    }
 
-
-    private String getNfcHash(){
-        //TODO: get nfc token hash here
-        return "nfc_hash";
-    }
-
-
-
-
-    public boolean upload() {
+    private boolean upload() {
         File f = new File(path);
         long length = f.length() / (1024 * 1024);  // length is expressed in MB
         if (length < 50.00) {
@@ -114,26 +80,25 @@ public class UploadHandler extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            RemoteDataSource rDS = new RemoteDataSource();
-            Response response = null;
             try {
-                response = rDS.buildFileUploadRequest(stream, token, getNfcHash(),Long.valueOf(Timestamp.getEpochTimeStamp()),choice);
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
+                RemoteDataSource rDS = new RemoteDataSource();
+                Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
+
+                rDS.close();
+
+                // Check Response
+                if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                    showAlert(MESSAGE_SUCCESSFUL);
+                    return true;
+
+                } else {
+                    Log.e("connection", "response is " + response.readEntity(String.class));
+                    showAlert(MESSAGE_FAIL);
+                    return false;
+                }
             }
-
-            rDS.close();
-
-            // Check Response
-            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-                showAlert(MESSAGE_SUCCESSFUL);
-                return true;
-
-            } else {
-                Log.e("connection", "response is " + response.readEntity(String.class));
-                showAlert(MESSAGE_FAIL);
+            catch(Exception e){
+                e.printStackTrace();
                 return false;
             }
         } else {
@@ -147,24 +112,6 @@ public class UploadHandler extends AppCompatActivity {
      * Uploading the file to server
      * */
     private class UploadAsync extends AsyncTask<Void, Integer, String> {
-        @Override
-        protected void onPreExecute() {
-            // setting progress bar to zero
-            progressBar.setProgress(0);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            // Making progress bar visible
-            progressBar.setVisibility(View.VISIBLE);
-
-            // updating progress bar value
-            progressBar.setProgress(progress[0]);
-
-            // updating percentage value
-            txtPercentage.setText(String.valueOf(progress[0]) + "%");
-        }
 
         @Override
         protected String doInBackground(Void... params) {
@@ -173,14 +120,6 @@ public class UploadHandler extends AppCompatActivity {
 
         @SuppressWarnings("deprecation")
         private String uploadBigFile() {
-           /* AndroidMultiPartEntity entity = new AndroidMultiPartEntity(
-                    new ProgressListener() {
-
-                        @Override
-                        public void transferred(long num) {
-                            publishProgress((int) ((num / (float) totalSize) * 100));
-                        }
-                    });*/
 
                 String responseString = null;
                 File f = new File(path);
@@ -193,25 +132,23 @@ public class UploadHandler extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    RemoteDataSource rDS = new RemoteDataSource();
-                    Response response = null;
                     try {
-                        response = rDS.buildFileUploadRequest(stream, token, getNfcHash(), Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
-                    } catch (InvalidKeyException e) {
+                        RemoteDataSource rDS = new RemoteDataSource();
+                        Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
+
+                        rDS.close();
+                        // Check Response
+
+                        if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+
+                            responseString = MESSAGE_SUCCESSFUL;
+
+                        } else {
+                            responseString = MESSAGE_FAIL;
+                        }
+
+                    } catch (Exception e){
                         e.printStackTrace();
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    }
-
-                    rDS.close();
-                    // Check Response
-
-                    if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-
-                        responseString = MESSAGE_SUCCESSFUL;
-
-                    } else {
-                        responseString = MESSAGE_FAIL;
                     }
                 } else {
                     responseString = MESSAGE_EXCEED_MAX_SIZE;
@@ -231,7 +168,7 @@ public class UploadHandler extends AppCompatActivity {
     }
 
     private void showAlert(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(message).setTitle(MESSAGE_RESPONSE_TITLE)
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {

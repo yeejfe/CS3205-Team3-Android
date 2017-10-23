@@ -11,7 +11,6 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.utilities.Crypto;
 
 /**
@@ -43,7 +42,7 @@ public class RemoteDataSource {
         client = ClientBuilder.newClient();
     }
 
-    public Response buildFileUploadRequest(InputStream stream, String token, String nfcSecret, Long time, Type type) throws InvalidKeyException, NoSuchAlgorithmException {
+    public Response buildFileUploadRequest(InputStream stream, String jwtToken, String nfcToken, Long time, Type type) throws NoSuchAlgorithmException, InvalidKeyException {
         Invocation.Builder builder = null;
 
         if (type.equals(Type.STEPS)) {
@@ -57,10 +56,10 @@ public class RemoteDataSource {
                     .request();
         }
 
-        return builder
-                .header(X_NFC_TOKEN, Crypto.generateTOTP(nfcSecret))
-                .header(AUTHORIZATION, BEARER + token)
-                .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
+       return builder
+               .header(X_NFC_TOKEN,Crypto.generateTOTP(nfcToken))
+               .header(AUTHORIZATION, BEARER + jwtToken)
+               .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
     }
 
     public void close() {

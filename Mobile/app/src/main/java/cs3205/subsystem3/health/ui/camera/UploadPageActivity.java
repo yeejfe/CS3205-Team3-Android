@@ -1,6 +1,5 @@
 package cs3205.subsystem3.health.ui.camera;
 
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -11,25 +10,31 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
+import cs3205.subsystem3.health.common.utilities.JSONWebToken;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.common.utilities.UploadHandler;
+import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
+import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
+
+import static android.R.attr.path;
+import static cs3205.subsystem3.health.common.utilities.UploadHandler.MESSAGE_NFC_READ_FAIL;
 
 
-public class UploadPageActivity extends Activity implements View.OnClickListener {
+public class UploadPageActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final int RESULT_LOAD_VIDEO = 2;
-    public static final String MESSAGE_EXCEED_MAX_SIZE = "Exceeded the maximum size: 10MB";
-    public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
-    public static final String MESSAGE_SUCCESSFUL = "Successful";
-    public static final String MESSAGE_FAIL = "Fail";
 
     private ImageView imageToUpload, videoToUpload;
     private VideoView videoToPreview;
@@ -37,6 +42,10 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
     private TextView uploadImageName, uploadVideoName;
 
     private String selectedPath = null;
+
+    private String nfcToken;
+    private String jwtToken;
+    private RemoteDataSource.Type choice;
 
 
     @Override
@@ -82,16 +91,16 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
         switch (view.getId()) {
             case R.id.imageToUpload:
                 Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(imageGalleryIntent, RESULT_LOAD_IMAGE);
+                imageGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                startActivityForResult(Intent.createChooser(imageGalleryIntent,"Select Picture"), RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
-                Intent imageUploader = new Intent(this, UploadHandler.class);
+                choice = RemoteDataSource.Type.IMAGE;
                 if(selectedPath==null){
                     break;
                 }else {
-                    imageUploader.putExtra("path", selectedPath);
-                    imageUploader.putExtra("choice", "image");
-                    startActivity(imageUploader);
+                    getJwtToken();
+                    getNfcToken();
                     break;
                 }
             case R.id.videoToUpload:
@@ -99,20 +108,29 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
                 startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
-                Intent videoUploader = new Intent(this, UploadHandler.class);
+                choice = RemoteDataSource.Type.VIDEO;
                 if(selectedPath==null){
                     break;
-                }
-                else {
-                    videoUploader.putExtra("path", selectedPath);
-                    videoUploader.putExtra("choice", "video");
-                    startActivity(videoUploader);
+                }else {
+                    getJwtToken();
+                    getNfcToken();
                     break;
                 }
 
 
         }
 
+    }
+    private void getJwtToken(){
+        jwtToken = "";
+        jwtToken =  JSONWebToken.getInstance().getData();
+        Log.d("UploadHandler", jwtToken);
+    }
+
+
+    private void getNfcToken(){
+        Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
+        startActivityForResult(startNFCReadingActivity, 70);
     }
 
     @Override
@@ -133,11 +151,20 @@ public class UploadPageActivity extends Activity implements View.OnClickListener
             videoToPreview.setVideoURI(selectedVideoUri);
             videoToPreview.setVisibility(View.VISIBLE);
 
+        } else if (requestCode == 70) {
+                if (resultCode == RESULT_OK) {
+                    nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
+                    Log.d("UploadPageActivity", "NFC token is "+nfcToken);
+                    UploadHandler uploadHander = new UploadHandler(selectedPath, choice, this , jwtToken, nfcToken);
+                    uploadHander.startUpload();
+                }
         }
 
     }
 
-
+    private void failNfcRead(){
+        Toast.makeText(this, MESSAGE_NFC_READ_FAIL , Toast.LENGTH_SHORT).show();
+    }
 
 
     public String getVideoPath(Uri uri) {

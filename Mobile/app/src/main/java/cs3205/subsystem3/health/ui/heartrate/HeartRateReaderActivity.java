@@ -149,12 +149,17 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                 mHandler.postDelayed(this, 300);
             }
         };
+        if (!mStart.isEnabled()) {
+            mHandler.postDelayed(mGraphUpdater, 300);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        mSeries.resetData(emptyDataPoints);
         mHandler.removeCallbacks(mGraphUpdater);
+
         if (SessionManager.isTimerSet()) {
             SessionManager.resetTimer(this);
         } else {
