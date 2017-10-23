@@ -26,10 +26,8 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final int RESULT_LOAD_VIDEO = 2;
-    public static final String MESSAGE_EXCEED_MAX_SIZE = "Exceeded the maximum size: 10MB";
-    public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
-    public static final String MESSAGE_SUCCESSFUL = "Successful";
-    public static final String MESSAGE_FAIL = "Fail";
+    public static final String CHOICE_IMAGE = "image";
+    public static final String CHOICE_VIDEO = "video";
 
     private ImageView imageToUpload, videoToUpload;
     private VideoView videoToPreview;
@@ -86,13 +84,11 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 startActivityForResult(Intent.createChooser(imageGalleryIntent,"Select Picture"), RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
-                Intent imageUploader = new Intent(this, UploadHandler.class);
+                UploadHandler imageUploader = new UploadHandler(selectedPath, CHOICE_IMAGE);
                 if(selectedPath==null){
                     break;
                 }else {
-                    imageUploader.putExtra("path", selectedPath);
-                    imageUploader.putExtra("choice", "image");
-                    startActivity(imageUploader);
+                    imageUploader.startUpload();
                     break;
                 }
             case R.id.videoToUpload:
@@ -100,14 +96,12 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
-                Intent videoUploader = new Intent(this, UploadHandler.class);
+                UploadHandler videoUploader = new UploadHandler(selectedPath, CHOICE_VIDEO);
                 if(selectedPath==null){
                     break;
                 }
                 else {
-                    videoUploader.putExtra("path", selectedPath);
-                    videoUploader.putExtra("choice", "video");
-                    startActivity(videoUploader);
+                    videoUploader.startUpload();
                     break;
                 }
 
@@ -137,27 +131,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         }
 
     }
-
-
-
-
-    public String getVideoPath(Uri uri) {
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToFirst();
-        String document_id = cursor.getString(0);
-        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
-        cursor.close();
-
-        cursor = getContentResolver().query(
-                android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
-        cursor.moveToFirst();
-        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-        cursor.close();
-
-        return path;
-    }
-
+    
 
     /**
      * Get a file path from a Uri. This will get the the path for Storage Access

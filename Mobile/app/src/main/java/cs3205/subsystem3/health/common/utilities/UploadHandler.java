@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -51,33 +50,23 @@ public class UploadHandler extends AppCompatActivity {
     long totalSize = 0;
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        try {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_upload_handler);
-            context = this;
-            Intent intent = getIntent();
-            path = intent.getStringExtra("path");
-            choice = RemoteDataSource.Type.valueOf(intent.getStringExtra("choice").toUpperCase());
-            textView = (TextView) findViewById(R.id.textView2);
-            progressBar = (ProgressBar) findViewById(R.id.progressBar);
-            txtPercentage = (TextView) findViewById(R.id.txtPercentage);
+    public UploadHandler(String path,String choice){
 
-          //     getSupportActionBar().setBackgroundDrawable(
-          //             new ColorDrawable(Color.parseColor(getResources().getString(
-           //                    0+R.color.action_bar))));
+        context = this;
+        path = path;
+        choice = choice;
+        textView = (TextView) findViewById(R.id.textView2);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        txtPercentage = (TextView) findViewById(R.id.txtPercentage);
 
-        }
-        catch (Exception ex){
-            ex.printStackTrace();
-        }
 
-        getJwtToken();
-        getNfcToken();
 
     }
 
+    public void startUpload(){
+        getJwtToken();
+        getNfcToken();
+    }
 
 
     private void getJwtToken(){
@@ -126,7 +115,7 @@ public class UploadHandler extends AppCompatActivity {
 
 
 
-    public boolean upload() {
+    private boolean upload() {
         File f = new File(path);
         long length = f.length() / (1024 * 1024);  // length is expressed in MB
         if (length < 50.00) {
