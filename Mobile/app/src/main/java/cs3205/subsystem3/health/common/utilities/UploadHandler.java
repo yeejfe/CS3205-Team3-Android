@@ -14,6 +14,8 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.core.Response;
 
@@ -113,7 +115,14 @@ public class UploadHandler extends AppCompatActivity {
             }
 
             RemoteDataSource rDS = new RemoteDataSource();
-            Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(),Long.valueOf(Timestamp.getEpochTimeStamp()),choice);
+            Response response = null;
+            try {
+                response = rDS.buildFileUploadRequest(stream, token, getNfcHash(),Long.valueOf(Timestamp.getEpochTimeStamp()),choice);
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
 
             rDS.close();
 
@@ -185,7 +194,14 @@ public class UploadHandler extends AppCompatActivity {
                     }
 
                     RemoteDataSource rDS = new RemoteDataSource();
-                    Response response = rDS.buildFileUploadRequest(stream, token, getNfcHash(), Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
+                    Response response = null;
+                    try {
+                        response = rDS.buildFileUploadRequest(stream, token, getNfcHash(), Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
+                    } catch (InvalidKeyException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
 
                     rDS.close();
                     // Check Response
