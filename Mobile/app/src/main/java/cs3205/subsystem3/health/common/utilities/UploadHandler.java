@@ -34,6 +34,7 @@ public class UploadHandler extends AppCompatActivity {
     public static final String MESSAGE_SUCCESSFUL = "Successful";
     public static final String MESSAGE_FAIL = "Fail";
     public static final String MESSAGE_NFC_READ_FAIL = "NFC read fail";
+    public static final String IMAGE = "IMAGE";
 
     private TextView textView;
     private ProgressBar progressBar;
@@ -72,23 +73,8 @@ public class UploadHandler extends AppCompatActivity {
             ex.printStackTrace();
         }
 
-
-
         getJwtToken();
         getNfcToken();
-
-        try {
-            if(choice.equals("IMAGE")) {
-                upload();
-            }
-            else{
-                new UploadAsync().execute();
-
-            }
-        }
-        catch (Exception ex){
-            ex.printStackTrace();
-        }
 
     }
 
@@ -115,6 +101,17 @@ public class UploadHandler extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
                 Log.d("UploadHandler", "NFC token is "+nfcToken);
+                try {
+                    if(choice.equals(IMAGE)) {
+                        upload();
+                    }
+                    else{
+                        new UploadAsync().execute();
+                    }
+                }
+                catch (Exception ex){
+                    ex.printStackTrace();
+                }
             }
         } else {
             Log.d("NFC Read for Upload ", "request fail");
@@ -140,19 +137,26 @@ public class UploadHandler extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            RemoteDataSource rDS = new RemoteDataSource();
-            Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken,Long.valueOf(Timestamp.getEpochTimeStamp()),choice);
+            try {
 
-            rDS.close();
+                RemoteDataSource rDS = new RemoteDataSource();
+                Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
 
-            // Check Response
-            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-                showAlert(MESSAGE_SUCCESSFUL);
-                return true;
+                rDS.close();
 
-            } else {
-                Log.e("connection", "response is " + response.readEntity(String.class));
-                showAlert(MESSAGE_FAIL);
+                // Check Response
+                if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                    showAlert(MESSAGE_SUCCESSFUL);
+                    return true;
+
+                } else {
+                    Log.e("connection", "response is " + response.readEntity(String.class));
+                    showAlert(MESSAGE_FAIL);
+                    return false;
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace();
                 return false;
             }
         } else {
@@ -212,18 +216,24 @@ public class UploadHandler extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    RemoteDataSource rDS = new RemoteDataSource();
-                    Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
+                    try {
 
-                    rDS.close();
-                    // Check Response
+                        RemoteDataSource rDS = new RemoteDataSource();
+                        Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
 
-                    if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                        rDS.close();
+                        // Check Response
 
-                        responseString = MESSAGE_SUCCESSFUL;
+                        if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
 
-                    } else {
-                        responseString = MESSAGE_FAIL;
+                            responseString = MESSAGE_SUCCESSFUL;
+
+                        } else {
+                            responseString = MESSAGE_FAIL;
+                        }
+
+                    } catch (Exception e){
+                        e.printStackTrace();
                     }
                 } else {
                     responseString = MESSAGE_EXCEED_MAX_SIZE;

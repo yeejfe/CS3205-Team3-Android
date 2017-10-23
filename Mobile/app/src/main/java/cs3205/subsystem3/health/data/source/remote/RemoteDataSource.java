@@ -1,6 +1,8 @@
 package cs3205.subsystem3.health.data.source.remote;
 
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -40,7 +42,7 @@ public class RemoteDataSource {
         client = ClientBuilder.newClient();
     }
 
-    public Response buildFileUploadRequest(InputStream stream, String jwtToken, String nfcToken, Long time, Type type) {
+    public Response buildFileUploadRequest(InputStream stream, String jwtToken, String nfcToken, Long time, Type type) throws NoSuchAlgorithmException, InvalidKeyException {
         Invocation.Builder builder = null;
 
         if (type.equals(Type.STEPS)) {
@@ -54,15 +56,8 @@ public class RemoteDataSource {
                     .request();
         }
 
-        String nfcTokenHash = "";
-        try {
-            nfcTokenHash = Crypto.generateTOTP(nfcToken);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
        return builder
-               .header(X_NFC_TOKEN,nfcTokenHash)
+               .header(X_NFC_TOKEN,Crypto.generateTOTP(nfcToken))
                .header(AUTHORIZATION, BEARER + jwtToken)
                .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
 
