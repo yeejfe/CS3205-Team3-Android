@@ -4,10 +4,8 @@ package cs3205.subsystem3.health.common.utilities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,9 +15,7 @@ import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
-import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
-import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 
 public class UploadHandler extends AppCompatActivity {
@@ -43,59 +39,28 @@ public class UploadHandler extends AppCompatActivity {
     long totalSize = 0;
 
 
-    public UploadHandler(String path,RemoteDataSource.Type choice, Context context){
+    public UploadHandler(String path,RemoteDataSource.Type choice, Context context,String jwtToken, String nfcToken){
         this.context = context;
         this.path = path;
         this.choice = choice;
+        this.jwtToken = jwtToken;
+        this.nfcToken = nfcToken;
 
     }
 
     public void startUpload(){
-        getJwtToken();
-        getNfcToken();
-    }
-
-
-    private void getJwtToken(){
-        jwtToken = "";
-        jwtToken =  JSONWebToken.getInstance().getData();
-        Log.d("UploadHandler", jwtToken);
-    }
-
-
-    private void getNfcToken(){
-        Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
-        startActivityForResult(startNFCReadingActivity, 70);
-    }
-
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d("UploadHandler", "request code: " + requestCode);
-        if (requestCode == 70) {
-            if (resultCode == RESULT_OK) {
-                nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
-                Log.d("UploadHandler", "NFC token is "+nfcToken);
-                try {
-                    if(choice.equals(IMAGE)) {
-                        upload();
-                    }
-                    else{
-                        new UploadAsync().execute();
-                    }
-                }
-                catch (Exception ex){
-                    ex.printStackTrace();
-                }
+        try {
+            if(choice.equals(IMAGE)) {
+                upload();
             }
-        } else {
-            Log.d("NFC Read for Upload ", "request fail");
-            failNfcRead();
+            else{
+                new UploadAsync().execute();
+            }
         }
-    }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
 
-    private void failNfcRead(){
-        Toast.makeText(this, MESSAGE_NFC_READ_FAIL , Toast.LENGTH_SHORT).show();
     }
 
 

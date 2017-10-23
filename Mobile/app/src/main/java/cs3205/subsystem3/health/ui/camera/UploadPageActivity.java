@@ -15,19 +15,26 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import cs3205.subsystem3.health.R;
+import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
+import cs3205.subsystem3.health.common.utilities.JSONWebToken;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.common.utilities.UploadHandler;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
+import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
+
+import static android.R.attr.path;
+import static cs3205.subsystem3.health.common.utilities.UploadHandler.MESSAGE_NFC_READ_FAIL;
 
 
 public class UploadPageActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final int RESULT_LOAD_VIDEO = 2;
-
 
     private ImageView imageToUpload, videoToUpload;
     private VideoView videoToPreview;
@@ -36,6 +43,9 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
 
     private String selectedPath = null;
 
+    private String nfcToken;
+    private String jwtToken;
+    private RemoteDataSource.Type choice;
 
 
     @Override
@@ -85,11 +95,12 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 startActivityForResult(Intent.createChooser(imageGalleryIntent,"Select Picture"), RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
-                UploadHandler imageUploader = new UploadHandler(selectedPath, RemoteDataSource.Type.IMAGE, this);
+                choice = RemoteDataSource.Type.IMAGE;
                 if(selectedPath==null){
                     break;
                 }else {
-                    imageUploader.startUpload();
+                    getJwtToken();
+                    getNfcToken();
                     break;
                 }
             case R.id.videoToUpload:
@@ -97,18 +108,29 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
-                UploadHandler videoUploader = new UploadHandler(selectedPath, RemoteDataSource.Type.VIDEO,this);
+                choice = RemoteDataSource.Type.VIDEO;
                 if(selectedPath==null){
                     break;
-                }
-                else {
-                    videoUploader.startUpload();
+                }else {
+                    getJwtToken();
+                    getNfcToken();
                     break;
                 }
 
 
         }
 
+    }
+    private void getJwtToken(){
+        jwtToken = "";
+        jwtToken =  JSONWebToken.getInstance().getData();
+        Log.d("UploadHandler", jwtToken);
+    }
+
+
+    private void getNfcToken(){
+        Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
+        startActivityForResult(startNFCReadingActivity, 70);
     }
 
     @Override
@@ -129,8 +151,37 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             videoToPreview.setVideoURI(selectedVideoUri);
             videoToPreview.setVisibility(View.VISIBLE);
 
+        } else if (requestCode == 70) {
+                if (resultCode == RESULT_OK) {
+                    nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
+                    Log.d("UploadPageActivity", "NFC token is "+nfcToken);
+                    UploadHandler uploadHander = new UploadHandler(selectedPath, choice, this , jwtToken, nfcToken);
+                    uploadHander.startUpload();
+                }
         }
 
+    }
+
+    private void failNfcRead(){
+        Toast.makeText(this, MESSAGE_NFC_READ_FAIL , Toast.LENGTH_SHORT).show();
+    }
+
+
+    public String getVideoPath(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
+
+        cursor = getContentResolver().query(
+                android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+        cursor.moveToFirst();
+        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+        cursor.close();
+
+        return path;
     }
 
 
