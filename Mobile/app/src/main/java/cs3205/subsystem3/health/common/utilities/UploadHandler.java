@@ -17,7 +17,9 @@ import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
 
+
 public class UploadHandler{
+
 
     public static final String MESSAGE_EXCEED_MAX_SIZE = "Exceeded the maximum size: 50MB";
     public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
