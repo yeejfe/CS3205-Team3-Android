@@ -7,9 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -18,7 +15,6 @@ import java.io.InputStream;
 
 import javax.ws.rs.core.Response;
 
-import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
@@ -35,9 +31,6 @@ public class UploadHandler extends AppCompatActivity {
     public static final String MESSAGE_NFC_READ_FAIL = "NFC read fail";
     public static final String IMAGE = "IMAGE";
 
-    private TextView textView;
-    private ProgressBar progressBar;
-    private TextView txtPercentage;
 
 
     private Context context;
@@ -50,16 +43,10 @@ public class UploadHandler extends AppCompatActivity {
     long totalSize = 0;
 
 
-    public UploadHandler(String path,String choice){
-
-        context = this;
-        path = path;
-        choice = choice;
-        textView = (TextView) findViewById(R.id.textView2);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        txtPercentage = (TextView) findViewById(R.id.txtPercentage);
-
-
+    public UploadHandler(String path,RemoteDataSource.Type choice, Context context){
+        this.context = context;
+        this.path = path;
+        this.choice = choice;
 
     }
 
@@ -72,8 +59,7 @@ public class UploadHandler extends AppCompatActivity {
     private void getJwtToken(){
         jwtToken = "";
         jwtToken =  JSONWebToken.getInstance().getData();
-        textView.setText(jwtToken);
-        Log.d("JWT Token for Upload", jwtToken);
+        Log.d("UploadHandler", jwtToken);
     }
 
 
@@ -159,24 +145,6 @@ public class UploadHandler extends AppCompatActivity {
      * Uploading the file to server
      * */
     private class UploadAsync extends AsyncTask<Void, Integer, String> {
-        @Override
-        protected void onPreExecute() {
-            // setting progress bar to zero
-            progressBar.setProgress(0);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            // Making progress bar visible
-            progressBar.setVisibility(View.VISIBLE);
-
-            // updating progress bar value
-            progressBar.setProgress(progress[0]);
-
-            // updating percentage value
-            txtPercentage.setText(String.valueOf(progress[0]) + "%");
-        }
 
         @Override
         protected String doInBackground(Void... params) {
@@ -185,14 +153,6 @@ public class UploadHandler extends AppCompatActivity {
 
         @SuppressWarnings("deprecation")
         private String uploadBigFile() {
-           /* AndroidMultiPartEntity entity = new AndroidMultiPartEntity(
-                    new ProgressListener() {
-
-                        @Override
-                        public void transferred(long num) {
-                            publishProgress((int) ((num / (float) totalSize) * 100));
-                        }
-                    });*/
 
                 String responseString = null;
                 File f = new File(path);

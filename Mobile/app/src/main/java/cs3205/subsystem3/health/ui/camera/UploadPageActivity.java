@@ -20,14 +20,14 @@ import android.widget.VideoView;
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.common.utilities.UploadHandler;
+import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 
 
 public class UploadPageActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final int RESULT_LOAD_VIDEO = 2;
-    public static final String CHOICE_IMAGE = "image";
-    public static final String CHOICE_VIDEO = "video";
+
 
     private ImageView imageToUpload, videoToUpload;
     private VideoView videoToPreview;
@@ -35,6 +35,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     private TextView uploadImageName, uploadVideoName;
 
     private String selectedPath = null;
+
 
 
     @Override
@@ -84,7 +85,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 startActivityForResult(Intent.createChooser(imageGalleryIntent,"Select Picture"), RESULT_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
-                UploadHandler imageUploader = new UploadHandler(selectedPath, CHOICE_IMAGE);
+                UploadHandler imageUploader = new UploadHandler(selectedPath, RemoteDataSource.Type.IMAGE, this);
                 if(selectedPath==null){
                     break;
                 }else {
@@ -96,7 +97,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
-                UploadHandler videoUploader = new UploadHandler(selectedPath, CHOICE_VIDEO);
+                UploadHandler videoUploader = new UploadHandler(selectedPath, RemoteDataSource.Type.VIDEO,this);
                 if(selectedPath==null){
                     break;
                 }
@@ -131,7 +132,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         }
 
     }
-    
+
 
     /**
      * Get a file path from a Uri. This will get the the path for Storage Access
