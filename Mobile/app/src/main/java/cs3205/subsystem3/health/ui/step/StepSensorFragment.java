@@ -51,7 +51,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 public class StepSensorFragment extends Fragment implements SensorEventListener, OnClickListener {
 
     private String TAG = this.getClass().getName();
-    private String sessionName = "session ";
+    private String sessionName = "session_";
 
     private TextView stepsView, totalView, averageView, textView;
     private Button buttonStart;

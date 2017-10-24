@@ -13,9 +13,9 @@ public class Steps {
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_RECORD = "sessionTime";
     public static final String FIELD_TIME = "time";
-    public static final String FIELD_CHANNEL = "channel";
-    public static final String FIELD_AXIS_X = "x-axis";
-    public static final String FIELD_AXIS_Y = "y-axis";
+    public static final String FIELD_CHANNEL = "channels";
+    public static final String FIELD_AXIS_X = "x_axis";
+    public static final String FIELD_AXIS_Y = "y_axis";
     public static final String FIELD_VALUE = "value";
     public static final String[] FIELD_CHANNELS_TYPES = {"noOfSteps","differenceInTime"};
 
