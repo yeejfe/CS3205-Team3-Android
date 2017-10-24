@@ -27,14 +27,20 @@ import cs3205.subsystem3.health.common.utilities.UploadHandler;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
-import static android.R.attr.path;
 import static cs3205.subsystem3.health.common.utilities.UploadHandler.MESSAGE_NFC_READ_FAIL;
 
 
 public class UploadPageActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final int RESULT_LOAD_IMAGE = 1;
-    private static final int RESULT_LOAD_VIDEO = 2;
+    private static final int REQUEST_LOAD_IMAGE = 1;
+    private static final int REQUEST_LOAD_VIDEO = 2;
+    public static final int REQUEST_READ_NFC = 70;
+
+    public static final String CONTENT_DOWNLOADS_PUBLIC_DOWNLOADS = "content://downloads/public_downloads";
+    public static final String EXTERNAL_STORAGE = "com.android.externalstorage.documents";
+    public static final String PROVIDERS_DOWNLOADS = "com.android.providers.downloads.documents";
+    public static final String PROVIDERS_MEDIA = "com.android.providers.media.documents";
+
 
     private ImageView imageToUpload, videoToUpload;
     private VideoView videoToPreview;
@@ -92,7 +98,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             case R.id.imageToUpload:
                 Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 imageGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(Intent.createChooser(imageGalleryIntent,"Select Picture"), RESULT_LOAD_IMAGE);
+                startActivityForResult(Intent.createChooser(imageGalleryIntent,"Select Picture"), REQUEST_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
                 choice = RemoteDataSource.Type.IMAGE;
@@ -105,7 +111,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 }
             case R.id.videoToUpload:
                 Intent VideoGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(VideoGalleryIntent, RESULT_LOAD_VIDEO);
+                startActivityForResult(VideoGalleryIntent, REQUEST_LOAD_VIDEO);
                 break;
             case R.id.buttonUploadVideo:
                 choice = RemoteDataSource.Type.VIDEO;
@@ -124,26 +130,26 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     private void getJwtToken(){
         jwtToken = "";
         jwtToken =  JSONWebToken.getInstance().getData();
-        Log.d("UploadHandler", jwtToken);
+        Log.d(this.getClass().getSimpleName() , jwtToken);
     }
 
 
     private void getNfcToken(){
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
-        startActivityForResult(startNFCReadingActivity, 70);
+        startActivityForResult(startNFCReadingActivity, REQUEST_READ_NFC);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
+        if (requestCode == REQUEST_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData();
             selectedPath = getPath(this, selectedImageUri);
             uploadImageName.setText(selectedPath);
             imageToUpload.setImageURI(selectedImageUri);
 
 
-        } else if (requestCode == RESULT_LOAD_VIDEO && resultCode == RESULT_OK && data != null) {
+        } else if (requestCode == REQUEST_LOAD_VIDEO && resultCode == RESULT_OK && data != null) {
             Uri selectedVideoUri = data.getData();
             selectedPath = getPath(this, selectedVideoUri);
             uploadVideoName.setText(selectedPath);
@@ -151,10 +157,10 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             videoToPreview.setVideoURI(selectedVideoUri);
             videoToPreview.setVisibility(View.VISIBLE);
 
-        } else if (requestCode == 70) {
+        } else if (requestCode == REQUEST_READ_NFC) {
                 if (resultCode == RESULT_OK) {
                     nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
-                    Log.d("UploadPageActivity", "NFC token is "+nfcToken);
+                    Log.d(this.getClass().getSimpleName() , "NFC token is "+nfcToken);
                     UploadHandler uploadHander = new UploadHandler(selectedPath, choice, this , jwtToken, nfcToken);
                     uploadHander.startUpload();
                 }
@@ -190,9 +196,6 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
      * Framework Documents, as well as the _data field for the MediaStore and
      * other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @author paulburke
      */
     public static String getPath(final Context context, final Uri uri) {
 
@@ -210,14 +213,13 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
 
-                // TODO handle non-primary volumes
             }
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
 
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                        Uri.parse(CONTENT_DOWNLOADS_PUBLIC_DOWNLOADS), Long.valueOf(id));
 
                 return getDataColumn(context, contentUri, null, null);
             }
@@ -260,11 +262,6 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
-     * @param selectionArgs (Optional) Selection arguments used in the query.
-     * @return The value of the _data column, which is typically a file path.
      */
     public static String getDataColumn(Context context, Uri uri, String selection,
                                        String[] selectionArgs) {
@@ -295,7 +292,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
     public static boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+        return EXTERNAL_STORAGE.equals(uri.getAuthority());
     }
 
     /**
@@ -303,7 +300,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
      * @return Whether the Uri authority is DownloadsProvider.
      */
     public static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+        return PROVIDERS_DOWNLOADS.equals(uri.getAuthority());
     }
 
     /**
@@ -311,7 +308,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
      * @return Whether the Uri authority is MediaProvider.
      */
     public static boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
+        return PROVIDERS_MEDIA.equals(uri.getAuthority());
     }
 
 }

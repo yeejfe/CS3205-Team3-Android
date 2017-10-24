@@ -1,6 +1,5 @@
 package cs3205.subsystem3.health.ui.camera;
 
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,10 +19,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -39,18 +35,20 @@ public class CameraActivity extends AppCompatActivity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int REQUEST_TAKE_VIDEO = 2;
-    static final int REQUEST_TAKE_PHOTO_TEST = 3;
 
 
-    public static final String CAMERA_DIR = "/dcim/";
     public static final String JPEG = "JPEG_";
     public static final String UNDERLINE = "_";
     public static final String JPG = ".jpg";
-    public static final String AUTHORITIES = "com.example.panjiyun.healthcamera.fileprovider";
+    public static final String DATE_FORMAT = "yyyyMMdd_HHmmss";
+    public static final String MEDIA_SCANNER = "android.intent.action.MEDIA_SCANNER_SCAN_FILE";
+
+
+    public static final String FAIL_MESSAGE_1 = "failed to create directory";
+    public static final String FAIL_MESSAGE_2 = "External storage is not mounted READ/WRITE.";
 
     private ImageView mImageView;
     private VideoView mVideoView;
-    private Uri mVideoUri;
     private TextView mPathName;
 
 
@@ -98,7 +96,6 @@ public class CameraActivity extends AppCompatActivity {
                 mCurrentImagePath = null;
             }
             if (imageFile != null) {
-                // Uri photoURI = FileProvider.getUriForFile(this,AUTHORITIES,imageFile);
                 takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
                 startActivityForResult(takePhotoIntent, REQUEST_TAKE_PHOTO);
             }
@@ -106,39 +103,10 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-    public void onClick_TakePhotoForTest(View view){
-        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-        if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
-            File imageFile = wrapper.getDir("Health Internal Images", MODE_PRIVATE);
-            imageFile = new File(imageFile, getUniqueName()+".jpg");
-            OutputStream stream = null;
-            try {
-                stream = new FileOutputStream(imageFile);
-                takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
-                mCurrentImagePath = imageFile.getAbsolutePath();
-
-            }catch(FileNotFoundException e){
-                e.printStackTrace();
-                imageFile = null;
-                mCurrentImagePath = null;
-                Log.d("Take Photo","File not found");
-            }
-
-            if (imageFile != null) {
-                // Uri photoURI = FileProvider.getUriForFile(this,AUTHORITIES,imageFile);
-                startActivityForResult(takePhotoIntent, REQUEST_TAKE_PHOTO_TEST);
-            }
-
-        }
-
-    }
-
-
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat(DATE_FORMAT).format(new Date());
         String imageFileName = JPEG + timeStamp + UNDERLINE;
         File storageDir = getAlbumDir();
         File image = File.createTempFile(
@@ -151,11 +119,7 @@ public class CameraActivity extends AppCompatActivity {
         return image;
     }
 
-    private String getUniqueName(){
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS").format(new Date());
-        String imageFileName = JPEG + timeStamp;
-        return imageFileName;
-    }
+
 
     private File getAlbumDir() {
         File storageDir = null;
@@ -167,14 +131,14 @@ public class CameraActivity extends AppCompatActivity {
             if (storageDir != null) {
                 if (! storageDir.mkdirs()) {
                     if (! storageDir.exists()){
-                        Log.d("CameraSample", "failed to create directory");
+                        Log.d(this.getClass().getSimpleName(), FAIL_MESSAGE_1);
                         return null;
                     }
                 }
             }
 
         } else {
-            Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
+            Log.v(this.getClass().getSimpleName(), FAIL_MESSAGE_2);
         }
 
         return storageDir;
@@ -195,13 +159,6 @@ public class CameraActivity extends AppCompatActivity {
                 }
                 break;
             }
-            case REQUEST_TAKE_PHOTO_TEST:{
-                if (resultCode == RESULT_OK){
-                    displayPathName();
-                    simpleDisplayImage();
-                }
-                break;
-            }
 
 
         }
@@ -218,8 +175,6 @@ public class CameraActivity extends AppCompatActivity {
 
     private void setPic() {
 
-		/* There isn't enough memory to open up more than a couple camera photos */
-		/* So pre-scale the target bitmap into which the file is decoded */
 
 		/* Get the size of the ImageView */
         int targetW = mImageView.getWidth();
@@ -257,22 +212,9 @@ public class CameraActivity extends AppCompatActivity {
         mPathName.setText(mCurrentImagePath);
     }
 
-    private void simpleDisplayImage(){
-        File imgFile = new  File(mCurrentImagePath);
-        if(imgFile.exists()){
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            mImageView = (ImageView) findViewById(R.id.imageView1);
-            mImageView.setVisibility(View.VISIBLE);
-            mImageView.setImageBitmap(myBitmap);
-
-        }
-        else{
-            Log.d("Take Photo","Image taken not found");
-        }
-    }
 
     private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+        Intent mediaScanIntent = new Intent(MEDIA_SCANNER);
         File f = new File(mCurrentImagePath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
