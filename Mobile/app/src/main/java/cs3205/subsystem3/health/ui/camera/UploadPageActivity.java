@@ -47,7 +47,9 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     private Button bUploadImage, bUploadVideo;
     private TextView uploadImageName, uploadVideoName;
 
-    private String selectedPath = null;
+    private String selectedPath = null ;
+    private String selectedImagePath = null;
+    private String selectedVideoPath = null;
 
     private String nfcToken;
     private String jwtToken;
@@ -102,7 +104,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.buttonUploadImage:
                 choice = RemoteDataSource.Type.IMAGE;
-                if(selectedPath==null){
+                if(selectedImagePath==null){
                     break;
                 }else {
                     getJwtToken();
@@ -115,7 +117,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.buttonUploadVideo:
                 choice = RemoteDataSource.Type.VIDEO;
-                if(selectedPath==null){
+                if(selectedVideoPath==null){
                     break;
                 }else {
                     getJwtToken();
@@ -144,15 +146,15 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData();
-            selectedPath = getPath(this, selectedImageUri);
-            uploadImageName.setText(selectedPath);
+            selectedImagePath = getPath(this, selectedImageUri);
+            uploadImageName.setText(selectedImagePath);
             imageToUpload.setImageURI(selectedImageUri);
 
 
         } else if (requestCode == REQUEST_LOAD_VIDEO && resultCode == RESULT_OK && data != null) {
             Uri selectedVideoUri = data.getData();
-            selectedPath = getPath(this, selectedVideoUri);
-            uploadVideoName.setText(selectedPath);
+            selectedVideoPath = getPath(this, selectedVideoUri);
+            uploadVideoName.setText(selectedVideoPath);
             videoToUpload.setVisibility(View.GONE);
             videoToPreview.setVideoURI(selectedVideoUri);
             videoToPreview.setVisibility(View.VISIBLE);
@@ -161,6 +163,12 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 if (resultCode == RESULT_OK) {
                     nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
                     Log.d(this.getClass().getSimpleName() , "NFC token is "+nfcToken);
+                    if(choice.equals(RemoteDataSource.Type.IMAGE)){
+                        selectedPath = selectedImagePath;
+                    }
+                    else{
+                        selectedPath = selectedVideoPath;
+                    }
                     UploadHandler uploadHander = new UploadHandler(selectedPath, choice, this , jwtToken, nfcToken);
                     uploadHander.startUpload();
                 }
