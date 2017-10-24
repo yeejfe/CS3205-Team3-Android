@@ -173,8 +173,13 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
     }
 
     private void startCamera() {
-        Intent cameraIntent = new Intent(this, CameraActivity.class);
-        startActivity(cameraIntent);
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) | ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE))!= PackageManager.PERMISSION_GRANTED) {
+            //ask for authorisation
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 40);
+        }else {
+            Intent cameraIntent = new Intent(this, CameraActivity.class);
+            startActivity(cameraIntent);
+        }
     }
 
     @Override
@@ -203,6 +208,16 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
                     Toast.makeText(MainActivity.this, AppMessage.TOAST_MESSAGE_NFC_PERMISSION_DENIED, Toast.LENGTH_SHORT)
                             .show();
                 }
+                break;
+            case 40:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                    Intent cameraIntent = new Intent(this, CameraActivity.class);
+                    startActivity(cameraIntent);
+                } else {
+                    Toast.makeText(MainActivity.this, AppMessage.TOAST_MESSAGE_EXTERNAL_STORAGE_PERMISSION_DENIED, Toast.LENGTH_SHORT).show();
+                }
+                break;
+
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
