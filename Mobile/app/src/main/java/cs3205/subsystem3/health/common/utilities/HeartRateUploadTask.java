@@ -16,7 +16,6 @@ import javax.ws.rs.core.Response;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
-import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 
 /**
@@ -49,7 +48,7 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
         Response response = null;
         try {
             response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + jwt).header(
-                    RequestInfo.HEADER_NFC_TOKEN_HASH, Crypto.generateTOTP(tag_password)).post(
+                    RequestInfo.HEADER_NFC_TOKEN_HASH, Crypto.generateNfcAuthToken(tag_password.getBytes())).post(
                     Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

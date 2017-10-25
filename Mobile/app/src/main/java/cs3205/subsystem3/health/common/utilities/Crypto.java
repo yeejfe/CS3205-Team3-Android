@@ -11,6 +11,8 @@ import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import cs3205.subsystem3.health.common.logger.Log;
+
 /**
  * Created by danwen on 6/10/17.
  */
@@ -48,7 +50,7 @@ public class Crypto {
     }
 
     //for testing only
-    public static boolean test() throws NoSuchAlgorithmException {
+    public static void test() throws NoSuchAlgorithmException, InvalidKeyException {
         String saltedPassword = "password";
         byte[] passwordHash = generateHash(saltedPassword.getBytes());
         byte[] expectedResult = generateHash(passwordHash);
@@ -66,15 +68,42 @@ public class Crypto {
         //hash the result
         actualResult = generateHash(actualResult);
 
-        return Arrays.equals(actualResult, expectedResult);
+        Log.d("Crypto", "challenge response test: " + Arrays.equals(actualResult, expectedResult));
 
+
+
+        byte[] secret = new byte[32];
+        new Random().nextBytes(secret);
+        //client sends h(s) || totp(s)
+        String totp = generateNfcAuthToken(secret);
+
+        //server stores h(s) xor s, and verifies totp from client
+        byte[] data = computeXOR(generateHash(secret), secret);
+        byte[] decoded = Base64.decode(totp, Base64.NO_WRAP);
+        byte[] secretHash = new byte[32];
+        System.arraycopy(decoded, 0, secretHash, 0, 32);
+        byte[] recoveredSecret = computeXOR(secretHash, data);
+        byte[] client_totp = new byte[32];
+        System.arraycopy(decoded, 32, client_totp, 0, 32);
+        byte[] server_totp = generateTOTP(recoveredSecret);
+
+        Log.d("Crypto", "totp test: " + Arrays.equals(client_totp, server_totp));
     }
 
-    public static String generateTOTP(String nfcToken) throws NoSuchAlgorithmException, InvalidKeyException {
+
+    public static String generateNfcAuthToken(byte[] nfcTokenBytes) throws NoSuchAlgorithmException, InvalidKeyException {
+
+        byte[] rawTOTP = new byte[64];
+        System.arraycopy(generateHash(nfcTokenBytes), 0, rawTOTP, 0, 32);
+        System.arraycopy(generateTOTP(nfcTokenBytes), 0, rawTOTP, 32, 32);
+        return Base64.encodeToString(rawTOTP, Base64.NO_WRAP);
+    }
+
+    private static byte[] generateTOTP(byte[] nfcTokenBytes) throws NoSuchAlgorithmException, InvalidKeyException {
         Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
         long timeCounter = System.currentTimeMillis() / 30000;
-        hmacSHA256.init(new SecretKeySpec(nfcToken.getBytes(), "SHA-256"));
-        return Base64.encodeToString(hmacSHA256.doFinal(String.valueOf(timeCounter).getBytes()), Base64.DEFAULT);
+        hmacSHA256.init(new SecretKeySpec(nfcTokenBytes, "SHA-256"));
+        return hmacSHA256.doFinal(String.valueOf(timeCounter).getBytes());
     }
 }
 

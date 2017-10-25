@@ -79,6 +79,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         if (response.getStatus() == 401) {
             JSONObject headers = null;
             try {
+                Log.d("LoginTask", "headers: " + response.getHeaders());
                 headers = new JSONObject(response.getHeaderString("www-authenticate"));
                 Log.d("LoginTask", "salt : " + headers.get(Value.KEY_VALUE_SALT) +
                         "; encoded challenge: " + headers.get(Value.KEY_VALUE_CHALLENGE));
@@ -99,11 +100,12 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     private boolean handleFormalLogin() {
+
         Invocation.Builder loginRequest = client.target(RequestInfo.URL_LOGIN).request();
         String nfcTokenHash = null;
         String challengeResponse = null;
         try {
-            nfcTokenHash = Crypto.generateTOTP(tag_password);
+            nfcTokenHash = Crypto.generateNfcAuthToken(tag_password.getBytes());
             Log.d("LoginTask", "nfc token hash: " + nfcTokenHash);
             challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(password + salt, challenge), Base64.DEFAULT);
             Log.d("LoginTask", "challenge result: " + challengeResponse);
