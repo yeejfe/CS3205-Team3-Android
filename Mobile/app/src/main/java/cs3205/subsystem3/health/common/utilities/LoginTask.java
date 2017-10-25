@@ -84,7 +84,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 Log.d("LoginTask", "salt : " + headers.get(Value.KEY_VALUE_SALT) +
                         "; encoded challenge: " + headers.get(Value.KEY_VALUE_CHALLENGE));
                 salt = (String)headers.get(Value.KEY_VALUE_SALT);
-                challenge = Base64.decode((String)headers.get(Value.KEY_VALUE_CHALLENGE), Base64.DEFAULT);
+                challenge = Base64.decode((String)headers.get(Value.KEY_VALUE_CHALLENGE), Base64.NO_WRAP);
                 Log.d("LoginTask", "decoded challenge: " + challenge +
                         "length of the challenge: " + challenge.length);
             } catch (JSONException e) {
@@ -107,7 +107,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         try {
             nfcTokenHash = Crypto.generateNfcAuthToken(tag_password.getBytes());
             Log.d("LoginTask", "nfc token hash: " + nfcTokenHash);
-            challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(password + salt, challenge), Base64.DEFAULT);
+            challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(password + salt, challenge), Base64.NO_WRAP);
             Log.d("LoginTask", "challenge result: " + challengeResponse);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
