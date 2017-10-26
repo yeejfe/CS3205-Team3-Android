@@ -48,7 +48,7 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
 
         Response response = null;
         if (!Internet.isConnected(context)) {
-            Toast.makeText(context, AppMessage.TOAST_MESSAGE_NO_INTERNET_CONNECTION, Toast.LENGTH_SHORT).show();
+            makeToastMessage(AppMessage.TOAST_MESSAGE_NO_INTERNET_CONNECTION);
             return false;
         }
         try {

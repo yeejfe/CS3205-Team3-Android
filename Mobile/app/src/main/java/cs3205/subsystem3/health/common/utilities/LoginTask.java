@@ -146,7 +146,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         Response response = null;
         try {
             response = loginRequest.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.CHALLENGE_RESPONSE_PREFIX + challengeResponse)
-                    .header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).header("debug", "true")
+                    .header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash)
                     .post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
         } catch (RuntimeException e) {
             isInternetError = true;
