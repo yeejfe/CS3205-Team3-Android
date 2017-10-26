@@ -11,17 +11,24 @@ import cs3205.subsystem3.health.model.Steps;
 public class StepsUtil {
 
     public static final long NO_OF_STEPS = 1;
+    public static final int INDEX_0 = 0;
 
     public static Steps updateSteps(Steps data, long timestamp) {
+        long firstTimestamp;
+
         if (data.getTimestamp() == 0) {
             data.setTimestamp(timestamp);
         }
 
         Steps.Time time = data.getTime();
         ArrayList<Long> timeValues = time.getValues();
-        if (timeValues == null)
+        if (timeValues == null) {
             timeValues = new ArrayList<>();
-        timeValues.add(timestamp);
+            firstTimestamp = timestamp;
+        } else {
+            firstTimestamp = timeValues.get(INDEX_0);
+        }
+        timeValues.add(timestamp - firstTimestamp);
         time.setValues(timeValues);
         data.setTime(time);
 
