@@ -58,7 +58,7 @@ public class RemoteDataSource {
 
        return builder
                .header(X_NFC_TOKEN,Crypto.generateNfcAuthToken(nfcToken.getBytes()))
-               .header(AUTHORIZATION, BEARER + jwtToken)
+               .header(AUTHORIZATION, BEARER + jwtToken).header("debug", "true")
                .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
     }
 

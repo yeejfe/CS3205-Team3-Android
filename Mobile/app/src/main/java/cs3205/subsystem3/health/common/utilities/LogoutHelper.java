@@ -6,10 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
-import java.io.File;
-
 import cs3205.subsystem3.health.MainActivity;
-import cs3205.subsystem3.health.common.logger.Log;
 
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.FILENAME;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
