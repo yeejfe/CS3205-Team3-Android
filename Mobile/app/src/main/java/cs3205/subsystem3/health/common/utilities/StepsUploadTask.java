@@ -90,7 +90,10 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
     }
 
     private int upload(String tag_password, String timeStamp, ArrayList<String> selectedFiles) {
-
+        if (!Internet.isConnected(context)) {
+            makeToastMessage(AppMessage.TOAST_MESSAGE_NO_INTERNET_CONNECTION);
+            return 0;
+        }
 
         int uploaded = selectedFiles.size();
 
