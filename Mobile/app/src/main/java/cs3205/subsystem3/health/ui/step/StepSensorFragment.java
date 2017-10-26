@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,8 +26,6 @@ import android.widget.Toast;
 import cs3205.subsystem3.health.BuildConfig;
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.Timestamp;
-import cs3205.subsystem3.health.common.logger.Log;
-import cs3205.subsystem3.health.common.logger.Tag;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.data.source.local.Repository;
 import cs3205.subsystem3.health.data.source.local.StepsDB;
@@ -42,7 +41,6 @@ import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STE
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS_STOPPED;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.SYSTEM_TIMESTAMP;
 import static cs3205.subsystem3.health.logic.step.StepsUtil.updateSteps;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * Created by Yee on 09/27/17.
@@ -50,8 +48,10 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class StepSensorFragment extends Fragment implements SensorEventListener, OnClickListener {
 
+    private static final String SESSION_NAME = "session_";
+
     private String TAG = this.getClass().getName();
-    private String sessionName = "session_";
+    private String sessionName = SESSION_NAME;
 
     private TextView stepsView, totalView, averageView, textView;
     private Button buttonStart;
@@ -101,7 +101,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
                 stopStepsService();
                 break;
             case R.id.btn_go_step_upload:
-                if(buttonStop.isEnabled()) {
+                if (buttonStop.isEnabled()) {
                     Toast.makeText(getActivity(), AppMessage.TOAST_MESSAGE_STOP_BEFORE_UPLOAD, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -114,16 +114,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     }
 
     public void startStepsService() {
-        SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(STEPS_STOPPED, false).commit();
-        prefs.edit().putString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis())).commit();
-
-        getSessionName();
-
-        retrieveSteps("startStepsService");
-
-        getActivity().startService(new Intent(getActivity(), StepSensorService.class));
-        setViewServiceStarted();
+        getSessionNameToStart();
     }
 
     public void stopStepsService() {
@@ -133,7 +124,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
         prefs.edit().remove(FILENAME);
 
-        getActivity().stopService(new Intent(getActivity(), StepSensorService.class));
+        //getActivity().stopService(new Intent(getActivity(), StepSensorService.class));
         setViewServiceStopped();
     }
 
@@ -215,7 +206,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
         if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
             if (BuildConfig.DEBUG)
-                Log.i(Tag.STEP_SENSOR, "UI - sensorChanged | todayOffset: " + todayOffset + " since boot: " +
+                Log.i(TAG, "UI - sensorChanged | todayOffset: " + todayOffset + " since boot: " +
                         +since_boot + " | sensorName: " + sensorEvent.sensor.getName());
             if (sensorEvent.values[0] > Integer.MAX_VALUE || sensorEvent.values[0] == 0) {
                 return;
@@ -246,7 +237,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
         if (prefs.getBoolean(STEPS_STOPPED, false) == false) {
             if (BuildConfig.DEBUG)
-                Log.i(Tag.STEP_SENSOR, sensor.getName() + " accuracy changed: " + i);
+                Log.i(TAG, sensor.getName() + " accuracy changed: " + i);
         }
     }
 
@@ -319,8 +310,8 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         averageView.setText(String.valueOf(((total_start + steps_today) / total_days)));
     }
 
-    private void getSessionName(){
-        sessionName += Timestamp.getFormattedCurrentTimestamp();
+    private void getSessionNameToStart() {
+        sessionName = SESSION_NAME + Timestamp.getFormattedCurrentTimestamp();
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setTitle("Session Name");
@@ -335,6 +326,15 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
             public void onClick(DialogInterface dialog, int which) {
                 sessionName = input.getText().toString();
                 data.setName(sessionName);
+
+                SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
+                prefs.edit().putBoolean(STEPS_STOPPED, false).commit();
+                prefs.edit().putString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis())).commit();
+
+                retrieveSteps("startStepsService");
+
+                getActivity().startService(new Intent(getActivity(), StepSensorService.class));
+                setViewServiceStarted();
             }
         });
         alertDialogBuilder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -350,7 +350,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
     private long getTime(long eventTimestamp) {
         long eventTimeMillis;
-        if(divisor == 0) {
+        if (divisor == 0) {
             eventTimeMillis = Timestamp.getEpochTimeMillis();
         } else {
             eventTimeMillis = (eventTimestamp / divisor) + offset;
@@ -374,7 +374,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
             long divisor;
             long offset;
-            if (timestampDelta/sysTimeDelta > 1000) { // in reality ~1 vs ~1,000,000
+            if (timestampDelta / sysTimeDelta > 1000) { // in reality ~1 vs ~1,000,000
                 // timestamps are in nanoseconds
                 divisor = 1000000;
             } else {

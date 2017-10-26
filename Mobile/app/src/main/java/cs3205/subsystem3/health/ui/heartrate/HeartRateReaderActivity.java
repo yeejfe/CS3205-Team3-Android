@@ -1,6 +1,7 @@
 package cs3205.subsystem3.health.ui.heartrate;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -33,7 +34,7 @@ import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
-public class HeartRateReaderActivity extends AppCompatActivity implements SensorEventListener{
+public class HeartRateReaderActivity extends AppCompatActivity implements SensorEventListener {
 
     private final Handler mHandler = new Handler();
     private SensorManager mSensorManager;
@@ -53,15 +54,16 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_heart_rate_reader);
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         heartRates = new ArrayList<>();
         mHeartRateReading = (TextView) findViewById(R.id.hear_rate_reading);
         mStart = (Button) findViewById(R.id.start_sensor);
         mStop = (Button) findViewById(R.id.stop_sensor);
 
         mGraph = (GraphView) findViewById(R.id.graph);
-        GridLabelRenderer glr= mGraph.getGridLabelRenderer();
+        GridLabelRenderer glr = mGraph.getGridLabelRenderer();
         glr.setPadding(80);
         mGraph.getViewport().setXAxisBoundsManual(true);
         mGraph.getViewport().setMinX(0);
@@ -141,7 +143,7 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         if (SessionManager.isTimerSet()) {
             SessionManager.cancelTimer();
         }
-        mSensorManager.registerListener(this, mHeartRateSensor,SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
         mGraphUpdater = new Runnable() {
             @Override
             public void run() {
