@@ -29,7 +29,7 @@ import cs3205.subsystem3.health.ui.step.StepUploadFragment;
  * Created by Yee on 10/21/17.
  */
 
-public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
+public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
 
     public static final String TITLE = "Upload Sessions";
     public static final int SLEEP_TIME = 2500;
@@ -73,11 +73,11 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
         int uploaded = upload(tag_password, timeStamp, selectedItems);
 
         if (uploaded == selectedItems.size()) {
-            alertDialog.setMessage(MESSAGE_SUCCESS);
+            publishProgress(MESSAGE_SUCCESS, new String());
         } else if(uploaded == 0) {
-            alertDialog.setMessage(UPLOAD_FAILED_FOR_ALL);
+            publishProgress(UPLOAD_FAILED_FOR_ALL, new String());
         } else {
-            alertDialog.setMessage(uploaded + OF + selectedItems.size() + HAVE_BEEN_UPLOADED_SUCCESSFULLY);
+            publishProgress(uploaded + OF + selectedItems.size() + HAVE_BEEN_UPLOADED_SUCCESSFULLY, new String());
         }
 
         try {
@@ -90,10 +90,7 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
     }
 
     private int upload(String tag_password, String timeStamp, ArrayList<String> selectedFiles) {
-        if (!Internet.isConnected(context)) {
-            makeToastMessage(AppMessage.TOAST_MESSAGE_NO_INTERNET_CONNECTION);
-            return 0;
-        }
+
 
         int uploaded = selectedFiles.size();
 
@@ -105,7 +102,7 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
 
         for (int i = 0; i < selectedFiles.size(); i++) {
             try {
-                alertDialog.setMessage(UPLOADING + (i + 1) + FRONT_SLASH + selectedFiles.size() + SESSIONS);
+                publishProgress(UPLOADING + (i + 1) + FRONT_SLASH + selectedFiles.size() + SESSIONS);
                 Thread.sleep(UI_SLEEP_TIME);
                 progressbar.setProgress(progress);
             } catch (InterruptedException e) {
@@ -155,15 +152,13 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
                 else
                     msg = FAILED;
 
-                alertDialog.setMessage(UPLOADING + (i + 1) + FRONT_SLASH + selectedFiles.size() + SESSIONS + TAB + msg);
+                publishProgress(UPLOADING + (i + 1) + FRONT_SLASH + selectedFiles.size() + SESSIONS + TAB + msg);
                 Thread.sleep(UI_SLEEP_TIME);
                 progress++;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-
-        progressbar.setVisibility(View.INVISIBLE);
 
         return uploaded;
     }
@@ -174,6 +169,13 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    protected void onProgressUpdate(String... objects) {
+        alertDialog.setMessage(objects[0]);
+        if(objects.length > 1)
+            progressbar.setVisibility(View.INVISIBLE);
     }
 
     @Override
