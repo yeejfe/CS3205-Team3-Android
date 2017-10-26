@@ -28,6 +28,7 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Boolean> {
     private String TAG = this.getClass().getName();
 
     private Context context;
+    
 
     @Override
     protected Boolean doInBackground(Object... params) {
@@ -63,7 +64,6 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Boolean> {
             Response response = null;
 
             RemoteDataSource rDS = new RemoteDataSource();
-            Log.i(TAG, rDS.toString());
             try {
                 response = rDS.buildFileUploadRequest(stream, jwt, tag_password, Long.valueOf(file.getName()), RemoteDataSource.Type.STEPS);
                 responses.add(response);
@@ -74,7 +74,6 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Boolean> {
                 e.printStackTrace();
                 Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED, Toast.LENGTH_SHORT).show();
             }
-            Log.i(TAG, rDS.toString());
             String body = response.readEntity(String.class);
             rDS.close();
 
@@ -93,7 +92,6 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean isUploadSuccess) {
         if (isUploadSuccess) {
-            //((HeartRateReaderActivity) context).clear();
             Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_SUCCESS, Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_FAILURE, Toast.LENGTH_LONG).show();
