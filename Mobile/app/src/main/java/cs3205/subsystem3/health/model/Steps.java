@@ -32,11 +32,14 @@ public class Steps {
     private ArrayList<Channel> channels;
 
     public Steps(long timestamp, String name) {
-        this.type = TYPE;
         this.name = name;
+        this.type = TYPE;
         this.timestamp = timestamp;
         this.x = FIELD_TIME;
         this.y = FIELD_CHANNEL;
+
+        this.time = new Time();
+        this.channels = new ArrayList<Channel>();
     }
 
     public String getType() {

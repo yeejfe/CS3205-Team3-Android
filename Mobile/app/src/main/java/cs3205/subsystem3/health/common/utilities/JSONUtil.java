@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.model.Steps;
 
 /**
@@ -22,7 +23,7 @@ public class JSONUtil {
             Steps data = new Steps(jsonObject.getLong(Steps.FIELD_RECORD), jsonObject.getString(Steps.FIELD_NAME));
 
             JSONObject timeObj = jsonObject.getJSONObject(Steps.FIELD_TIME);
-            JSONArray jTimeArr = timeObj.getJSONArray(Steps.FIELD_TIME);
+            JSONArray jTimeArr = timeObj.getJSONArray(Steps.FIELD_VALUE);
             Steps.Time time = data.new Time();
             ArrayList<Long> timeValues = new ArrayList<Long>();
 
@@ -34,15 +35,13 @@ public class JSONUtil {
             JSONArray channelsArray = jsonObject.getJSONArray(Steps.FIELD_CHANNEL);
             ArrayList<Steps.Channel> channels = new ArrayList<Steps.Channel>();
 
-            JSONObject jChannelsObj = jsonObject.getJSONObject(Steps.FIELD_CHANNEL);
-
-            for (int i = 0; i < jChannelsObj.length(); i++) {
+            for (int i = 0; i < channelsArray.length(); i++) {
                 Steps.Channel channel = data.new Channel();
                 JSONObject channelObject = channelsArray.getJSONObject(i);
 
                 channel.setName(channelObject.getString(Steps.FIELD_NAME));
 
-                JSONArray channelArry = jChannelsObj.getJSONArray(Steps.FIELD_VALUE);
+                JSONArray channelArry = channelObject.getJSONArray(Steps.FIELD_VALUE);
                 ArrayList<Long> values = new ArrayList<Long>();
                 for (int j = 0; j < channelArry.length(); j++) {
                     values.get(channelArry.getInt(j));
@@ -65,8 +64,8 @@ public class JSONUtil {
     public static JSONObject stepsDataToJSON(@NonNull Steps data) {
         try {
             JSONObject jsonStepsObj = new JSONObject();
-            jsonStepsObj.put(Steps.FIELD_TYPE, data.getType());
             jsonStepsObj.put(Steps.FIELD_NAME, data.getName());
+            jsonStepsObj.put(Steps.FIELD_TYPE, data.getType());
             jsonStepsObj.put(Steps.FIELD_RECORD, data.getTimestamp());
             jsonStepsObj.put(Steps.FIELD_AXIS_X, data.getX());
             jsonStepsObj.put(Steps.FIELD_AXIS_Y, data.getY());
