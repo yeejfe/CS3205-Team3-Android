@@ -19,8 +19,10 @@ import java.util.Queue;
 
 import javax.ws.rs.core.Response;
 
+import cs3205.subsystem3.health.MainActivity;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
+import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 import cs3205.subsystem3.health.ui.step.StepUploadFragment;
 
 /**
@@ -88,6 +90,11 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
     }
 
     private int upload(String tag_password, String timeStamp, ArrayList<String> selectedFiles) {
+        if (!Internet.isConnected(context)) {
+            makeToastMessage(AppMessage.TOAST_MESSAGE_NO_INTERNET_CONNECTION);
+            return 0;
+        }
+
         int uploaded = selectedFiles.size();
 
         String jwt = JSONWebToken.getInstance().getData();
@@ -122,12 +129,11 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
                 responses.add(response);
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
-                Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED, Toast.LENGTH_SHORT).show();
+                makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
-                Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED, Toast.LENGTH_SHORT).show();
+                makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
             }
-            String body = response.readEntity(String.class);
             rDS.close();
 
             if (response != null && response.getStatus() == 200) {
@@ -157,6 +163,14 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
         return uploaded;
     }
 
+    private void makeToastMessage(final String message) {
+        ((MainActivity)context).runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     @Override
     protected void onPreExecute() {
         alertDialog.setTitle(TITLE);
@@ -166,9 +180,9 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
     protected void onPostExecute(Integer uploaded) {
         if (uploaded > 0) {
             frag.refreshFiles(uploadedItems);
-            Toast.makeText(context, uploaded + FRONT_SLASH + selectedItems.size() + SESSIONS_UPLOAD_COMPLETED, Toast.LENGTH_LONG).show();
+            makeToastMessage(uploaded + FRONT_SLASH + selectedItems.size() + SESSIONS_UPLOAD_COMPLETED);
         } else {
-            Toast.makeText(context, UPLOAD_FAILED_FOR_ALL, Toast.LENGTH_LONG).show();
+            makeToastMessage(UPLOAD_FAILED_FOR_ALL);
         }
 
         frag.clear();
