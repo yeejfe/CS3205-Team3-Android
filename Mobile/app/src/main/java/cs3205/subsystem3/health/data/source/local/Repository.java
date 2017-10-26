@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import cs3205.subsystem3.health.common.core.JSONFileReader;
 import cs3205.subsystem3.health.common.core.JSONFileWriter;
-import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.utilities.JSONUtil;
 import cs3205.subsystem3.health.model.Steps;
 
@@ -48,11 +47,21 @@ public class Repository {
         String filePath = dirPath + FRONT_SLASH + fileName;
 
         //if(data.getTimestamp() == 0)
-            //data.setTimestamp(Timestamp.getEpochTimeStamp());
+        //data.setTimestamp(Timestamp.getEpochTimeStamp());
 
         JSONObject jsonObject = JSONUtil.stepsDataToJSON(data);
 
         JSONFileWriter.toFile(filePath, jsonObject);
+    }
+
+    public static ArrayList<Boolean> deleteFiles(ArrayList<String> files) {
+        ArrayList<Boolean> deleted = new ArrayList<Boolean>();
+        for (String filePath : files) {
+            File file = new File(filePath);
+            deleted.add(file.delete());
+        }
+
+        return deleted;
     }
 
     public static ArrayList<ArrayList<String>> getFiles(String dirPath) {
