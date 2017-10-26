@@ -44,7 +44,7 @@ public class JSONUtil {
                 JSONArray channelArry = channelObject.getJSONArray(Steps.FIELD_VALUE);
                 ArrayList<Long> values = new ArrayList<Long>();
                 for (int j = 0; j < channelArry.length(); j++) {
-                    values.get(channelArry.getInt(j));
+                    values.add(channelArry.getLong(j));
                 }
 
                 channel.setValues(values);

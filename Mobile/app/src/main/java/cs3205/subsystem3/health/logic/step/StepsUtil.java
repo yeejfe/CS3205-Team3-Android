@@ -2,7 +2,6 @@ package cs3205.subsystem3.health.logic.step;
 
 import java.util.ArrayList;
 
-import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.model.Steps;
 
 /**
@@ -20,6 +19,8 @@ public class StepsUtil {
 
         Steps.Time time = data.getTime();
         ArrayList<Long> timeValues = time.getValues();
+        if (timeValues == null)
+            timeValues = new ArrayList<>();
         timeValues.add(timestamp);
         time.setValues(timeValues);
         data.setTime(time);
@@ -43,12 +44,12 @@ public class StepsUtil {
             for (int i = 0; i < channels.size(); i++) {
                 values = channels.get(i).getValues();
 
-                if(i == 0) {
+                if (i == 0) {
                     values.add(NO_OF_STEPS);
                     noOfStepsChannel.setValues(values);
                     channels.set(i, noOfStepsChannel);
                 } else {
-                    values.add(timestamp - timeValues.get(timeValues.size()-2));
+                    values.add(timestamp - timeValues.get(timeValues.size() - 2));
                     timeDifferencesChannel.setValues(values);
                     channels.set(i, timeDifferencesChannel);
                 }
