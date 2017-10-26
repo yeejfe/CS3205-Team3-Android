@@ -6,8 +6,8 @@ package cs3205.subsystem3.health.common.miscellaneous;
 
 public class AppMessage {
     public static final String MESSAGE_SCAN_NFC_TAG = "Please scan your NFC tag";
-    public static final String TOAST_MESSAGE_NFC_AVAILABLE = "NFC AVAILABLE :)";
-    public static final String TOAST_MESSAGE_NFC_UNAVAILABLE = "NFC UNAVAILABLE :(";
+    public static final String TOAST_MESSAGE_NFC_AVAILABLE = "NFC AVAILABLE";
+    public static final String TOAST_MESSAGE_NFC_UNAVAILABLE = "NFC UNAVAILABLE";
     public static final String TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED = "UPLOAD AUTHENTICATION FAILED";
     public static final String TOAST_MESSAGE_NO_NFC_TAG_DISCOVERED = "NO NFC TAG DISCOVERED";
     public static final String TOAST_MESSAGE_NFC_TAG_INCOMPATIBLE = "NFC TAG INCOMPATIBLE";
@@ -24,6 +24,8 @@ public class AppMessage {
     public static final String TOAST_MESSAGE_STOP_BEFORE_CLEAR = "STOP SENSOR BEFORE CLEAR";
     public static final String TOAST_MESSAGE_STOP_BEFORE_UPLOAD = "STOP SENSOR BEFORE UPLOAD";
     public static final String TOAST_MESSAGE_LOGOUT_SUCCESS = "LOGOUT SUCCESSFUL";
+    public static final String TOAST_MESSAGE_NO_INTERNET_CONNECTION = "NO INTERNET CONNECTION";
+    public static final String TOAST_MESSAGE_FAILED_CONNECTION_TO_SERVER = "FAILED TO CONNECT TO SERVER";
     public static final String ERROR_MESSAGE_EMPTY_USERNAME = "Username must not be empty";
     public static final String ERROR_MESSAGE_INVALID_PASSWORD_LENGTH = "Password must be between 8 and 20 alphanumeric characters";
     public static final String TOAST_MESSAGE_NO_FILE_SELECTED = "No files selected";

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -33,6 +32,7 @@ import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getName();
+    private static final boolean NO_INTERNET_ERROR = false;
 
     EditText _usernameText;
     EditText _passwordText;
@@ -48,12 +48,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
 
         setContentView(R.layout.activity_login);
 
@@ -78,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         password = _passwordText.getText().toString();
 
         if (!validate(username, password)) {
-            onLoginFailed();
+            onLoginFailed(NO_INTERNET_ERROR);
             return;
         }
 
@@ -108,7 +102,12 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
     }
 
-    public void onLoginFailed() {
+    public void onLoginFailed(boolean isInternetError) {
+        //if no internet connection, not considered as login failure
+        if (isInternetError) {
+            _loginButton.setEnabled(true);
+            return;
+        }
         _loginButton.setEnabled(false);
         Toast.makeText(getBaseContext(), AppMessage.TOAST_MESSAGE_LOGIN_FAILURE, Toast.LENGTH_LONG).show();
 
@@ -176,9 +175,9 @@ public class LoginActivity extends AppCompatActivity {
                 tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
             }
             if (tag_password == null || tag_username == null) {
-                onLoginFailed();
+                onLoginFailed(NO_INTERNET_ERROR);
             } else if (!tag_username.equals(username)) {
-                onLoginFailed();
+                onLoginFailed(NO_INTERNET_ERROR);
             } else {
                 JSONObject body = new JSONObject();
                 try {

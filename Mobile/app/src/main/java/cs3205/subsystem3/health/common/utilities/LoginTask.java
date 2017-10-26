@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Base64;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.ui.login.LoginActivity;
@@ -36,6 +38,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     private JSONObject body;
     private String password;
     private String tag_password;
+    private boolean isInternetError;
 
     @Override
     protected Boolean doInBackground(Object... params) {
@@ -57,7 +60,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                         }
                     }, 3000);
         } else {
-            ((LoginActivity) context).onLoginFailed();
+            ((LoginActivity) context).onLoginFailed(isInternetError);
         }
     }
 
@@ -73,10 +76,27 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     private boolean handleLoginChallenge() {
-        Invocation.Builder LoginChallengeRequest = client.target(RequestInfo.URL_LOGIN).request();
-        Response response = LoginChallengeRequest.post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
 
-        if (response.getStatus() == 401) {
+        Invocation.Builder LoginChallengeRequest = client.target(RequestInfo.URL_LOGIN).request();
+
+        if (!Internet.isConnected(context)) {
+            isInternetError = true;
+            makeToastMessage(AppMessage.TOAST_MESSAGE_NO_INTERNET_CONNECTION);
+            return false;
+        }
+
+        Response response = null;
+        try {
+            response = LoginChallengeRequest.post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+        } catch (RuntimeException e) {
+            isInternetError = true;
+            makeToastMessage(AppMessage.TOAST_MESSAGE_FAILED_CONNECTION_TO_SERVER);
+            e.printStackTrace();
+            return false;
+        }
+
+
+        if (response != null && response.getStatus() == 401) {
             JSONObject headers = null;
             try {
                 Log.d("LoginTask", "headers: " + response.getHeaders());
@@ -117,11 +137,25 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             return false;
         }
 
-        Response response = loginRequest.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.CHALLENGE_RESPONSE_PREFIX + challengeResponse)
-                .header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash)
-                .post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+        if (!Internet.isConnected(context)) {
+            isInternetError = true;
+            makeToastMessage(AppMessage.TOAST_MESSAGE_NO_INTERNET_CONNECTION);
+            return false;
+        }
 
-        if (response.getStatus() != 200) {
+        Response response = null;
+        try {
+            response = loginRequest.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.CHALLENGE_RESPONSE_PREFIX + challengeResponse)
+                    .header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).header("debug", "true")
+                    .post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
+        } catch (RuntimeException e) {
+            isInternetError = true;
+            makeToastMessage(AppMessage.TOAST_MESSAGE_FAILED_CONNECTION_TO_SERVER);
+            e.printStackTrace();
+            return false;
+        }
+
+        if (response != null && response.getStatus() != 200) {
             Log.d("LoginTask", "error status code on challenge response: " + response.getStatus());
             Log.d("LoginTask", "response content aon challenge response: " + response.toString());
             return false;
@@ -139,5 +173,13 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             }
             return true;
         }
+    }
+
+    private void makeToastMessage(final String message) {
+        ((LoginActivity)context).runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

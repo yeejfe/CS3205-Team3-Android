@@ -1,5 +1,6 @@
 package cs3205.subsystem3.health.common.utilities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
@@ -46,24 +47,42 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
                         queryParam(RequestInfo.QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
 
         Response response = null;
+        if (!Internet.isConnected(context)) {
+            Toast.makeText(context, AppMessage.TOAST_MESSAGE_NO_INTERNET_CONNECTION, Toast.LENGTH_SHORT).show();
+            return false;
+        }
         try {
             response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + jwt).header(
                     RequestInfo.HEADER_NFC_TOKEN_HASH, Crypto.generateNfcAuthToken(tag_password.getBytes())).post(
                     Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED, Toast.LENGTH_SHORT).show();
+            makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
+            return false;
         } catch (InvalidKeyException e) {
             e.printStackTrace();
-            Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED, Toast.LENGTH_SHORT).show();
+            makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
+            return false;
+        } catch (RuntimeException e) {
+            makeToastMessage(AppMessage.TOAST_MESSAGE_FAILED_CONNECTION_TO_SERVER);
+            return false;
         }
 
-        if (response.getStatus() != 200) {
+        if (response != null && response.getStatus() == 200) {
+            return true;
+        } else {
             Log.d("HeartRateUploadTask", response.toString());
             return false;
-        } else {
-            return true;
         }
+
+    }
+
+    private void makeToastMessage(final String message) {
+        ((HeartRateReaderActivity)context).runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
