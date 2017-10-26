@@ -130,9 +130,14 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
                 makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
+                return 0;
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
                 makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
+                return 0;
+            }catch (RuntimeException e) {
+                makeToastMessage(AppMessage.TOAST_MESSAGE_FAILED_CONNECTION_TO_SERVER);
+                return 0;
             }
             rDS.close();
 
