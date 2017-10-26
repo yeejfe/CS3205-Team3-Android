@@ -3,6 +3,7 @@ package cs3205.subsystem3.health.ui.camera;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -47,7 +48,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     private Button bUploadImage, bUploadVideo;
     private TextView uploadImageName, uploadVideoName;
 
-    private String selectedPath = null ;
+    private String selectedPath = null;
     private String selectedImagePath = null;
     private String selectedVideoPath = null;
 
@@ -59,6 +60,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_upload_page);
 
         imageToUpload = (ImageView) findViewById(R.id.imageToUpload);
@@ -100,13 +102,13 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             case R.id.imageToUpload:
                 Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 imageGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(Intent.createChooser(imageGalleryIntent,"Select Picture"), REQUEST_LOAD_IMAGE);
+                startActivityForResult(Intent.createChooser(imageGalleryIntent, "Select Picture"), REQUEST_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
                 choice = RemoteDataSource.Type.IMAGE;
-                if(selectedImagePath==null){
+                if (selectedImagePath == null) {
                     break;
-                }else {
+                } else {
                     getJwtToken();
                     getNfcToken();
                     break;
@@ -117,9 +119,9 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.buttonUploadVideo:
                 choice = RemoteDataSource.Type.VIDEO;
-                if(selectedVideoPath==null){
+                if (selectedVideoPath == null) {
                     break;
-                }else {
+                } else {
                     getJwtToken();
                     getNfcToken();
                     break;
@@ -129,14 +131,15 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         }
 
     }
-    private void getJwtToken(){
+
+    private void getJwtToken() {
         jwtToken = "";
-        jwtToken =  JSONWebToken.getInstance().getData();
-        Log.d(this.getClass().getSimpleName() , jwtToken);
+        jwtToken = JSONWebToken.getInstance().getData();
+        Log.d(this.getClass().getSimpleName(), jwtToken);
     }
 
 
-    private void getNfcToken(){
+    private void getNfcToken() {
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
         startActivityForResult(startNFCReadingActivity, REQUEST_READ_NFC);
     }
@@ -160,24 +163,23 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             videoToPreview.setVisibility(View.VISIBLE);
 
         } else if (requestCode == REQUEST_READ_NFC) {
-                if (resultCode == RESULT_OK) {
-                    nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
-                    Log.d(this.getClass().getSimpleName() , "NFC token is "+nfcToken);
-                    if(choice.equals(RemoteDataSource.Type.IMAGE)){
-                        selectedPath = selectedImagePath;
-                    }
-                    else{
-                        selectedPath = selectedVideoPath;
-                    }
-                    UploadHandler uploadHander = new UploadHandler(selectedPath, choice, this , jwtToken, nfcToken);
-                    uploadHander.startUpload();
+            if (resultCode == RESULT_OK) {
+                nfcToken = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
+                Log.d(this.getClass().getSimpleName(), "NFC token is " + nfcToken);
+                if (choice.equals(RemoteDataSource.Type.IMAGE)) {
+                    selectedPath = selectedImagePath;
+                } else {
+                    selectedPath = selectedVideoPath;
                 }
+                UploadHandler uploadHander = new UploadHandler(selectedPath, choice, this, jwtToken, nfcToken);
+                uploadHander.startUpload();
+            }
         }
 
     }
 
-    private void failNfcRead(){
-        Toast.makeText(this, MESSAGE_NFC_READ_FAIL , Toast.LENGTH_SHORT).show();
+    private void failNfcRead() {
+        Toast.makeText(this, MESSAGE_NFC_READ_FAIL, Toast.LENGTH_SHORT).show();
     }
 
 
@@ -203,7 +205,6 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
      * Get a file path from a Uri. This will get the the path for Storage Access
      * Framework Documents, as well as the _data field for the MediaStore and
      * other file-based ContentProviders.
-     *
      */
     public static String getPath(final Context context, final Uri uri) {
 
@@ -247,7 +248,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -269,7 +270,6 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     /**
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
-     *
      */
     public static String getDataColumn(Context context, Uri uri, String selection,
                                        String[] selectionArgs) {
