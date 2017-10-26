@@ -29,11 +29,8 @@ public class StepsArrayAdapter extends ArrayAdapter<String> {
     }
 
     public void refreshEvents(List<String> updatedData) {
-        Log.d(this.getClass().getName(), String.valueOf(updatedData.size()));
         this.data.clear();
-        Log.d(this.getClass().getName(), String.valueOf(updatedData.size()));
-        boolean a = this.data.addAll(updatedData);
-        Log.d(this.getClass().getName(), a + String.valueOf(this.data.size()));
+        this.data.addAll(updatedData);
         notifyDataSetChanged();
     }
 }

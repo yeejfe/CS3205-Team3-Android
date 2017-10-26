@@ -1,8 +1,11 @@
 package cs3205.subsystem3.health.common.utilities;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
@@ -18,40 +21,90 @@ import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
+import cs3205.subsystem3.health.ui.step.StepUploadFragment;
 
 /**
  * Created by Yee on 10/21/17.
  */
 
-public class StepsUploadTask extends AsyncTask<Object, Void, Boolean> {
+public class StepsUploadTask extends AsyncTask<Object, Void, Integer> {
+
+    public static final String TITLE = "Upload Sessions";
+    public static final int SLEEP_TIME = 2500;
+    public static final String MESSAGE_SUCCESS = "All sessions have been uploaded successfully.";
+    public static final String UPLOAD_FAILED_FOR_ALL = "Upload failed for all sessions.";
+    public static final String SUCCESSFUL = "Successful";
+    public static final String FAILED = "Failed";
+    public static final String UPLOADING = "Uploading (";
+    public static final String FRONT_SLASH = "/";
+    public static final String SESSIONS = ") sessions...";
+    public static final String TAB = "\t";
+    public static final String SESSIONS_UPLOAD_COMPLETED = " sessions upload completed.";
+    public static final String OF = " of ";
+    public static final String HAVE_BEEN_UPLOADED_SUCCESSFULLY = " have been uploaded successfully.";
+    public static final int UI_SLEEP_TIME = 500;
 
     private String TAG = this.getClass().getName();
 
     private Context context;
-    
+    private ProgressBar progressbar;
+    private AlertDialog alertDialog;
+    private StepUploadFragment frag;
 
-    @Override
-    protected Boolean doInBackground(Object... params) {
-        String tag_password = (String) params[0];
-        String timeStamp = (String) params[1];
-        ArrayList<String> selectedItems = (ArrayList<String>) params[2];
-        context = (Context) params[3];
-        if (upload(tag_password, timeStamp, selectedItems)) {
-            return true;
-        }
-        return false;
+    private ArrayList<String> selectedItems;
+    private ArrayList<Boolean> uploadedItems;
+
+    public StepsUploadTask(StepUploadFragment stepUploadFragment, AlertDialog alertDialog, ProgressBar progressbar) {
+        this.frag = stepUploadFragment;
+        this.alertDialog = alertDialog;
+        this.progressbar = progressbar;
+        this.uploadedItems = new ArrayList<>();
     }
 
-    private boolean upload(String tag_password, String timeStamp, ArrayList<String> selectedFiles) {
-        boolean status = false;
+    @Override
+    protected Integer doInBackground(Object... params) {
+        String tag_password = (String) params[0];
+        String timeStamp = (String) params[1];
+        selectedItems = (ArrayList<String>) params[2];
+        context = (Context) params[3];
+
+        int uploaded = upload(tag_password, timeStamp, selectedItems);
+
+        if (uploaded == selectedItems.size()) {
+            alertDialog.setMessage(MESSAGE_SUCCESS);
+        } else if(uploaded == 0) {
+            alertDialog.setMessage(UPLOAD_FAILED_FOR_ALL);
+        } else {
+            alertDialog.setMessage(uploaded + OF + selectedItems.size() + HAVE_BEEN_UPLOADED_SUCCESSFULLY);
+        }
+
+        try {
+            Thread.sleep(SLEEP_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return uploaded;
+    }
+
+    private int upload(String tag_password, String timeStamp, ArrayList<String> selectedFiles) {
+        int uploaded = selectedFiles.size();
 
         String jwt = JSONWebToken.getInstance().getData();
-        Log.d(TAG, "JWT: " + jwt);
 
         Queue<Response> responses = new LinkedList<>();
-        ArrayList<Boolean> statuses = new ArrayList<Boolean>();
+
+        int progress = 1;
 
         for (int i = 0; i < selectedFiles.size(); i++) {
+            try {
+                alertDialog.setMessage(UPLOADING + (i + 1) + FRONT_SLASH + selectedFiles.size() + SESSIONS);
+                Thread.sleep(UI_SLEEP_TIME);
+                progressbar.setProgress(progress);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             File file = new File(selectedFiles.get(i));
 
             InputStream stream = null;
@@ -78,23 +131,47 @@ public class StepsUploadTask extends AsyncTask<Object, Void, Boolean> {
             rDS.close();
 
             if (response != null && response.getStatus() == 200) {
-                statuses.add(true);
-                status = true;
+                uploadedItems.add(true);
             } else {
-                Log.d(TAG, body);
-                statuses.add(false);
+                uploaded--;
+                uploadedItems.add(false);
+            }
+
+            try {
+                String msg;
+                if(uploadedItems.get(i))
+                    msg = SUCCESSFUL;
+                else
+                    msg = FAILED;
+
+                alertDialog.setMessage(UPLOADING + (i + 1) + FRONT_SLASH + selectedFiles.size() + SESSIONS + TAB + msg);
+                Thread.sleep(UI_SLEEP_TIME);
+                progress++;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 
-        return status;
+        progressbar.setVisibility(View.INVISIBLE);
+
+        return uploaded;
     }
 
     @Override
-    protected void onPostExecute(Boolean isUploadSuccess) {
-        if (isUploadSuccess) {
-            Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_SUCCESS, Toast.LENGTH_LONG).show();
+    protected void onPreExecute() {
+        alertDialog.setTitle(TITLE);
+    }
+
+    @Override
+    protected void onPostExecute(Integer uploaded) {
+        if (uploaded > 0) {
+            frag.refreshFiles(uploadedItems);
+            Toast.makeText(context, uploaded + FRONT_SLASH + selectedItems.size() + SESSIONS_UPLOAD_COMPLETED, Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(context, AppMessage.TOAST_MESSAGE_UPLOAD_FAILURE, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, UPLOAD_FAILED_FOR_ALL, Toast.LENGTH_LONG).show();
         }
+
+        frag.clear();
+        alertDialog.dismiss();
     }
 }

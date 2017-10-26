@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -38,6 +39,9 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
     public static final String TITLE = "Confirm Upload";
     public static final String CONFIRM = "Confirm";
     public static final String UPLOAD_CONFIRM_MESSAGE = "Sessions will be deleted after successful upload.";
+    public static final String MSG_START = "Starting Upload ...";
+    public static final int PROGRESS_START = 0;
+    public static final String UPLOAD_SESSIONS = "Upload Sessions";
 
     private final String TAG = this.getClass().getName();
 
@@ -130,6 +134,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         }
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setCancelable(false);
         alertDialogBuilder.setTitle(TITLE);
         alertDialogBuilder.setMessage(UPLOAD_CONFIRM_MESSAGE);
         alertDialogBuilder.setPositiveButton(CONFIRM, new DialogInterface.OnClickListener() {
@@ -161,9 +166,23 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
                 String tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
                 ArrayList<String> selectedFiles = new ArrayList<String>();
                 selectedFiles.addAll(selectedItems);
-                refreshFiles();
-                clear();
-                new StepsUploadTask().execute(tag_password,
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                alertDialogBuilder.setTitle(UPLOAD_SESSIONS);
+
+                ProgressBar progressbar = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
+                progressbar.setProgress(PROGRESS_START);
+                progressbar.setMax(selectedFiles.size());
+                progressbar.setVisibility(View.VISIBLE);
+
+                alertDialogBuilder.setView(progressbar);
+                alertDialogBuilder.setCancelable(false);
+                alertDialogBuilder.setMessage(MSG_START);
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+                new StepsUploadTask(this, alertDialog, progressbar).execute(tag_password,
                         String.valueOf(System.currentTimeMillis()), selectedFiles, getContext());
             } else {
                 clear();
@@ -171,7 +190,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    public void refreshFiles() {
+    public void refreshFiles(ArrayList<Boolean> uploadedItems) {
         ArrayList<String> filePaths = new ArrayList<>(filesinfolder.get(Repository.filePaths));
         ArrayList<String> sNames = new ArrayList<>(filesinfolder.get(Repository.sessionNames));
 
@@ -180,12 +199,12 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         Log.d(TAG, selectedItemsPos + " " + filePaths.size() + " " + sessionNames.size());
 
         for (int i = 0; i < selectedItemsPos.size(); i++) {
-            int pos = selectedItemsPos.get(i) - i;
-            Log.d(TAG, String.valueOf(pos));
-            String path = filePaths.remove(pos);
-            sNames.remove(pos);
-
-            toDelete.add(path);
+            if(uploadedItems.get(i)) {
+                int pos = selectedItemsPos.get(i) - i;
+                String path = filePaths.remove(pos);
+                sNames.remove(pos);
+                toDelete.add(path);
+            }
         }
 
         Repository.deleteFiles(toDelete);
@@ -197,7 +216,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         Log.d(TAG, selectedItemsPos + " " + filePaths.size() + " " + sNames.size());
     }
 
-    private void clear() {
+    public void clear() {
         selectedItemsPos.clear();
         selectedItems.clear();
         listView.clearChoices();
