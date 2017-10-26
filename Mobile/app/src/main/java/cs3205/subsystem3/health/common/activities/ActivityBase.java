@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.logger.LogWrapper;
 
+import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.FILENAME;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS;
 import static cs3205.subsystem3.health.common.core.SharedPreferencesConstant.STEPS_STOPPED;
 
@@ -37,6 +38,7 @@ public class ActivityBase extends AppCompatActivity {
         SharedPreferences prefs = getApplication().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
         if(!prefs.contains(STEPS_STOPPED)) {
             prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
+            prefs.edit().remove(FILENAME);
         }
 
         if(logWrapper == null) {
