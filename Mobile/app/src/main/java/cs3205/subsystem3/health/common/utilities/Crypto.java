@@ -29,7 +29,7 @@ import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 
 public class Crypto {
 
-    private static byte[] generateHash(byte[] input) throws CryptoException {
+    public static byte[] generateHash(byte[] input) throws CryptoException {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             return digest.digest(input);

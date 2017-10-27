@@ -3,7 +3,6 @@ package cs3205.subsystem3.health.common.utilities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -11,8 +10,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -22,7 +19,6 @@ import javax.ws.rs.core.Response;
 import cs3205.subsystem3.health.MainActivity;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
-import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 import cs3205.subsystem3.health.ui.step.StepUploadFragment;
 
 /**

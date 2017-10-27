@@ -9,8 +9,6 @@ import android.os.AsyncTask;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.core.Response;
 

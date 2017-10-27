@@ -26,10 +26,14 @@ public class EncryptionKey {
             }
         }
 
-        public static void init(String nfcToken) throws NoSuchAlgorithmException {
+        public static void init(String nfcToken, String salt) throws CryptoException {
             if (secretKey == null) {
-                final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                byte[] rawKey = digest.digest(nfcToken.getBytes());
+                byte[] nfcTokenBytes = nfcToken.getBytes();
+                byte[] saltBytes = salt.getBytes();
+                byte[] saltedNfcTokenBytes = new byte[nfcTokenBytes.length + saltBytes.length];
+                System.arraycopy(nfcTokenBytes, 0, saltedNfcTokenBytes, 0, nfcTokenBytes.length);
+                System.arraycopy(saltBytes, 0, saltedNfcTokenBytes, nfcTokenBytes.length, saltBytes.length);
+                byte[] rawKey = Crypto.generateHash(Crypto.generateHash(saltedNfcTokenBytes));
                 secretKey = new SecretKeySpec(rawKey, 0, rawKey.length, "AES");
             }
         }
