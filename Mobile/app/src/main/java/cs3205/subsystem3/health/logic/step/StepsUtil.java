@@ -11,7 +11,6 @@ import cs3205.subsystem3.health.model.Steps;
 public class StepsUtil {
 
     public static final long NO_OF_STEPS = 1;
-    public static final int INDEX_0 = 0;
 
     public static Steps updateSteps(Steps data, long timestamp) {
         long firstTimestamp;
@@ -26,7 +25,7 @@ public class StepsUtil {
             timeValues = new ArrayList<>();
             firstTimestamp = timestamp;
         } else {
-            firstTimestamp = timeValues.get(INDEX_0);
+            firstTimestamp = data.getTimestamp();
         }
         timeValues.add(timestamp - firstTimestamp);
         time.setValues(timeValues);
@@ -47,16 +46,16 @@ public class StepsUtil {
             channels.add(noOfStepsChannel);
             channels.add(timeDifferencesChannel);
         } else {
-            ArrayList<Long> values = new ArrayList<Long>();
             for (int i = 0; i < channels.size(); i++) {
-                values = channels.get(i).getValues();
+                ArrayList<Long> values = channels.get(i).getValues();
 
                 if (i == 0) {
                     values.add(NO_OF_STEPS);
                     noOfStepsChannel.setValues(values);
                     channels.set(i, noOfStepsChannel);
                 } else {
-                    values.add(timestamp - timeValues.get(timeValues.size() - 2));
+                    long prevTimestamp = firstTimestamp + timeValues.get(timeValues.size() - 2);
+                    values.add(timestamp - prevTimestamp);
                     timeDifferencesChannel.setValues(values);
                     channels.set(i, timeDifferencesChannel);
                 }
