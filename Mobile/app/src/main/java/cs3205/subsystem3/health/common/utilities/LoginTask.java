@@ -29,8 +29,10 @@ import cs3205.subsystem3.health.ui.login.LoginActivity;
 
 public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     private Context context;
-    private byte[] challenge;
-    private String salt;
+    private byte[] password_challenge;
+    private String password_salt;
+    private String nfc_password;
+    private String nfc_salt;
     private Client client;
     private JSONObject body;
     private String password;
@@ -49,6 +51,9 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean isLoginSuccessful) {
+
+        client.close();
+
         if (isLoginSuccessful) {
             new Handler().postDelayed(
                     new Runnable() {
@@ -93,10 +98,10 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 headers = new JSONObject(response.getHeaderString("www-authenticate"));
                 Log.d("LoginTask", "salt : " + headers.get(Value.KEY_VALUE_SALT) +
                         "; encoded challenge: " + headers.get(Value.KEY_VALUE_CHALLENGE));
-                salt = (String) headers.get(Value.KEY_VALUE_SALT);
-                challenge = Base64.decode((String) headers.get(Value.KEY_VALUE_CHALLENGE), Base64.NO_WRAP);
-                Log.d("LoginTask", "decoded challenge: " + challenge +
-                        "length of the challenge: " + challenge.length);
+                password_salt = (String) headers.get(Value.KEY_VALUE_SALT);
+                password_challenge = Base64.decode((String) headers.get(Value.KEY_VALUE_CHALLENGE), Base64.NO_WRAP);
+                Log.d("LoginTask", "decoded challenge: " + password_challenge +
+                        "length of the challenge: " + password_challenge.length);
             } catch (JSONException e) {
                 e.printStackTrace();
                 return false;
@@ -120,7 +125,8 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         try {
             nfcTokenHash = Crypto.generateNfcAuthToken(tag_password.getBytes());
             Log.d("LoginTask", "nfc token hash: " + nfcTokenHash);
-            challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(password + salt, challenge), Base64.NO_WRAP);
+            challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(
+                    password + password_salt, password_challenge), Base64.NO_WRAP);
             Log.d("LoginTask", "challenge result: " + challengeResponse);
         } catch (CryptoException e) {
             e.printStackTrace();

@@ -1,13 +1,10 @@
 package cs3205.subsystem3.health.common.utilities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -26,6 +23,7 @@ import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
 public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
 
     private Context context;
+    private Client client;
 
     @Override
     protected Boolean doInBackground(Object... params) {
@@ -33,16 +31,21 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
         String timeStamp = (String)params[1];
         String avgHeartRate = (String)params[2];
         context = (Context)params[3];
+        client = ClientBuilder.newClient();
+
         if (upload(tag_password, timeStamp, avgHeartRate)) {
+            client.close();
             return true;
         }
+
+        client.close();
         return false;
     }
 
     private boolean upload(String tag_password, String timeStamp, String avgHeartRate) {
 
         String jwt = JSONWebToken.getInstance().getData();
-        Invocation.Builder request = ClientBuilder.newClient()
+        Invocation.Builder request = client
                 .target(RequestInfo.URL_HEART_RATE_UPLOAD).
                         queryParam(RequestInfo.QUERY_PARAMETER_TIMESTAMP, timeStamp).request();
 
