@@ -103,12 +103,15 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
                 headers = new JSONObject(response.getHeaderString("www-authenticate"));
                 Log.d("LoginTask", "salt : " + headers.get(Value.KEY_VALUE_SALT) +
                         "; encoded challenge: " + headers.get(Value.KEY_VALUE_CHALLENGE));
-                salt = (String)headers.get(Value.KEY_VALUE_SALT);
-                challenge = Base64.decode((String)headers.get(Value.KEY_VALUE_CHALLENGE), Base64.NO_WRAP);
+                salt = (String) headers.get(Value.KEY_VALUE_SALT);
+                challenge = Base64.decode((String) headers.get(Value.KEY_VALUE_CHALLENGE), Base64.NO_WRAP);
                 Log.d("LoginTask", "decoded challenge: " + challenge +
                         "length of the challenge: " + challenge.length);
             } catch (JSONException e) {
                 e.printStackTrace();
+                return false;
+            } catch (NullPointerException ex) {
+                ex.printStackTrace();
                 return false;
             }
             return true;
@@ -173,7 +176,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     private void makeToastMessage(final String message) {
-        ((LoginActivity)context).runOnUiThread(new Runnable() {
+        ((LoginActivity) context).runOnUiThread(new Runnable() {
             public void run() {
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
             }
