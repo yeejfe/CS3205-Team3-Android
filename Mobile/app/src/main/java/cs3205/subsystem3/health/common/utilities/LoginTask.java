@@ -62,14 +62,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     }
 
     private boolean connectToServer() {
-
-        //handle login challenge
-        if (!handleLoginChallenge()) {
-            return false;
-        }
-
-        //handle formal login
-        return handleFormalLogin();
+        return handleLoginChallenge() && handleFormalLogin();
     }
 
     private boolean handleLoginChallenge() {
