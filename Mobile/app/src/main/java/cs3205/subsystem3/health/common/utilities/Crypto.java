@@ -2,16 +2,26 @@ package cs3205.subsystem3.health.common.utilities;
 
 import android.util.Base64;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 
 /**
  * Created by danwen on 6/10/17.
@@ -19,13 +29,17 @@ import cs3205.subsystem3.health.common.logger.Log;
 
 public class Crypto {
 
-    private static byte[] generateHash(byte[] input) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        return digest.digest(input);
+    private static byte[] generateHash(byte[] input) throws CryptoException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return digest.digest(input);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CryptoException(AppMessage.ERROR_MESSAGE_CRYPTO_EXCEPTION, e);
+        }
     }
 
 
-    public static byte[] generateChallengeResponse(String saltedPassword, byte[] challenge) throws NoSuchAlgorithmException {
+    public static byte[] generateChallengeResponse(String saltedPassword, byte[] challenge) throws CryptoException {
 
         //hash the password
         byte[] passwordHash = generateHash(saltedPassword.getBytes());
@@ -50,7 +64,7 @@ public class Crypto {
     }
 
     //for testing only
-    public static void test() throws NoSuchAlgorithmException, InvalidKeyException {
+    public static void test() throws CryptoException {
         String saltedPassword = "password";
         byte[] passwordHash = generateHash(saltedPassword.getBytes());
         byte[] expectedResult = generateHash(passwordHash);
@@ -95,19 +109,64 @@ public class Crypto {
     }
 
 
-    public static String generateNfcAuthToken(byte[] nfcTokenBytes) throws NoSuchAlgorithmException, InvalidKeyException {
+    public static String generateNfcAuthToken(byte[] nfcTokenBytes) throws CryptoException {
 
         byte[] rawTOTP = new byte[64];
         System.arraycopy(generateHash(nfcTokenBytes), 0, rawTOTP, 0, 32);
         System.arraycopy(generateTOTP(nfcTokenBytes), 0, rawTOTP, 32, 32);
+
         return Base64.encodeToString(rawTOTP, Base64.NO_WRAP);
     }
 
-    private static byte[] generateTOTP(byte[] nfcTokenBytes) throws NoSuchAlgorithmException, InvalidKeyException {
-        Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
-        long timeCounter = System.currentTimeMillis() / 30000;
-        hmacSHA256.init(new SecretKeySpec(nfcTokenBytes, "SHA-256"));
-        return hmacSHA256.doFinal(String.valueOf(timeCounter).getBytes());
+    private static byte[] generateTOTP(byte[] nfcTokenBytes) throws CryptoException {
+        try {
+            Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
+            long timeCounter = System.currentTimeMillis() / 30000;
+            hmacSHA256.init(new SecretKeySpec(nfcTokenBytes, "SHA-256"));
+            return hmacSHA256.doFinal(String.valueOf(timeCounter).getBytes());
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new CryptoException(AppMessage.ERROR_MESSAGE_CRYPTO_EXCEPTION, e);
+        }
     }
+
+    private static void doCrypto(int cipherMode, File inputFile, File outputFile) throws CryptoException{
+
+        SecretKey secretKey = EncryptionKey.getSecretKey();
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(cipherMode, secretKey);
+            FileInputStream inputStream = new FileInputStream(inputFile);
+            byte[] inputBytes = new byte[(int) inputFile.length()];
+            inputStream.read(inputBytes);
+
+            byte[] outputBytes = cipher.doFinal(inputBytes);
+
+            FileOutputStream outputStream = new FileOutputStream(outputFile);
+            outputStream.write(outputBytes);
+
+            inputStream.close();
+            outputStream.close();
+
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException
+                | InvalidKeyException | BadPaddingException
+                | IllegalBlockSizeException | IOException e) {
+            throw new CryptoException(AppMessage.ERROR_MESSAGE_CRYPTO_EXCEPTION, e);
+        }
+    }
+
+
+    public static void encryptFile(File inputFile, File outputFile)
+            throws CryptoException {
+        doCrypto(Cipher.ENCRYPT_MODE, inputFile, outputFile);
+
+    }
+
+    public static void decryptFile(File inputFile, File outputFile)
+            throws CryptoException {
+        doCrypto(Cipher.DECRYPT_MODE, inputFile, outputFile);
+    }
+
+
+
 }
 

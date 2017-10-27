@@ -55,11 +55,7 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
             response = request.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + jwt).header(
                     RequestInfo.HEADER_NFC_TOKEN_HASH, Crypto.generateNfcAuthToken(tag_password.getBytes())).post(
                     Entity.entity(avgHeartRate, MediaType.APPLICATION_OCTET_STREAM));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
-            return false;
-        } catch (InvalidKeyException e) {
+        } catch (CryptoException e) {
             e.printStackTrace();
             makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
             return false;

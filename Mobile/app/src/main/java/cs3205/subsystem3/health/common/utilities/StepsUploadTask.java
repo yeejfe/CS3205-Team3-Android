@@ -127,11 +127,7 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
             try {
                 response = rDS.buildFileUploadRequest(stream, jwt, tag_password, Long.valueOf(file.getName()), RemoteDataSource.Type.STEPS);
                 responses.add(response);
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-                makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
-                return 0;
-            } catch (NoSuchAlgorithmException e) {
+            } catch (CryptoException e) {
                 e.printStackTrace();
                 makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
                 return 0;

@@ -30,4 +30,6 @@ public class AppMessage {
     public static final String ERROR_MESSAGE_INVALID_PASSWORD_LENGTH = "Password must be between 8 and 20 alphanumeric characters";
     public static final String TOAST_MESSAGE_NO_FILE_SELECTED = "No files selected";
     public static final String TOAST_MESSAGE_EXTERNAL_STORAGE_PERMISSION_DENIED = "STORAGE PERMISSION DENIED";
+    public static final String ERROR_MESSAGE_CRYPTO_EXCEPTION = "CRYPTO EXCEPTION OCCURS";
+    public static final String ERROR_MESSAGE_SECRET_KEY_NOT_INITIALIZED = "SECRET KEY NOT INITIALIZED";
 }

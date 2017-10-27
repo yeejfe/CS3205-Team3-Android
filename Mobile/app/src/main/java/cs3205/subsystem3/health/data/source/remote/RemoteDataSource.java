@@ -1,8 +1,6 @@
 package cs3205.subsystem3.health.data.source.remote;
 
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -12,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.common.utilities.Crypto;
+import cs3205.subsystem3.health.common.utilities.CryptoException;
 
 /**
  * Created by Yee on 09/30/17.
@@ -42,7 +41,7 @@ public class RemoteDataSource {
         client = ClientBuilder.newClient();
     }
 
-    public Response buildFileUploadRequest(InputStream stream, String jwtToken, String nfcToken, Long time, Type type) throws NoSuchAlgorithmException, InvalidKeyException {
+    public Response buildFileUploadRequest(InputStream stream, String jwtToken, String nfcToken, Long time, Type type) throws CryptoException {
         Invocation.Builder builder = null;
 
         if (type.equals(Type.STEPS)) {

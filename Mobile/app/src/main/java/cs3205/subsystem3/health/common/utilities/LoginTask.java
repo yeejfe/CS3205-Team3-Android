@@ -129,10 +129,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             Log.d("LoginTask", "nfc token hash: " + nfcTokenHash);
             challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(password + salt, challenge), Base64.NO_WRAP);
             Log.d("LoginTask", "challenge result: " + challengeResponse);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return false;
-        } catch (InvalidKeyException e) {
+        } catch (CryptoException e) {
             e.printStackTrace();
             return false;
         }
