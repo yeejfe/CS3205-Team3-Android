@@ -35,7 +35,7 @@ public class Crypto {
         result = computeXOR(result, challenge);
         //hash the result
         result = generateHash(result);
-        //XOR result of password hash
+        //XOR result with password hash
         result = computeXOR(result, passwordHash);
 
         return result;
