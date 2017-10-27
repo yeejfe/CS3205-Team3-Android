@@ -71,18 +71,22 @@ public class Crypto {
         Log.d("Crypto", "challenge response test: " + Arrays.equals(actualResult, expectedResult));
 
 
-
+        //generate a random secret
         byte[] secret = new byte[32];
         new Random().nextBytes(secret);
         //client sends h(s) || totp(s)
         String totp = generateNfcAuthToken(secret);
 
-        //server stores h(s) xor s, and verifies totp from client
+        //server stores h(s) xor s
         byte[] data = computeXOR(generateHash(secret), secret);
+        //server decodes client totp
         byte[] decoded = Base64.decode(totp, Base64.NO_WRAP);
+        //server retrieves secret hash
         byte[] secretHash = new byte[32];
         System.arraycopy(decoded, 0, secretHash, 0, 32);
+        //server recovers secret
         byte[] recoveredSecret = computeXOR(secretHash, data);
+        //server generates totp from recovered secret
         byte[] client_totp = new byte[32];
         System.arraycopy(decoded, 32, client_totp, 0, 32);
         byte[] server_totp = generateTOTP(recoveredSecret);
