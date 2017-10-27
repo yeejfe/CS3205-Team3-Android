@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -186,6 +187,11 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
                     return false;
                 } else if (heartRates.size() == 0) {
                     Toast.makeText(this, AppMessage.TOAST_MESSAGE_NOTHING_TO_UPLOAD, Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+                if (!nfcAdapter.isEnabled()) {
+                    Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_SHORT).show();
                     return false;
                 }
                 Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
