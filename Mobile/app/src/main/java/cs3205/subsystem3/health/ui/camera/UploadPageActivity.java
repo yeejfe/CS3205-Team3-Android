@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +22,7 @@ import android.widget.VideoView;
 
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.JSONWebToken;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
@@ -140,6 +142,11 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
 
 
     private void getNfcToken() {
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (!nfcAdapter.isEnabled()) {
+            Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
         startActivityForResult(startNFCReadingActivity, REQUEST_READ_NFC);
     }

@@ -3,6 +3,7 @@ package cs3205.subsystem3.health.ui.step;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -140,6 +141,11 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         alertDialogBuilder.setPositiveButton(CONFIRM, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface arg0, int arg1) {
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getContext());
+                if (!nfcAdapter.isEnabled()) {
+                    Toast.makeText(getActivity(), AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent startNFCReadingActivity = new Intent(getActivity(), NFCReaderActivity.class);
                 startActivityForResult(startNFCReadingActivity, 88);
             }
