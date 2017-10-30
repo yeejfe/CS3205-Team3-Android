@@ -54,9 +54,9 @@ public class RemoteDataSource {
             builder = client.target(SERVER3_ENDPOINT_VIDEO).queryParam(TIMESTAMP, time)
                     .request();
         }
-
+        //TODO: add in challenge response, refresh JWT
        return builder
-               .header(X_NFC_TOKEN,Crypto.generateNfcAuthToken(nfcToken.getBytes()))
+               .header(X_NFC_TOKEN,"")
                .header(AUTHORIZATION, BEARER + jwtToken).header("debug", "true")
                .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
     }

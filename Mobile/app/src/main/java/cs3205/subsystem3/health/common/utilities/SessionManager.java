@@ -10,26 +10,26 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class SessionManager {
-    private static Timer timer;
-    private static final int TIMER_DELAY_IN_MINUTES = 1;
+    private static Timer logoutTimer;
+    private static final int LOGOUT_TIMER_DELAY_IN_MINUTES = 1;
 
-    public static boolean isTimerSet() {
-        return timer != null;
+    public static boolean isLogoutTimerSet() {
+        return logoutTimer != null;
     }
 
-    public static void setTimer(Context context) {
-        timer = new Timer();
-        timer.schedule(new LogoutTimerTask(context), TimeUnit.MINUTES.toMillis(TIMER_DELAY_IN_MINUTES));
+    public static void setLogoutTimer(Context context) {
+        logoutTimer = new Timer();
+        logoutTimer.schedule(new LogoutTimerTask(context), TimeUnit.MINUTES.toMillis(LOGOUT_TIMER_DELAY_IN_MINUTES));
     }
 
-    public static void resetTimer(Context context) {
-        cancelTimer();
-        setTimer(context);
+    public static void resetLogoutTimer(Context context) {
+        cancelLogoutTimer();
+        setLogoutTimer(context);
     }
 
-    public static void cancelTimer() {
-       timer.cancel();
-       timer = null;
+    public static void cancelLogoutTimer() {
+       logoutTimer.cancel();
+       logoutTimer = null;
     }
 
 }

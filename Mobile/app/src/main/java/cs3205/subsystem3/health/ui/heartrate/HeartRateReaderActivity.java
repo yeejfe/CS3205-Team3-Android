@@ -141,8 +141,8 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
     @Override
     protected void onResume() {
         super.onResume();
-        if (SessionManager.isTimerSet()) {
-            SessionManager.cancelTimer();
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.cancelLogoutTimer();
         }
         mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
         mGraphUpdater = new Runnable() {
@@ -163,10 +163,10 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         mSeries.resetData(emptyDataPoints);
         mHandler.removeCallbacks(mGraphUpdater);
 
-        if (SessionManager.isTimerSet()) {
-            SessionManager.resetTimer(this);
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.resetLogoutTimer(this);
         } else {
-            SessionManager.setTimer(this);
+            SessionManager.setLogoutTimer(this);
         }
     }
 

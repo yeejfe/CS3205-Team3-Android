@@ -76,10 +76,10 @@ public class NFCReaderActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (SessionManager.isTimerSet()) {
-            SessionManager.cancelTimer();
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.cancelLogoutTimer();
         } else {
-            SessionManager.setTimer(this);
+            SessionManager.setLogoutTimer(this);
         }
         if (nfcReader.getAdapter() != null) {
             nfcReader.getAdapter().enableForegroundDispatch(this, mPendingIntent, null, null);
@@ -89,10 +89,10 @@ public class NFCReaderActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (SessionManager.isTimerSet()) {
-            SessionManager.resetTimer(this);
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.resetLogoutTimer(this);
         } else {
-            SessionManager.setTimer(this);
+            SessionManager.setLogoutTimer(this);
         }
     }
 }

@@ -101,19 +101,19 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
     @Override
     protected void onResume() {
         super.onResume();
-        if (SessionManager.isTimerSet()) {
-            SessionManager.cancelTimer();
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.cancelLogoutTimer();
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (SessionManager.isTimerSet()) {
-            SessionManager.resetTimer(this);
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.resetLogoutTimer(this);
         } else {
             if (!isOnCreate) {
-                SessionManager.setTimer(this);
+                SessionManager.setLogoutTimer(this);
             }
         }
         isOnCreate = false;

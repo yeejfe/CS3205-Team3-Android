@@ -132,8 +132,8 @@ public class LoginActivity extends AppCompatActivity {
                         }.start();
                     }
                 }, loginDelayMillis);
-        if (SessionManager.isTimerSet()) {
-            SessionManager.cancelTimer();
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.cancelLogoutTimer();
         }
     }
 

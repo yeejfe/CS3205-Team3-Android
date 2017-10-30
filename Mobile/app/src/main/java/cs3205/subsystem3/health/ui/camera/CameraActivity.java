@@ -282,18 +282,18 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (SessionManager.isTimerSet()) {
-            SessionManager.cancelTimer();
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.cancelLogoutTimer();
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (SessionManager.isTimerSet()) {
-            SessionManager.resetTimer(this);
+        if (SessionManager.isLogoutTimerSet()) {
+            SessionManager.resetLogoutTimer(this);
         } else {
-            SessionManager.setTimer(this);
+            SessionManager.setLogoutTimer(this);
         }
     }
 

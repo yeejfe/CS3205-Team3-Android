@@ -31,8 +31,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     private Context context;
     private byte[] password_challenge;
     private String password_salt;
-    private String nfc_password;
-    private String nfc_salt;
+    private byte[] nfc_challenge;
     private Client client;
     private JSONObject body;
     private String password;
@@ -91,28 +90,25 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         }
 
 
-        if (response != null && response.getStatus() == 401) {
-            JSONObject headers = null;
+        if (response != null && response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            JSONObject passwordHeader = null;
             try {
                 Log.d("LoginTask", "headers: " + response.getHeaders());
-                headers = new JSONObject(response.getHeaderString("www-authenticate"));
-                Log.d("LoginTask", "salt : " + headers.get(Value.KEY_VALUE_SALT) +
-                        "; encoded challenge: " + headers.get(Value.KEY_VALUE_CHALLENGE));
-                password_salt = (String) headers.get(Value.KEY_VALUE_SALT);
-                password_challenge = Base64.decode((String) headers.get(Value.KEY_VALUE_CHALLENGE), Base64.NO_WRAP);
-                Log.d("LoginTask", "decoded challenge: " + password_challenge +
-                        "length of the challenge: " + password_challenge.length);
+                passwordHeader = new JSONObject(response.getHeaderString(RequestInfo.HEADER_AUTHENTICATE));
+                nfc_challenge = Base64.decode(response.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE), Base64.NO_WRAP);
+                Log.d("LoginTask", "salt: " + passwordHeader.get(Value.KEY_VALUE_SALT) +
+                        "; encoded challenge: " + passwordHeader.get(Value.KEY_VALUE_CHALLENGE));
+                Log.d("LoginTask", "decoded nfc challenge: " + response.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE));
+                password_salt = (String) passwordHeader.get(Value.KEY_VALUE_SALT);
+                password_challenge = Base64.decode((String) passwordHeader.get(Value.KEY_VALUE_CHALLENGE), Base64.NO_WRAP);
             } catch (JSONException e) {
                 e.printStackTrace();
-                return false;
-            } catch (NullPointerException ex) {
-                ex.printStackTrace();
                 return false;
             }
             return true;
         } else {
-            Log.d("LoginTask", "error status code on requesting challenge" + String.valueOf(response.getStatus()));
-            Log.d("LoginTask", "response content on requesting challenge: " + response.toString());
+            Log.d("LoginTask", "error status code on requesting challenge: " + String.valueOf(response.getStatus()));
+            Log.d("LoginTask", "response content on requesting challenge: " + response.readEntity(String.class));
             return false;
         }
     }
@@ -120,14 +116,16 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
     private boolean handleFormalLogin() {
 
         Invocation.Builder loginRequest = client.target(RequestInfo.URL_LOGIN).request();
-        String nfcTokenHash = null;
+        String nfcResponse = null;
         String challengeResponse = null;
         try {
-            nfcTokenHash = Crypto.generateNfcAuthToken(tag_password.getBytes());
-            Log.d("LoginTask", "nfc token hash: " + nfcTokenHash);
-            challengeResponse = Base64.encodeToString(Crypto.generateChallengeResponse(
+            nfcResponse = Base64.encodeToString(Crypto.generateNfcResponse(tag_password, nfc_challenge), Base64.NO_WRAP);
+            Log.d("LoginTask", "nfc token: " + tag_password);
+            Log.d("LoginTask", "nfc token hash: " + Base64.encodeToString(Crypto.generateHash(Base64.decode(tag_password, Base64.NO_WRAP)), Base64.NO_WRAP));
+            Log.d("LoginTask", "nfc response: " + nfcResponse);
+            challengeResponse = Base64.encodeToString(Crypto.generatePasswordResponse(
                     password + password_salt, password_challenge), Base64.NO_WRAP);
-            Log.d("LoginTask", "challenge result: " + challengeResponse);
+            Log.d("LoginTask", "password response: " + challengeResponse);
         } catch (CryptoException e) {
             e.printStackTrace();
             return false;
@@ -142,7 +140,7 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         Response response = null;
         try {
             response = loginRequest.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.CHALLENGE_RESPONSE_PREFIX + challengeResponse)
-                    .header(RequestInfo.HEADER_NFC_TOKEN_HASH, nfcTokenHash).header("debug", "true")
+                    .header(RequestInfo.HEADER_NFC_RESPONSE, nfcResponse)
                     .post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON));
         } catch (RuntimeException e) {
             isInternetError = true;
@@ -151,22 +149,13 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             return false;
         }
 
-        if (response != null && response.getStatus() != 200) {
+        if (response == null || response.getStatus() != Response.Status.OK.getStatusCode()) {
             Log.d("LoginTask", "error status code on challenge response: " + response.getStatus());
-            Log.d("LoginTask", "response content aon challenge response: " + response.toString());
+            Log.d("LoginTask", "response content on challenge response: " + response.readEntity(String.class));
             return false;
         } else {
-            String strResponse = response.readEntity(String.class);
-            if (!strResponse.isEmpty()) {
-                try {
-                    JSONObject jsonResponse = new JSONObject(strResponse);
-                    String accessToken = jsonResponse.get(Value.KEY_VALUE_JWT_ACCESS_TOKEN).toString();
-                    JSONWebToken.getInstance().setData(accessToken);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            }
+            JSONWebToken.getInstance().setData(response.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT));
+            Log.d("LoginTask", "jwt: " + response.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT));
             return true;
         }
     }
