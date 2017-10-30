@@ -1,5 +1,7 @@
 package cs3205.subsystem3.health.data.source.remote;
 
+import android.util.Base64;
+
 import java.io.InputStream;
 
 import javax.ws.rs.client.Client;
@@ -9,8 +11,11 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.utilities.Crypto;
 import cs3205.subsystem3.health.common.utilities.CryptoException;
+import cs3205.subsystem3.health.common.utilities.JSONWebToken;
 
 /**
  * Created by Yee on 09/30/17.
@@ -26,39 +31,59 @@ public class RemoteDataSource {
         VIDEO
     }
 
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String BEARER = "Bearer ";
-    public static final String X_NFC_TOKEN = "X-NFC-Token";
-
-
     public static final String SERVER3_ENDPOINT_STEPS = "https://cs3205-3.comp.nus.edu.sg/session/step";
     public static final String SERVER3_ENDPOINT_IMAGE = "https://cs3205-3.comp.nus.edu.sg/session/image";
     public static final String SERVER3_ENDPOINT_VIDEO = "https://cs3205-3.comp.nus.edu.sg/session/video";
 
     private Client client;
+    private String TAG = this.getClass().getName();
 
     public RemoteDataSource() {
         client = ClientBuilder.newClient();
     }
 
-    public Response buildFileUploadRequest(InputStream stream, String jwtToken, String nfcToken, Long time, Type type) throws CryptoException {
-        Invocation.Builder builder = null;
+    public Response buildFileUploadRequest(InputStream stream, String jwtToken, String nfcToken, Long time, Type type) throws CryptoException, RuntimeException {
+        String serverEndPoint;
 
         if (type.equals(Type.STEPS)) {
-            builder = client.target(SERVER3_ENDPOINT_STEPS).queryParam(TIMESTAMP, time)
-                    .request();
+            serverEndPoint = SERVER3_ENDPOINT_STEPS;
         } else if (type.equals(Type.IMAGE)) {
-            builder = client.target(SERVER3_ENDPOINT_IMAGE).queryParam(TIMESTAMP, time)
-                    .request();
+            serverEndPoint = SERVER3_ENDPOINT_IMAGE;
         } else {
-            builder = client.target(SERVER3_ENDPOINT_VIDEO).queryParam(TIMESTAMP, time)
-                    .request();
+            serverEndPoint = SERVER3_ENDPOINT_VIDEO;
         }
-        //TODO: add in challenge response, refresh JWT
-       return builder
-               .header(X_NFC_TOKEN,"")
-               .header(AUTHORIZATION, BEARER + jwtToken).header("debug", "true")
-               .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
+
+        Invocation.Builder challengeRequestBuilder = client.target(serverEndPoint).request();
+
+        Response challengeResponse = challengeRequestBuilder.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + jwtToken).post(null);
+        byte[] nfcChallenge = null;
+        if (challengeResponse.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            nfcChallenge = Base64.decode(challengeResponse.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE), Base64.NO_WRAP);
+            if (nfcChallenge == null) {
+                Log.d(TAG, "NFC is null");
+                return null;
+            }
+            Log.d(TAG, "nfc challenge: " + nfcChallenge);
+        } else {
+            return null;
+        }
+
+        Invocation.Builder uploadRequestBuilder = client.target(serverEndPoint).queryParam(TIMESTAMP, time).request();
+
+        Response uploadResponse = uploadRequestBuilder
+                .header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + JSONWebToken.getInstance().getData())
+                .header(RequestInfo.HEADER_NFC_RESPONSE, Base64.encodeToString(Crypto.generateNfcResponse(nfcToken,
+                        nfcChallenge), Base64.NO_WRAP))
+                .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
+
+        Log.d(TAG, "upload response: " + uploadResponse.readEntity(String.class));
+        if (uploadResponse != null && uploadResponse.getStatus() == Response.Status.CREATED.getStatusCode()) {
+            String newJwToken = uploadResponse.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT);
+            JSONWebToken.getInstance().setData(newJwToken);
+            Log.d(TAG, "new jwt: " + JSONWebToken.getInstance().getData());
+        }
+
+        return uploadResponse;
     }
 
     public void close() {

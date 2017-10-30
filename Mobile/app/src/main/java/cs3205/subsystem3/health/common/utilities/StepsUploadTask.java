@@ -117,7 +117,7 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
                 e.printStackTrace();
             }
 
-            Response response = null;
+            Response response;
 
             RemoteDataSource rDS = new RemoteDataSource();
             try {
@@ -133,7 +133,7 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
             }
             rDS.close();
 
-            if (response != null && response.getStatus() == 200) {
+            if (response != null && response.getStatus() == Response.Status.CREATED.getStatusCode()) {
                 uploadedItems.add(true);
             } else {
                 uploaded--;
@@ -152,6 +152,10 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
                 progress++;
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+
+            if (response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+                LogoutHelper.logout(context, AppMessage.TOAST_MESSAGE_EXPIRED_JWT);
             }
         }
 
