@@ -17,7 +17,7 @@ import cs3205.subsystem3.health.model.Steps;
 public class JSONUtil {
     public static final Steps JSONtoSteps(@NonNull JSONObject jsonObject) {
         try {
-            Steps data = new Steps(jsonObject.getLong(Steps.FIELD_RECORD), jsonObject.getString(Steps.FIELD_NAME));
+            Steps data = new Steps(jsonObject.getLong(Steps.FIELD_RECORD), jsonObject.getString(Steps.FIELD_TITLE));
 
             JSONObject timeObj = jsonObject.getJSONObject(Steps.FIELD_TIME);
             JSONArray jTimeArr = timeObj.getJSONArray(Steps.FIELD_VALUE);
