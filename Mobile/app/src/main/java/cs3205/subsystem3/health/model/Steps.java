@@ -14,7 +14,7 @@ public class Steps {
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_RECORD = "sessionTime";
     public static final String FIELD_TIME = "time";
-    public static final String FIELD_CHANNELS = "channels";
+    public static final String FIELD_CHANNELS = "data";
     public static final String FIELD_DISPLAY_UNIT = "displayUnit";
     public static final String FIELD_DATA = "data";
     public static final String FIELD_AXIS_X = "x_axis";
@@ -121,7 +121,7 @@ public class Steps {
         private String unit = MILLISECONDS;
         private String multiplier = MULTIPLIER;
         private String displayUnit = SECONDS;
-        private ArrayList<Channel> channels = new ArrayList<>();
+        private ArrayList<Channel> data = new ArrayList<>();
 
         public String getUnit() {
             return unit;
@@ -136,11 +136,11 @@ public class Steps {
         }
 
         public ArrayList<Channel> getData() {
-            return channels;
+            return data;
         }
 
-        public void setData(ArrayList<Channel> channels) {
-            this.channels = channels;
+        public void setData(ArrayList<Channel> data) {
+            this.data = data;
         }
     }
 
