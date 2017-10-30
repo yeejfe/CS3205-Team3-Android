@@ -26,6 +26,7 @@ public class AppMessage {
     public static final String TOAST_MESSAGE_LOGOUT_SUCCESS = "LOGOUT SUCCESSFUL";
     public static final String TOAST_MESSAGE_NO_INTERNET_CONNECTION = "NO INTERNET CONNECTION";
     public static final String TOAST_MESSAGE_FAILED_CONNECTION_TO_SERVER = "FAILED TO CONNECT TO SERVER";
+    public static final String TOAST_MESSAGE_EXPIRED_JWT = "ACCESS TOKEN EXPIRED, PLEASE LOGIN AGAIN";
     public static final String ERROR_MESSAGE_EMPTY_USERNAME = "Username must not be empty";
     public static final String ERROR_MESSAGE_INVALID_PASSWORD_LENGTH = "Password must be between 8 and 20 alphanumeric characters";
     public static final String TOAST_MESSAGE_NO_FILE_SELECTED = "No files selected";

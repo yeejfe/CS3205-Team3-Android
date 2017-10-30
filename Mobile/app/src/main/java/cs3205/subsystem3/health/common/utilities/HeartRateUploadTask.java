@@ -57,7 +57,11 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
         byte[] nfcChallenge = null;
         if (challengeResponse.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
             nfcChallenge = Base64.decode(challengeResponse.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE), Base64.NO_WRAP);
-            Log.d("HeartRateUploadTask", "nfc challenge: " + challengeResponse.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE));
+            if (nfcChallenge == null) {
+                LogoutHelper.logout(context, AppMessage.TOAST_MESSAGE_EXPIRED_JWT);
+                return false;
+            }
+            Log.d("HeartRateUploadTask", "nfc challenge: " + nfcChallenge);
         } else {
             return false;
         }
@@ -89,6 +93,9 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
             Log.d("HeartRateUploadTask", "new jwt: " + JSONWebToken.getInstance().getData());
             return true;
         } else {
+            if (uploadResponse.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+                LogoutHelper.logout(context, AppMessage.TOAST_MESSAGE_EXPIRED_JWT);
+            }
             return false;
         }
 
