@@ -88,7 +88,7 @@ public class Repository {
                     e.printStackTrace();
                 }
                 Steps data = JSONUtil.JSONtoSteps(stepsJSON);
-                arrayListOfFileSessionNames.add(data.getName());
+                arrayListOfFileSessionNames.add(data.getTitle());
             }
         }
 

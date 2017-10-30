@@ -325,7 +325,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 sessionName = input.getText().toString();
-                data.setName(sessionName);
+                data.setTitle(sessionName);
 
                 SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
                 prefs.edit().putBoolean(STEPS_STOPPED, false).commit();
