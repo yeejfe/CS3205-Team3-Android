@@ -82,13 +82,13 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
             return false;
         }
 
+        Log.d("HeartRateUploadTask", "upload response: " + uploadResponse.readEntity(String.class));
         if (uploadResponse != null && uploadResponse.getStatus() == Response.Status.CREATED.getStatusCode()) {
-            String newJwToken = challengeResponse.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT);
+            String newJwToken = uploadResponse.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT);
             JSONWebToken.getInstance().setData(newJwToken);
             Log.d("HeartRateUploadTask", "new jwt: " + JSONWebToken.getInstance().getData());
             return true;
         } else {
-            Log.d("HeartRateUploadTask", "upload response: " + uploadResponse.readEntity(String.class));
             return false;
         }
 
