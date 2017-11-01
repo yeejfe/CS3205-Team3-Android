@@ -15,7 +15,7 @@ import cs3205.subsystem3.health.model.Steps;
  */
 
 public class JSONUtil {
-    public static final Steps JSONtoSteps(@NonNull JSONObject jsonObject) {
+        public static final Steps JSONtoSteps(@NonNull JSONObject jsonObject) {
         try {
             Steps data = new Steps(jsonObject.getLong(Steps.FIELD_RECORD), jsonObject.getString(Steps.FIELD_TITLE));
 

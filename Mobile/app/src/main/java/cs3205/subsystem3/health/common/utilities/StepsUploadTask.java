@@ -17,6 +17,8 @@ import java.util.Queue;
 import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.MainActivity;
+import cs3205.subsystem3.health.common.core.JSONFileReader;
+import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 import cs3205.subsystem3.health.ui.step.StepUploadFragment;
@@ -113,9 +115,11 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
             InputStream stream = null;
             try {
                 stream = new FileInputStream(file);
+                Log.d(TAG, JSONFileReader.toString(selectedFiles.get(i)));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
 
             Response response;
 

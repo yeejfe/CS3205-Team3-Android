@@ -17,10 +17,12 @@ import cs3205.subsystem3.health.common.logger.Tag;
  */
 
 public class JSONFileWriter extends FileHelper {
+    private static String TAG = "JSONFileWriter";
+
     public static void createFile(String extDirPath, String fileName, JSONObject jsonObject) {
         String dirPath = extDirPath + FRONT_SLASH + FOLDER;
         File dir = new File(dirPath);
-        Log.d("Hello", dir.getAbsolutePath());
+        Log.d(TAG, dir.getAbsolutePath());
         if (!dir.exists())
             dir.mkdirs();
         File file = new File(dir, fileName);
@@ -35,7 +37,7 @@ public class JSONFileWriter extends FileHelper {
         try {
             output = new BufferedWriter(new FileWriter(file, false));
             if (BuildConfig.DEBUG)
-                Log.i(Tag.STEP_SENSOR, jsonObject.toString());
+                Log.i(TAG, jsonObject.toString());
             output.write(jsonObject.toString());
             output.close();
         } catch (IOException e) {

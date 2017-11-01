@@ -14,7 +14,7 @@ public class Steps {
     public static final String FIELD_TYPE = "type";
     public static final String FIELD_RECORD = "sessionTime";
     public static final String FIELD_TIME = "time";
-    public static final String FIELD_CHANNELS = "data";
+    public static final String FIELD_CHANNELS = "channels";
     public static final String FIELD_DISPLAY_UNIT = "displayUnit";
     public static final String FIELD_DATA = "data";
     public static final String FIELD_AXIS_X = "x_axis";
