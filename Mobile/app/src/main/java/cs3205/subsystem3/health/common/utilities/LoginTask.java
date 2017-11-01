@@ -20,6 +20,7 @@ import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
+import cs3205.subsystem3.health.logic.session.Timeout;
 import cs3205.subsystem3.health.ui.login.LoginActivity;
 
 /**
@@ -152,16 +153,17 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         if (response == null || response.getStatus() != Response.Status.OK.getStatusCode()) {
             Log.d("LoginTask", "error status code on challenge response: " + response.getStatus());
             Log.d("LoginTask", "response content on challenge response: " + response.readEntity(String.class));
+
+            if(response.getHeaderString("X-Timeout") != null){
+                int timeout = Integer.parseInt(response.getHeaderString("X-Timeout"));
+                Timeout.getInstance().setDuration(timeout);
+                Log.d("LoginTask", "Timeout time: " + timeout);
+            }
+
             return false;
         } else {
             JSONWebToken.getInstance().setData(response.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT));
             Log.d("LoginTask", "jwt: " + response.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT));
-
-            if(response.getHeaderString("X-Timeout") != null){
-                //// TODO: 10/31/17 Login Timeout
-                int timeout = Integer.parseInt(response.getHeaderString("X-Timeout"));
-                Log.d("LoginTask", "Timeout time: " + timeout);
-            }
 
             return true;
         }

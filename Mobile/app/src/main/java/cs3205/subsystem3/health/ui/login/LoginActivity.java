@@ -24,6 +24,8 @@ import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.LoginTask;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
+import cs3205.subsystem3.health.logic.session.Timeout;
+import cs3205.subsystem3.health.model.Steps;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 
@@ -44,7 +46,6 @@ public class LoginActivity extends AppCompatActivity {
     private String tag_username;
     private String tag_password;
     private ProgressBar progressBar;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         password = _passwordText.getText().toString();
 
         if (!validate(username, password)) {
+            Timeout.getInstance().setDuration(Timeout.DEFAULT_TIMEOUT_IN_SECONDS);
             onLoginFailed(NO_INTERNET_ERROR);
             return;
         }
@@ -85,12 +87,6 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         authenticate();
-
-//for test
-        //skip NFC authentication
-
-    //    skipNfcTest();
-
     }
 
     @Override
@@ -100,6 +96,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
+        Timeout.getInstance().reset();
         finish();
         progressBar.setVisibility(View.GONE);
     }
@@ -114,8 +111,9 @@ public class LoginActivity extends AppCompatActivity {
         Toast.makeText(getBaseContext(), AppMessage.TOAST_MESSAGE_LOGIN_FAILURE, Toast.LENGTH_LONG).show();
 
         //TODO: set this value based on number of login failures so far
-        final int loginDelayMillis = 5000;
-        new Handler().postDelayed(//enable the login button after the time delay and display the count down to user
+        final int loginDelayMillis = Timeout.getInstance().getDuration();
+        Log.d(TAG, "Retry in " + loginDelayMillis / 1000);
+        new Handler().postAtTime(//enable the login button after the time delay and display the count down to user
                 new Runnable() {
                     public void run() {
                         mLoginTimer.setVisibility(View.VISIBLE);
@@ -167,7 +165,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -177,8 +174,10 @@ public class LoginActivity extends AppCompatActivity {
                 tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
             }
             if (tag_password == null || tag_username == null) {
+                manageTimeout();
                 onLoginFailed(NO_INTERNET_ERROR);
             } else if (!tag_username.equals(username)) {
+                manageTimeout();
                 onLoginFailed(NO_INTERNET_ERROR);
             } else {
                 JSONObject body = new JSONObject();
@@ -194,20 +193,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    //For test
-    //skip nfc
-    public void skipNfcTest(){
-        tag_username = "username";
-        tag_password = "password";
-        Log.d("test skip","get tag_user and tag_password");
-        JSONObject body = new JSONObject();
-        try {
-            body.put(RequestInfo.HEADER_GRANT_TYPE, RequestInfo.GRANT_TYPE_PASSWORD);
-            body.put(RequestInfo.HEADER_USERNAME, username);
-            Log.d("test skip","body info prepared");
-        } catch (JSONException e) {
-            e.printStackTrace();
+    private void manageTimeout(){
+        int count = Timeout.getInstance().getCount();
+        if(count > 0){
+            double duration = Math.pow(Timeout.DEFAULT_TIMEOUT_IN_SECONDS, count);
+            if(duration > Integer.MAX_VALUE){
+                duration = Integer.MAX_VALUE;
+            }
+            Timeout.getInstance().setDuration((int) duration);
         }
-        new LoginTask().execute(body, password, tag_password, this);
     }
 }
