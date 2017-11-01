@@ -156,6 +156,13 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         } else {
             JSONWebToken.getInstance().setData(response.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT));
             Log.d("LoginTask", "jwt: " + response.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT));
+
+            if(response.getHeaderString("X-Timeout") != null){
+                //// TODO: 10/31/17 Login Timeout
+                int timeout = Integer.parseInt(response.getHeaderString("X-Timeout"));
+                Log.d("LoginTask", "Timeout time: " + timeout);
+            }
+
             return true;
         }
     }
