@@ -39,6 +39,8 @@ dependencies {
     compile 'com.google.guava:guava:20.0'
     compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
     compile 'com.jjoe64:graphview:4.2.1'
+    compile 'com.github.blackfizz:eazegraph:1.2.2@aar'
+    compile 'com.nineoldandroids:library:2.4.0'
     compile(group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.16') {
         exclude module: 'javax.inject'
     }

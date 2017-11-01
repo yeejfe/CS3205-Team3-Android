@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,14 +16,26 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.InputType;
 import android.util.Log;
+import android.util.Pair;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.eazegraph.lib.charts.BarChart;
+import org.eazegraph.lib.models.BarModel;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import cs3205.subsystem3.health.BuildConfig;
 import cs3205.subsystem3.health.R;
@@ -49,14 +63,17 @@ import static cs3205.subsystem3.health.logic.step.StepsUtil.updateSteps;
 public class StepSensorFragment extends Fragment implements SensorEventListener, OnClickListener {
 
     private static final String SESSION_NAME = "session_";
+    private static final int PAST_DAYS = 8;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("E", Locale.getDefault());
 
     private String TAG = this.getClass().getName();
     private String sessionName = SESSION_NAME;
 
-    private TextView stepsView, totalView, averageView, textView;
+    private TextView stepsView, totalView, averageView, textView, avgLabel, todayLabel, totalLabel;
     private Button buttonStart;
     private Button buttonStop;
     private Button buttonUpload;
+    private BarChart barChart;
     private static final String START_SERVICE = "Steps Counter Service Started";
     public static final String STOP_SERVICE = "Press START to count steps";
     private int todayOffset, total_start, since_boot, total_days;
@@ -75,6 +92,10 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         buttonStart = (Button) view.findViewById(R.id.btn_start);
         buttonStop = (Button) view.findViewById(R.id.btn_stop);
         buttonUpload = (Button) view.findViewById(R.id.btn_go_step_upload);
+        barChart = (BarChart) view.findViewById(R.id.barchart);
+        avgLabel = (TextView) view.findViewById(R.id.avg_label);
+        todayLabel = (TextView) view.findViewById(R.id.today_label);
+        totalLabel = (TextView) view.findViewById(R.id.total_label);
 
         buttonStart.setOnClickListener(this);
         buttonStop.setOnClickListener(this);
@@ -242,9 +263,12 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     }
 
     private void showSteps() {
+        if (barChart.getData().size() > 0) barChart.clearChart();
+
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
         setView();
 
+        BarModel barModel;
         StepsDB db = new StepsDB(getActivity());
 
         // read todays offset
@@ -258,13 +282,45 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         total_start = db.getTotalWithoutToday();
         total_days = db.getDays();
 
+        List<Pair<Long, Integer>> days = db.getLastEntries(PAST_DAYS);
+
         db.close();
+
+        //update bar chart
+        int steps;
+        Log.d(TAG, "days = " + String.valueOf(days.size()));
+
+        for (int i = days.size() - 1; i > 0; i--) {
+            Pair<Long, Integer> current = days.get(i);
+            steps = current.second;
+            Log.d(TAG, "steps = " + String.valueOf(steps));
+            if (steps > 0) {
+                //barModel = new BarModel(DATE_FORMAT.format(new Date(current.first)), 0,
+                //steps > goal ? Color.parseColor("#99CC00") : Color.parseColor("#0099cc"));
+
+                barModel = new BarModel(DATE_FORMAT.format(new Date(current.first)), 0, Color.parseColor("#99CC00"));
+
+                barModel.setValue(steps);
+
+                barChart.addBar(barModel);
+            }
+        }
+
+        Log.d(TAG, "barChart = " + String.valueOf(barChart.getData().size()));
+
+        if (barChart.getData().size() > 0) {
+            barChart.setVisibility(View.VISIBLE);
+            barChart.startAnimation();
+        } else {
+            barChart.setVisibility(View.GONE);
+        }
 
         int steps_today = Math.max(todayOffset + since_boot, 0);
 
         Log.d(this.getClass().getName(), "UI - showSteps | Steps_today: " + steps_today + " | " + prefs.getString(FILENAME, "NONE"));
 
         setTextView(steps_today);
+        setParams();
     }
 
     private void retrieveSteps(String methodName) {
@@ -285,6 +341,52 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
             setViewServiceStarted();
         } else {
             setViewServiceStopped();
+        }
+    }
+
+    private void setParams() {
+        if (barChart.getVisibility() == View.VISIBLE) {
+            Resources r = getActivity().getResources();
+
+            RelativeLayout.LayoutParams totalParams = (RelativeLayout.LayoutParams)totalLabel.getLayoutParams();
+            totalParams.topMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    23,
+                    r.getDisplayMetrics()
+            );;
+            RelativeLayout.LayoutParams avgParams = (RelativeLayout.LayoutParams)avgLabel.getLayoutParams();
+            avgParams.topMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    75,
+                    r.getDisplayMetrics()
+            );;
+            RelativeLayout.LayoutParams todayParams = (RelativeLayout.LayoutParams)todayLabel.getLayoutParams();
+            todayParams.topMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    123,
+                    r.getDisplayMetrics()
+            );;
+        } else {
+            Resources r = getActivity().getResources();
+
+            RelativeLayout.LayoutParams totalParams = (RelativeLayout.LayoutParams)totalLabel.getLayoutParams();
+            totalParams.topMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    153,
+                    r.getDisplayMetrics()
+            );;
+            RelativeLayout.LayoutParams avgParams = (RelativeLayout.LayoutParams)avgLabel.getLayoutParams();
+            avgParams.topMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    205,
+                    r.getDisplayMetrics()
+            );;
+            RelativeLayout.LayoutParams todayParams = (RelativeLayout.LayoutParams)todayLabel.getLayoutParams();
+            todayParams.topMargin = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    253,
+                    r.getDisplayMetrics()
+            );;
         }
     }
 
