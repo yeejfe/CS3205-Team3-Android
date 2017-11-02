@@ -102,7 +102,10 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.imageToUpload:
-                Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+              //  Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent imageGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                Uri uri = Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath()+getString(R.string.album_name));
+                imageGalleryIntent.setDataAndType(uri,"*/*");
                 imageGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(Intent.createChooser(imageGalleryIntent, "Select Picture"), REQUEST_LOAD_IMAGE);
                 break;
