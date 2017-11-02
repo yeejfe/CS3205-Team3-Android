@@ -20,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import java.io.File;
+
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
@@ -43,6 +45,8 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     public static final String EXTERNAL_STORAGE = "com.android.externalstorage.documents";
     public static final String PROVIDERS_DOWNLOADS = "com.android.providers.downloads.documents";
     public static final String PROVIDERS_MEDIA = "com.android.providers.media.documents";
+
+
 
 
     private ImageView imageToUpload, videoToUpload;
@@ -78,6 +82,8 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         videoToUpload.setOnClickListener(this);
         bUploadImage.setOnClickListener(this);
         bUploadVideo.setOnClickListener(this);
+
+
     }
 
     @Override
@@ -102,12 +108,8 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.imageToUpload:
-              //  Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                Intent imageGalleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                Uri uri = Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath()+getString(R.string.album_name));
-                imageGalleryIntent.setDataAndType(uri,"*/*");
-                imageGalleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(Intent.createChooser(imageGalleryIntent, "Select Picture"), REQUEST_LOAD_IMAGE);
+                Intent imageGalleryIntent = new Intent(this, CustomGallery.class);
+                startActivityForResult(imageGalleryIntent,REQUEST_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
                 choice = RemoteDataSource.Type.IMAGE;
@@ -154,12 +156,15 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         startActivityForResult(startNFCReadingActivity, REQUEST_READ_NFC);
     }
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri selectedImageUri = data.getData();
-            selectedImagePath = getPath(this, selectedImageUri);
+           // Uri selectedImageUri = data.getData();
+            selectedImagePath = data.getStringExtra("selected_image_path");
+            Uri selectedImageUri = Uri.fromFile(new File(selectedImagePath));
             uploadImageName.setText(selectedImagePath);
             imageToUpload.setImageURI(selectedImageUri);
 
