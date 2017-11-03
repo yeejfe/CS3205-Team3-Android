@@ -1,11 +1,11 @@
 package cs3205.subsystem3.health.ui.camera;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +29,8 @@ public class CustomGallery extends AppCompatActivity {
     File[] listFile;
 
     private CameraActivity.GalleryRequestType requestType;
+ //   private ImageView imageview;
+
 
 
     /** Called when the activity is first created. */
@@ -42,8 +44,28 @@ public class CustomGallery extends AppCompatActivity {
         setContentView(R.layout.activity_custom_gallery);
         getFromSdcard();
         GridView imagegrid = (GridView) findViewById(R.id.ImageGrid);
+        System.out.println("here1...");
         imageAdapter = new ImageAdapter();
+
+        System.out.println("here2...");
         imagegrid.setAdapter(imageAdapter);
+        System.out.println(" f : " +f.size());
+
+        System.out.println("here3...");
+
+   /*     imageview=(ImageView)findViewById(R.id.testImage);
+        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
+        File file = wrapper.getDir("Health", MODE_PRIVATE);
+
+        System.out.println(" folder path  " +file.getPath());
+        listFile = file.listFiles();
+
+        Bitmap myBitmap = BitmapFactory.decodeFile(listFile[0].getPath());
+        System.out.println("f.get(position) : "+ listFile[0].getPath());
+        if(myBitmap!=null) {
+            imageview.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 500, 500, false));
+
+        }*/
 
         imagegrid.setOnItemClickListener(new OnItemClickListener(){
 
@@ -88,11 +110,11 @@ public class CustomGallery extends AppCompatActivity {
     }
     public void getFromSdcard()
     {
-        File file= new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath().toString()
-                +"/"+getString(R.string.album_name));
+     //   File file= new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath().toString()
+     //           +"/"+getString(R.string.album_name));
 
-    //    ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-     //   File file = wrapper.getDir("Health",MODE_PRIVATE);
+       ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
+        File file = wrapper.getDir("Health", MODE_PRIVATE);
 
         System.out.println(" folder path  " +file.getPath());
 
@@ -103,14 +125,23 @@ public class CustomGallery extends AppCompatActivity {
 
             for (int i = 0; i < listFile.length; i++) {
                 System.out.println(" name  " +listFile[i].getPath());
-                String[] nameArr = listFile[i].getAbsolutePath().split("\\.");
-                if (nameArr.length>1 && nameArr[1].equals("jpg" ) ) {
+              //  String[] nameArr = listFile[i].getAbsolutePath().split("\\.");
+              //  if (nameArr.length>1 && nameArr[1].equals("jpg" ) ) {
                     f.add(listFile[i].getAbsolutePath());
-                }
+              //  }
             }
+
         }catch(Exception e){
             e.printStackTrace();
         }
+
+
+         /*try {
+               Bitmap myBitmap = BitmapFactory.decodeFile(f.get(0));
+               imageTest.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 150, 150, false));
+           }catch(Exception e){
+               e.printStackTrace();
+           }*/
         }
     }
 
@@ -135,6 +166,7 @@ public class CustomGallery extends AppCompatActivity {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
+            System.out.println("getview called");
             ViewHolder holder;
             if (convertView == null) {
                 holder = new ViewHolder();
@@ -148,14 +180,16 @@ public class CustomGallery extends AppCompatActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-
+try{
          Bitmap myBitmap = BitmapFactory.decodeFile(f.get(position));
             System.out.println("f.get(position) : "+ f.get(position));
          if(myBitmap!=null) {
-            holder.imageview.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 500, 500, false));
+             holder.imageview.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 500, 500, false));
 
+         }
 
-
+         }catch(Exception e){
+    e.printStackTrace();
          }
 
 

@@ -105,7 +105,7 @@ public class CameraActivity extends AppCompatActivity {
     * Function of taking pictures
     * */
 
-    public void onClick_TakePhoto(View view){
+  /*  public void onClick_TakePhoto(View view){
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
             File imageFile = null;
@@ -122,9 +122,9 @@ public class CameraActivity extends AppCompatActivity {
                 startActivityForResult(takePhotoIntent, REQUEST_TAKE_PHOTO);
             }
         }
-    }
+    }*/
 
-  /*  public void onClick_TakePhoto(View view){
+    public void onClick_TakePhoto(View view){
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
             File imageFileExternal = null;
@@ -143,7 +143,7 @@ public class CameraActivity extends AppCompatActivity {
                 startActivityForResult(takePhotoIntent, REQUEST_TAKE_PHOTO);
             }
         }
-    }*/
+    }
 
 
       /*
@@ -240,7 +240,7 @@ public class CameraActivity extends AppCompatActivity {
                 storageDir      /* directory */
         );
 
-        mCurrentImagePath = image.getAbsolutePath();
+        mCurrentImagePathExternal = image.getAbsolutePath();
         return image;
     }
 
@@ -269,25 +269,25 @@ public class CameraActivity extends AppCompatActivity {
         return storageDir;
     }
 
-    private void handleCameraPhoto() throws IOException{
+  /*  private void handleCameraPhoto() throws IOException{
         if (mCurrentImagePath != null) {
             setPic();
             displayPathName();
             galleryAddPic();
             mCurrentImagePath = null;
         }
-    }
+    }*/
 
- /*   private void handleCameraPhoto() throws IOException{
+    private void handleCameraPhoto() throws IOException{
         if (mCurrentImagePathExternal != null) {
             writeFromExternalToInternal();
             setPic();
             displayPathName();
             deleteExternalDirectory();
-            galleryAddPic();
+         //   galleryAddPic();
             mCurrentImagePathExternal = null;
         }
-    } */
+    }
 
 
     private void writeFromExternalToInternal() throws IOException{
@@ -315,7 +315,7 @@ public class CameraActivity extends AppCompatActivity {
 		/* Get the size of the image */
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentImagePath, bmOptions);
+        BitmapFactory.decodeFile(mCurrentImagePathInternal, bmOptions);
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
@@ -331,8 +331,8 @@ public class CameraActivity extends AppCompatActivity {
         bmOptions.inPurgeable = true;
 
 		/* Decode the JPEG file into a Bitmap */
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentImagePath, bmOptions);
-        System.out.println("mCurrentImagePath: " + mCurrentImagePath);
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentImagePathInternal, bmOptions);
+        System.out.println("mCurrentImagePath: " + mCurrentImagePathInternal);
 
 		/* Associate the Bitmap to the ImageView */
         mImageView.setImageBitmap(bitmap);
@@ -344,7 +344,7 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private void displayPathName(){
-        mPathName.setText("Picture taken:\n"+ MetaInfoExtractor.getFileName(mCurrentImagePath));
+        mPathName.setText("Picture taken:\n"+ MetaInfoExtractor.getFileName(mCurrentImagePathInternal));
     }
 
 
