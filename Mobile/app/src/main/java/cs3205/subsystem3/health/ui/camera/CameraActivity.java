@@ -268,6 +268,8 @@ public class CameraActivity extends AppCompatActivity {
         mVideoView.setVisibility(View.INVISIBLE);
     }
 
+
+
     private void displayPathName(){
         mPathName.setText("Picture taken:\n"+ mCurrentImagePath);
     }
@@ -294,7 +296,7 @@ public class CameraActivity extends AppCompatActivity {
         mDeletedImagePath= intent.getStringExtra("selected_image_path");
         mPathName.setText("\nPhoto deleted:\n"+ mDeletedImagePath);
         mImageView.setVisibility(View.INVISIBLE);
-        
+
     }
 
 
