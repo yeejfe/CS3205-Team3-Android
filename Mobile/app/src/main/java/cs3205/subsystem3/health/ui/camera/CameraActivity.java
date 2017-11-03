@@ -51,12 +51,15 @@ public class CameraActivity extends AppCompatActivity {
     public static final String FAIL_MESSAGE_2 = "External storage is not mounted READ/WRITE.";
 
     private ImageView mImageView;
+    private ImageView mIconView;
     private VideoView mVideoView;
     private TextView mPathName;
 
 
     private String mCurrentImagePath;
+    private String mCurrentVideoPath;
     private String mDeletedImagePath;
+
     private AlbumStorageDirFactory mAlbumStorageDirFactory = null;
 
 
@@ -74,6 +77,7 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         mImageView = (ImageView)findViewById(R.id.imageView1);
+        mIconView = (ImageView) findViewById(R.id.imageView2);
         mVideoView = (VideoView) findViewById(R.id.videoView1);
         mPathName = (TextView)findViewById(R.id.pathName);
 
@@ -265,7 +269,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void displayPathName(){
-        mPathName.setText(mCurrentImagePath);
+        mPathName.setText("Picture taken:\n"+ mCurrentImagePath);
     }
 
 
@@ -279,15 +283,18 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private void handleCameraVideo(Intent intent) {
-       /* mVideoUri = intent.getData();
-        mVideoView.setVideoURI(mVideoUri);
-        mVideoView.setVisibility(View.VISIBLE);
-        mImageView.setVisibility(View.INVISIBLE);*/
+        Uri videoUri = intent.getData();
+        mCurrentVideoPath = UploadPageActivity.getPath(this,videoUri);
+        mPathName.setText("\nVideo recorded:\n"+ mCurrentVideoPath);
+        mImageView.setVisibility(View.INVISIBLE);
+
     }
 
     private void handleReturnInfo(Intent intent) {
-            mDeletedImagePath= intent.getStringExtra("selected_image_path");
-            mPathName.setText("Photo deleted: "+mDeletedImagePath);
+        mDeletedImagePath= intent.getStringExtra("selected_image_path");
+        mPathName.setText("\nPhoto deleted:\n"+ mDeletedImagePath);
+        mImageView.setVisibility(View.INVISIBLE);
+        
     }
 
 
