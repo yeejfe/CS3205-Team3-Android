@@ -1,11 +1,11 @@
 package cs3205.subsystem3.health.ui.camera;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,11 +88,11 @@ public class CustomGallery extends AppCompatActivity {
     }
     public void getFromSdcard()
     {
-   //     File file= new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath().toString()
-   //             +"/"+getString(R.string.album_name));
+        File file= new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath().toString()
+                +"/"+getString(R.string.album_name));
 
-        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-        File file = wrapper.getDir("Health",MODE_PRIVATE);
+    //    ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
+     //   File file = wrapper.getDir("Health",MODE_PRIVATE);
 
         System.out.println(" folder path  " +file.getPath());
 
@@ -153,7 +153,7 @@ public class CustomGallery extends AppCompatActivity {
             System.out.println("f.get(position) : "+ f.get(position));
          if(myBitmap!=null) {
             holder.imageview.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 500, 500, false));
-            
+
 
 
          }

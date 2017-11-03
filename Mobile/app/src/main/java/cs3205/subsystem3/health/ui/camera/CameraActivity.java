@@ -62,6 +62,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private String mCurrentImagePathExternal;
     private String mCurrentImagePathInternal;
+    private String mCurrentImagePath;
     private String mCurrentVideoPath;
     private String mDeletedImagePath;
 
@@ -104,7 +105,7 @@ public class CameraActivity extends AppCompatActivity {
     * Function of taking pictures
     * */
 
- /*   public void onClick_TakePhoto(View view){
+    public void onClick_TakePhoto(View view){
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
             File imageFile = null;
@@ -121,9 +122,9 @@ public class CameraActivity extends AppCompatActivity {
                 startActivityForResult(takePhotoIntent, REQUEST_TAKE_PHOTO);
             }
         }
-    }*/
+    }
 
-    public void onClick_TakePhoto(View view){
+  /*  public void onClick_TakePhoto(View view){
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
             File imageFileExternal = null;
@@ -142,7 +143,7 @@ public class CameraActivity extends AppCompatActivity {
                 startActivityForResult(takePhotoIntent, REQUEST_TAKE_PHOTO);
             }
         }
-    }
+    }*/
 
 
       /*
@@ -238,8 +239,8 @@ public class CameraActivity extends AppCompatActivity {
                 JPG,         /* suffix */
                 storageDir      /* directory */
         );
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentImagePathExternal = image.getAbsolutePath();
+
+        mCurrentImagePath = image.getAbsolutePath();
         return image;
     }
 
@@ -268,9 +269,16 @@ public class CameraActivity extends AppCompatActivity {
         return storageDir;
     }
 
-
-
     private void handleCameraPhoto() throws IOException{
+        if (mCurrentImagePath != null) {
+            setPic();
+            displayPathName();
+            galleryAddPic();
+            mCurrentImagePath = null;
+        }
+    }
+
+ /*   private void handleCameraPhoto() throws IOException{
         if (mCurrentImagePathExternal != null) {
             writeFromExternalToInternal();
             setPic();
@@ -279,7 +287,7 @@ public class CameraActivity extends AppCompatActivity {
             galleryAddPic();
             mCurrentImagePathExternal = null;
         }
-    }
+    } */
 
 
     private void writeFromExternalToInternal() throws IOException{
@@ -307,7 +315,7 @@ public class CameraActivity extends AppCompatActivity {
 		/* Get the size of the image */
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentImagePathInternal, bmOptions);
+        BitmapFactory.decodeFile(mCurrentImagePath, bmOptions);
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
@@ -323,8 +331,8 @@ public class CameraActivity extends AppCompatActivity {
         bmOptions.inPurgeable = true;
 
 		/* Decode the JPEG file into a Bitmap */
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentImagePathInternal, bmOptions);
-        System.out.println("mCurrentImagePath: " + mCurrentImagePathInternal);
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentImagePath, bmOptions);
+        System.out.println("mCurrentImagePath: " + mCurrentImagePath);
 
 		/* Associate the Bitmap to the ImageView */
         mImageView.setImageBitmap(bitmap);
@@ -336,13 +344,13 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private void displayPathName(){
-        mPathName.setText("Picture taken:\n"+ MetaInfoExtractor.getFileName(mCurrentImagePathInternal));
+        mPathName.setText("Picture taken:\n"+ MetaInfoExtractor.getFileName(mCurrentImagePath));
     }
 
 
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent(MEDIA_SCANNER);
-        File f = new File(mCurrentImagePathExternal);
+        File f = new File(mCurrentImagePath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
