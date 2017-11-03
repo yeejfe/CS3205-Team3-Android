@@ -44,7 +44,7 @@ public class CameraActivity extends AppCompatActivity {
     public static final String JPEG = "JPEG_";
     public static final String UNDERLINE = "_";
     public static final String JPG = ".jpg";
-    public static final String DATE_FORMAT = "yyyyMMdd_HHmmss";
+    public static final String DATE_FORMAT = "yyyyMMdd_HHmmssSSS";
     public static final String MEDIA_SCANNER = "android.intent.action.MEDIA_SCANNER_SCAN_FILE";
 
 

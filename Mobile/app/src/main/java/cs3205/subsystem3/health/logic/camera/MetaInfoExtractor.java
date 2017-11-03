@@ -19,7 +19,7 @@ public final class MetaInfoExtractor {
         String str = extractTimeString(path);
         long epoch = 0;
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmssSSS");
        try{
            Date date = df.parse(str);
            epoch = date.getTime();
@@ -42,7 +42,7 @@ public final class MetaInfoExtractor {
     private static String extractTimeString(String path){
         String[] arr = path.split("/");
         String[] arr2 = arr[arr.length-1].split("_");
-        String str = arr2[1]+"_"+arr[2];
+        String str = arr2[1]+"_"+arr2[2];
         return str;
     }
 

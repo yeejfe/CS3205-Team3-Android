@@ -165,10 +165,14 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
            // Uri selectedImageUri = data.getData();
-            selectedImagePath = data.getStringExtra("selected_image_path");
-            Uri selectedImageUri = Uri.fromFile(new File(selectedImagePath));
-            uploadImageName.setText("Image to upload: "+ MetaInfoExtractor.getFileName(selectedImagePath)+"\nEpoch time: "+ MetaInfoExtractor.getEpochTimeStamp(selectedImagePath));
-            imageToUpload.setImageURI(selectedImageUri);
+            try {
+                selectedImagePath = data.getStringExtra("selected_image_path");
+                Uri selectedImageUri = Uri.fromFile(new File(selectedImagePath));
+                uploadImageName.setText("Image to upload: " + MetaInfoExtractor.getFileName(selectedImagePath) + "\nEpoch time: " + MetaInfoExtractor.getEpochTimeStamp(selectedImagePath));
+                imageToUpload.setImageURI(selectedImageUri);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
 
 
         } else if (requestCode == REQUEST_LOAD_VIDEO && resultCode == RESULT_OK && data != null) {
