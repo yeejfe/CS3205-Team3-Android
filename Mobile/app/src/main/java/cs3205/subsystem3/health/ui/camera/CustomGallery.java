@@ -61,7 +61,7 @@ public class CustomGallery extends AppCompatActivity {
     {
         File file= new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath().toString()
                 +"/"+getString(R.string.album_name));
-     //   System.out.println(" folder path  " +file.getPath());
+        System.out.println(" folder path  " +file.getPath());
 
         if (file.isDirectory())
         {
@@ -69,7 +69,7 @@ public class CustomGallery extends AppCompatActivity {
         try {
 
             for (int i = 0; i < listFile.length; i++) {
-      //          System.out.println(" name  " +listFile[i].getPath());
+                System.out.println(" name  " +listFile[i].getPath());
                 String[] nameArr = listFile[i].getAbsolutePath().split("\\.");
                 if (nameArr.length>1 && nameArr[1].equals("jpg" ) ) {
                     f.add(listFile[i].getAbsolutePath());
