@@ -36,6 +36,8 @@ public class CameraActivity extends AppCompatActivity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int REQUEST_TAKE_VIDEO = 2;
+    static final int REQUEST_DELETE = 3;
+
 
 
     public static final String JPEG = "JPEG_";
@@ -54,7 +56,14 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private String mCurrentImagePath;
+    private String mDeletedImagePath;
     private AlbumStorageDirFactory mAlbumStorageDirFactory = null;
+
+
+    public enum GalleryRequestType {
+        UPLOAD,
+        DELETE
+    }
 
 
     @Override
@@ -106,6 +115,68 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
+      /*
+    * Function of recording videos
+    * */
+
+    public void onClick_TakeVideo(View view){
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takeVideoIntent, REQUEST_TAKE_VIDEO);
+        }
+
+    }
+
+        /*
+    * Navigate to upload activity
+    * */
+
+    public void onClick_GoToUploadPage(View view){
+        Intent toUploadIntent = new Intent(this, UploadPageActivity.class);
+        startActivity(toUploadIntent);
+    }
+
+     /*
+    * Navigate to delete activity
+    * */
+
+    public void onClick_GoToCustomGallery(View view){
+        Intent toDeleteIntent = new Intent(this, CustomGallery.class);
+        toDeleteIntent.putExtra("gallery_request_type", GalleryRequestType.DELETE);
+        startActivityForResult(toDeleteIntent,REQUEST_DELETE);
+    }
+
+
+
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        switch (requestCode) {
+            case REQUEST_TAKE_PHOTO:{
+                if (resultCode == RESULT_OK){
+                    handleCameraPhoto();
+                }
+                break;
+            }
+            case REQUEST_TAKE_VIDEO:{
+                if (resultCode == RESULT_OK) {
+                    handleCameraVideo(data);
+                }
+                break;
+            }
+            case REQUEST_DELETE:{
+                if(resultCode == RESULT_OK){
+                    handleReturnInfo(data);
+                }
+                break;
+            }
+
+
+        }
+    }
+
+
+
+
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -148,24 +219,6 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        switch (requestCode) {
-            case REQUEST_TAKE_PHOTO:{
-                if (resultCode == RESULT_OK){
-                    handleCameraPhoto();
-                }
-                break;
-            }
-            case REQUEST_TAKE_VIDEO:{
-                if (resultCode == RESULT_OK) {
-                    handleCameraVideo(data);
-                }
-                break;
-            }
-
-
-        }
-    }
 
     private void handleCameraPhoto() {
         if (mCurrentImagePath != null) {
@@ -225,19 +278,6 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-
-    /*
-    * Function of recording videos
-    * */
-
-    public void onClick_TakeVideo(View view){
-        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takeVideoIntent, REQUEST_TAKE_VIDEO);
-        }
-
-    }
-
     private void handleCameraVideo(Intent intent) {
        /* mVideoUri = intent.getData();
         mVideoView.setVideoURI(mVideoUri);
@@ -245,10 +285,12 @@ public class CameraActivity extends AppCompatActivity {
         mImageView.setVisibility(View.INVISIBLE);*/
     }
 
-    public void onClick_GoToUploadPage(View view){
-        Intent toUploadIntent = new Intent(this, UploadPageActivity.class);
-        startActivity(toUploadIntent);
+    private void handleReturnInfo(Intent intent) {
+            mDeletedImagePath= intent.getStringExtra("selected_image_path");
+            mPathName.setText("Photo deleted: "+mDeletedImagePath);
     }
+
+
 
 
 

@@ -28,11 +28,17 @@ public class CustomGallery extends AppCompatActivity {
     ArrayList<String> f = new ArrayList<String>();// list of file paths
     File[] listFile;
 
+    private CameraActivity.GalleryRequestType requestType;
+
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent intent = getIntent();
+        requestType = (CameraActivity.GalleryRequestType)intent.getSerializableExtra("gallery_request_type");
+
         setContentView(R.layout.activity_custom_gallery);
         getFromSdcard();
         GridView imagegrid = (GridView) findViewById(R.id.ImageGrid);
@@ -45,10 +51,33 @@ public class CustomGallery extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 Toast.makeText(CustomGallery.this, "image "+(String.valueOf(position+1))+" is selected! ", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent();
-                intent.putExtra("selected_image_path", listFile[position].getPath().toString());
-                setResult(RESULT_OK, intent);
-                finish();
+
+                if(requestType.equals(CameraActivity.GalleryRequestType.UPLOAD)) {
+                    Intent intent = new Intent();
+                    intent.putExtra("selected_image_path", listFile[position].getPath().toString());
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+                else{
+                    File fdelete = new File(listFile[position].getPath());
+                    Intent intent = new Intent();
+                    if (fdelete.exists()) {
+                        if (fdelete.delete()) {
+                            Toast.makeText(CustomGallery.this, "image "+(String.valueOf(position+1))+" is deleted! ", Toast.LENGTH_SHORT).show();
+                            intent.putExtra("selected_image_path", listFile[position].getPath().toString());
+                            setResult(RESULT_OK, intent);
+
+                        } else {
+                            Toast.makeText(CustomGallery.this, "fail to delete image "+(String.valueOf(position+1))+"! ", Toast.LENGTH_SHORT).show();
+                            setResult(RESULT_CANCELED, intent);
+                        }
+                    }
+                    else{
+                        Toast.makeText(CustomGallery.this, "image "+(String.valueOf(position+1))+" does not exist! ", Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_CANCELED, intent);
+                    }
+                    finish();
+                }
 
             }
 

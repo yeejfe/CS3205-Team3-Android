@@ -109,6 +109,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         switch (view.getId()) {
             case R.id.imageToUpload:
                 Intent imageGalleryIntent = new Intent(this, CustomGallery.class);
+                imageGalleryIntent.putExtra("gallery_request_type", CameraActivity.GalleryRequestType.DELETE);
                 startActivityForResult(imageGalleryIntent,REQUEST_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
