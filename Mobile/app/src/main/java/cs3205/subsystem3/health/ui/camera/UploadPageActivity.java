@@ -30,6 +30,7 @@ import cs3205.subsystem3.health.common.utilities.JSONWebToken;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.common.utilities.UploadHandler;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
+import cs3205.subsystem3.health.logic.camera.MetaInfoExtractor;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 import static cs3205.subsystem3.health.common.utilities.UploadHandler.MESSAGE_NFC_READ_FAIL;
@@ -109,7 +110,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         switch (view.getId()) {
             case R.id.imageToUpload:
                 Intent imageGalleryIntent = new Intent(this, CustomGallery.class);
-                imageGalleryIntent.putExtra("gallery_request_type", CameraActivity.GalleryRequestType.DELETE);
+                imageGalleryIntent.putExtra("gallery_request_type", CameraActivity.GalleryRequestType.UPLOAD);
                 startActivityForResult(imageGalleryIntent,REQUEST_LOAD_IMAGE);
                 break;
             case R.id.buttonUploadImage:
@@ -166,17 +167,15 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
            // Uri selectedImageUri = data.getData();
             selectedImagePath = data.getStringExtra("selected_image_path");
             Uri selectedImageUri = Uri.fromFile(new File(selectedImagePath));
-            uploadImageName.setText(selectedImagePath);
+            uploadImageName.setText("Image to upload: "+ MetaInfoExtractor.getFileName(selectedImagePath)+"\nEpoch time: "+ MetaInfoExtractor.getEpochTimeStamp(selectedImagePath));
             imageToUpload.setImageURI(selectedImageUri);
 
 
         } else if (requestCode == REQUEST_LOAD_VIDEO && resultCode == RESULT_OK && data != null) {
             Uri selectedVideoUri = data.getData();
             selectedVideoPath = getPath(this, selectedVideoUri);
-            uploadVideoName.setText(selectedVideoPath);
+            uploadVideoName.setText("Video to upload: "+ MetaInfoExtractor.getFileName(selectedVideoPath)+"\nEpoch time: "+ MetaInfoExtractor.getEpochTimeStamp(selectedVideoPath));
             videoToUpload.setVisibility(View.GONE);
-            videoToPreview.setVideoURI(selectedVideoUri);
-            videoToPreview.setVisibility(View.VISIBLE);
 
         } else if (requestCode == REQUEST_READ_NFC) {
             if (resultCode == RESULT_OK) {

@@ -31,6 +31,7 @@ import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.logic.camera.AlbumStorageDirFactory;
 import cs3205.subsystem3.health.logic.camera.BaseAlbumDirFactory;
 import cs3205.subsystem3.health.logic.camera.FroyoAlbumDirFactory;
+import cs3205.subsystem3.health.logic.camera.MetaInfoExtractor;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -271,7 +272,7 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private void displayPathName(){
-        mPathName.setText("Picture taken:\n"+ mCurrentImagePath);
+        mPathName.setText("Picture taken:\n"+ MetaInfoExtractor.getFileName(mCurrentImagePath));
     }
 
 
@@ -287,14 +288,14 @@ public class CameraActivity extends AppCompatActivity {
     private void handleCameraVideo(Intent intent) {
         Uri videoUri = intent.getData();
         mCurrentVideoPath = UploadPageActivity.getPath(this,videoUri);
-        mPathName.setText("\nVideo recorded:\n"+ mCurrentVideoPath);
+        mPathName.setText("\nVideo recorded:\n"+ MetaInfoExtractor.getFileName(mCurrentVideoPath));
         mImageView.setVisibility(View.INVISIBLE);
 
     }
 
     private void handleReturnInfo(Intent intent) {
         mDeletedImagePath= intent.getStringExtra("selected_image_path");
-        mPathName.setText("\nPhoto deleted:\n"+ mDeletedImagePath);
+        mPathName.setText("\nPhoto deleted:\n"+  MetaInfoExtractor.getFileName(mDeletedImagePath));
         mImageView.setVisibility(View.INVISIBLE);
 
     }

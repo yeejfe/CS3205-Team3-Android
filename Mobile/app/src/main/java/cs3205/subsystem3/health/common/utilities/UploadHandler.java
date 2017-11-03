@@ -12,10 +12,9 @@ import java.io.InputStream;
 
 import javax.ws.rs.core.Response;
 
-import cs3205.subsystem3.health.common.core.Timestamp;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
-
+import cs3205.subsystem3.health.logic.camera.MetaInfoExtractor;
 
 
 public class UploadHandler{
@@ -34,6 +33,7 @@ public class UploadHandler{
     private String path;
     private String jwtToken;
     private String nfcToken;
+    private long epochTime;
     private RemoteDataSource.Type choice;
 
 
@@ -46,6 +46,7 @@ public class UploadHandler{
         this.choice = choice;
         this.jwtToken = jwtToken;
         this.nfcToken = nfcToken;
+        this.epochTime = MetaInfoExtractor.getEpochTimeStamp(path);
 
     }
 
@@ -80,7 +81,7 @@ public class UploadHandler{
 
             try {
                 RemoteDataSource rDS = new RemoteDataSource();
-                Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
+                Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, epochTime, choice);
 
                 rDS.close();
 
@@ -132,7 +133,7 @@ public class UploadHandler{
 
                     try {
                         RemoteDataSource rDS = new RemoteDataSource();
-                        Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, Long.valueOf(Timestamp.getEpochTimeStamp()), choice);
+                        Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, epochTime, choice);
 
                         rDS.close();
                         // Check Response
@@ -177,9 +178,6 @@ public class UploadHandler{
         AlertDialog alert = builder.create();
         alert.show();
     }
-
-
-
 
 
 
