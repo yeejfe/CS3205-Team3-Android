@@ -16,6 +16,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -29,6 +30,7 @@ public class CustomGallery extends AppCompatActivity {
     private ImageAdapter imageAdapter;
     ArrayList<String> f = new ArrayList<String>();// list of file paths
     File[] listFile;
+    private TextView textForNumImages;
 
     private CameraActivity.GalleryRequestType requestType;
 
@@ -45,6 +47,9 @@ public class CustomGallery extends AppCompatActivity {
 
         setContentView(R.layout.activity_custom_gallery);
         getFromSdcard();
+        textForNumImages = (TextView) findViewById( R.id.TextForNumImages);
+        textForNumImages.setText("Number of pictures: "+ f.size());
+
         GridView imagegrid = (GridView) findViewById(R.id.ImageGrid);
         imageAdapter = new ImageAdapter();
         imagegrid.setAdapter(imageAdapter);
@@ -114,10 +119,8 @@ public class CustomGallery extends AppCompatActivity {
 
             for (int i = 0; i < listFile.length; i++) {
                 System.out.println(" name  " +listFile[i].getPath());
-           //     String[] nameArr = listFile[i].getAbsolutePath().split("\\.");
-            //    if (nameArr.length>1 && nameArr[2].equals("jpg" ) ) {
-                    f.add(listFile[i].getAbsolutePath());
-            //    }
+                f.add(listFile[i].getAbsolutePath());
+
             }
 
         }catch(Exception e){
@@ -149,7 +152,6 @@ public class CustomGallery extends AppCompatActivity {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
-            System.out.println("getView called");
             ViewHolder holder;
             if (convertView == null) {
                 holder = new ViewHolder();
@@ -163,8 +165,7 @@ public class CustomGallery extends AppCompatActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-/*
-         Bitmap myBitmap = BitmapFactory.decodeFile(f.get(position));
+/*       Bitmap myBitmap = BitmapFactory.decodeFile(f.get(position));
          if(myBitmap!=null) {
              holder.imageview.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 500, 500, false));
 
@@ -209,10 +210,13 @@ public class CustomGallery extends AppCompatActivity {
         protected void onPostExecute(Bitmap result) {
             final ImageView imageView = imageViewReference.get();
             if(result!=null) {
-                imageView.setImageBitmap(Bitmap.createScaledBitmap(result, 500, 500, false));
+                try {
+                    imageView.setImageBitmap(Bitmap.createScaledBitmap(result, 500, 500, false));
+                }catch(NullPointerException e){
+                    return;
+                }
             }
         }
     }
-
 
 }
