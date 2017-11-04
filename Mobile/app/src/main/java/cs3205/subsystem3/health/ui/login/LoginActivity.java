@@ -1,5 +1,6 @@
 package cs3205.subsystem3.health.ui.login;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -105,6 +106,11 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginSuccess() {
         Timeout.getInstance().reset();
         progressBar.setVisibility(View.GONE);
+
+        Intent resultData = new Intent();
+        resultData.putExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME, tag_username);
+        setResult(Activity.RESULT_OK, resultData);
+
         finish();
     }
 
