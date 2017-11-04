@@ -1,5 +1,6 @@
 package cs3205.subsystem3.health.ui.login;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -10,11 +11,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -78,6 +79,8 @@ public class LoginActivity extends AppCompatActivity {
         username = _usernameText.getText().toString();
         password = _passwordText.getText().toString();
 
+        hideKeyboardAndFocus();
+
         if (!validate(username, password)) {
             Timeout.getInstance().setDuration(Timeout.DEFAULT_TIMEOUT_IN_SECONDS);
             onLoginFailed(NO_INTERNET_ERROR);
@@ -101,8 +104,8 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginSuccess() {
         Timeout.getInstance().reset();
-        finish();
         progressBar.setVisibility(View.GONE);
+        finish();
     }
 
     public void onLoginFailed(boolean isInternetError) {
@@ -112,7 +115,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
         _loginButton.setEnabled(false);
-        Toast.makeText(getBaseContext(), AppMessage.TOAST_MESSAGE_LOGIN_FAILURE, Toast.LENGTH_LONG).show();
+        showSnackBarMessage(AppMessage.TOAST_MESSAGE_LOGIN_FAILURE);
 
         //TODO: set this value based on number of login failures so far
         final int loginDelayMillis = Timeout.getInstance().getDuration();
@@ -165,7 +168,7 @@ public class LoginActivity extends AppCompatActivity {
     private void showSnackBarMessage(String message) {
         View view = findViewById(R.id.login_activity);
         if (view != null) {
-            Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -195,6 +198,18 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    public void hideKeyboardAndFocus() {
+        // Check if no view has focus:
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+            _usernameText.clearFocus();
+            _passwordText.clearFocus();
+        }
     }
 
     private void manageTimeout() {
