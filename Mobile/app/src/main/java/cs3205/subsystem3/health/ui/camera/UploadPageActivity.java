@@ -150,13 +150,20 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
         if (requestCode == REQUEST_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
             selectedImagePath = data.getStringExtra(CustomGallery.SELECTED_IMAGE_PATH);
             Uri selectedImageUri = Uri.fromFile(new File(selectedImagePath));
-            uploadImageName.setText("Image to upload: " + MetaInfoExtractor.getFileName(selectedImagePath) + "\nEpoch time: " + MetaInfoExtractor.getEpochTimeStamp(selectedImagePath));
+            Long time = MetaInfoExtractor.getEpochTimeStamp(this, selectedImagePath);
+            uploadImageName.setText("Image to upload: " + MetaInfoExtractor.getFileName(selectedImagePath) + "\nEpoch time: " + time);
             imageToUpload.setImageURI(selectedImageUri);
 
         } else if (requestCode == REQUEST_LOAD_VIDEO && resultCode == RESULT_OK && data != null) {
             Uri selectedVideoUri = data.getData();
             selectedVideoPath = PathExtractor.getPath(this, selectedVideoUri);
-            uploadVideoName.setText("Video to upload: " + MetaInfoExtractor.getFileName(selectedVideoPath) + "\nEpoch time: " + MetaInfoExtractor.getEpochTimeStamp(selectedVideoPath));
+            Long time = MetaInfoExtractor.getEpochTimeStamp(this, selectedVideoPath);
+            if(time==0){
+                uploadVideoName.setText("Video to upload: " + MetaInfoExtractor.getFileName(selectedVideoPath));
+
+            }else{
+                uploadVideoName.setText("Video to upload: " + MetaInfoExtractor.getFileName(selectedVideoPath) + "\nEpoch time: " + MetaInfoExtractor.getEpochTimeStamp(this, selectedVideoPath));
+            }
             videoToUpload.setImageResource(R.drawable.video_clip);
 
         } else if (requestCode == REQUEST_READ_NFC) {

@@ -44,7 +44,14 @@ public class UploadHandler {
         this.choice = choice;
         this.jwtToken = jwtToken;
         this.nfcToken = nfcToken;
-        this.epochTime = MetaInfoExtractor.getEpochTimeStamp(path);
+
+        long time = MetaInfoExtractor.getEpochTimeStamp(context, path);
+        if(time == 0) {
+            this.epochTime = Long.valueOf(System.currentTimeMillis());
+        }
+        else{
+            this.epochTime = time;
+        }
 
     }
 
@@ -151,6 +158,7 @@ public class UploadHandler {
         @Override
         protected void onPostExecute(String result) {
             showAlert(result);
+
             super.onPostExecute(result);
         }
 

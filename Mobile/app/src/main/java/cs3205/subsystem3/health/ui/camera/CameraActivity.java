@@ -59,6 +59,8 @@ public class CameraActivity extends AppCompatActivity {
     public static final String FAIL_MESSAGE_2 = "External storage is not mounted READ/WRITE.";
     public static final String GALLERY_REQUEST_TYPE = "gallery_request_type";
 
+    public static final String MEDIA_SCANNER = "android.intent.action.MEDIA_SCANNER_SCAN_FILE";
+
     private ImageView mImageView;
     private VideoView mVideoView;
     private TextView mPathName;
@@ -131,13 +133,37 @@ public class CameraActivity extends AppCompatActivity {
     * Function of recording videos
     * */
 
-    public void onClick_TakeVideo(View view) {
+ /*   public void onClick_TakeVideo(View view) {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takeVideoIntent, REQUEST_TAKE_VIDEO);
         }
 
+    }*/
+
+    public void onClick_TakeVideo(View view) {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+            File videoFile = null;
+
+            try {
+                videoFile = createVideoFile();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                videoFile = null;
+                mCurrentVideoPath = null;
+
+            }
+            if (videoFile != null) {
+                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(videoFile));
+                startActivityForResult(takeVideoIntent, REQUEST_TAKE_VIDEO);
+            }
+        }
+
     }
+
+
 
         /*
     * Navigate to upload activity
@@ -226,6 +252,21 @@ public class CameraActivity extends AppCompatActivity {
         );
 
         mCurrentImagePathExternal = image.getAbsolutePath();
+        return image;
+    }
+
+    private File createVideoFile() throws IOException {
+        // Create   file name
+        String timeStamp = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        String imageFileName = "VID_" + timeStamp + UNDERLINE;
+        File storageDir = getAlbumDir();
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".mp4",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        mCurrentVideoPath = image.getAbsolutePath();
         return image;
     }
 
@@ -327,11 +368,20 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private void handleCameraVideo(Intent intent) {
+        galleryAddVid();
         Uri videoUri = intent.getData();
         mCurrentVideoPath = PathExtractor.getPath(this, videoUri);
         mPathName.setText("\nVideo recorded:\n" + MetaInfoExtractor.getFileName(mCurrentVideoPath));
         mImageView.setVisibility(View.INVISIBLE);
 
+    }
+
+    private void galleryAddVid() {
+        Intent mediaScanIntent = new Intent(MEDIA_SCANNER);
+        File f = new File(mCurrentVideoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
     }
 
     private void handleReturnInfo(Intent intent) {
