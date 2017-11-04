@@ -36,9 +36,15 @@ public final class MetaInfoExtractor {
     }
 
     private static String extractTimeString(String path) {
+        String str = "";
         String[] arr = path.split("/");
         String[] arr2 = arr[arr.length - 1].split("_");
-        String str = arr2[1] + "_" + arr2[2];
+        if (arr2.length == 3) { // video file name
+            String[] arr3 = arr2[2].split("\\.");
+            str = arr2[1] + "_" + arr3[0] + "000";
+        } else {
+            str = arr2[1] + "_" + arr2[2];
+        }
         return str;
     }
 

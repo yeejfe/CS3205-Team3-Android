@@ -148,7 +148,6 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
-
             selectedImagePath = data.getStringExtra(CustomGallery.SELECTED_IMAGE_PATH);
             Uri selectedImageUri = Uri.fromFile(new File(selectedImagePath));
             uploadImageName.setText("Image to upload: " + MetaInfoExtractor.getFileName(selectedImagePath) + "\nEpoch time: " + MetaInfoExtractor.getEpochTimeStamp(selectedImagePath));
@@ -158,7 +157,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             Uri selectedVideoUri = data.getData();
             selectedVideoPath = PathExtractor.getPath(this, selectedVideoUri);
             uploadVideoName.setText("Video to upload: " + MetaInfoExtractor.getFileName(selectedVideoPath) + "\nEpoch time: " + MetaInfoExtractor.getEpochTimeStamp(selectedVideoPath));
-            videoToUpload.setVisibility(View.GONE);
+            videoToUpload.setImageResource(R.drawable.video_clip);
 
         } else if (requestCode == REQUEST_READ_NFC) {
             if (resultCode == RESULT_OK) {
