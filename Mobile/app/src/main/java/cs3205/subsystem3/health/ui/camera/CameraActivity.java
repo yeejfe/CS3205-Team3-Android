@@ -35,7 +35,6 @@ import cs3205.subsystem3.health.logic.camera.AlbumStorageDirFactory;
 import cs3205.subsystem3.health.logic.camera.BaseAlbumDirFactory;
 import cs3205.subsystem3.health.logic.camera.FroyoAlbumDirFactory;
 import cs3205.subsystem3.health.logic.camera.MetaInfoExtractor;
-import cs3205.subsystem3.health.logic.camera.PathExtractor;
 
 
 /**
@@ -201,7 +200,7 @@ public class CameraActivity extends AppCompatActivity {
             }
             case REQUEST_TAKE_VIDEO: {
                 if (resultCode == RESULT_OK) {
-                    handleCameraVideo(data);
+                    handleCameraVideo();
                 }
                 break;
             }
@@ -260,14 +259,14 @@ public class CameraActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat(DATE_FORMAT).format(new Date());
         String imageFileName = "VID_" + timeStamp + UNDERLINE;
         File storageDir = getAlbumDir();
-        File image = File.createTempFile(
+        File video = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".mp4",         /* suffix */
                 storageDir      /* directory */
         );
 
-        mCurrentVideoPath = image.getAbsolutePath();
-        return image;
+        mCurrentVideoPath = video.getAbsolutePath();
+        return video;
     }
 
 
@@ -368,10 +367,10 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-    private void handleCameraVideo(Intent intent) {
+    private void handleCameraVideo() {
         galleryAddVid();
-        Uri videoUri = intent.getData();
-        mCurrentVideoPath = PathExtractor.getPath(this, videoUri);
+      //  Uri videoUri = intent.getData();
+      //  mCurrentVideoPath = PathExtractor.getPath(this, videoUri);
         mPathName.setText("\nVideo recorded:\n" + MetaInfoExtractor.getFileName(mCurrentVideoPath));
         mImageView.setVisibility(View.INVISIBLE);
 
