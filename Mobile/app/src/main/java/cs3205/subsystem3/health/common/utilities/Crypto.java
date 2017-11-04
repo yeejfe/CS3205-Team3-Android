@@ -2,23 +2,9 @@ package cs3205.subsystem3.health.common.utilities;
 
 import android.util.Base64;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-
-import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 
 import static cs3205.subsystem3.health.common.crypto.Algorithm.SHA_256;
@@ -43,11 +29,8 @@ public class Crypto {
 
         //hash the password
         byte[] passwordHash = generateHash(saltedPassword.getBytes());
-        Log.d("Crypto", passwordHash.toString());
         //hash the password hash
         byte[] result = generateHash(passwordHash);
-        Log.d("Crypto", result.toString());
-
         //XOR result with challenge
         result = computeXOR(result, challenge);
         //hash the result
@@ -75,36 +58,5 @@ public class Crypto {
         return result;
     }
 
-    //for testing only
-    public static void test() throws CryptoException {
-        String saltedPassword = "password";
-        byte[] passwordHash = generateHash(saltedPassword.getBytes());
-        byte[] expectedResult = generateHash(passwordHash);
-
-        byte[] challenge = new byte[32];
-        new SecureRandom().nextBytes(challenge);
-        byte[] response = generatePasswordResponse(saltedPassword, challenge);
-
-        //XOR hash of password hash with challenge
-        byte[] actualResult = computeXOR(expectedResult, challenge);
-        //hash the result
-        actualResult = generateHash(actualResult);
-        //XOR result with challenge response
-        actualResult = computeXOR(actualResult, response);
-        //hash the result
-        actualResult = generateHash(actualResult);
-
-        Log.d("Crypto", "challenge response test: " + Arrays.equals(actualResult, expectedResult));
-
-        byte[] nfcToken = new byte[32];
-        new SecureRandom().nextBytes(nfcToken);
-        byte[] nfcHash = generateHash(nfcToken);
-        byte[] nfcResponse = generateNfcResponse(Base64.encodeToString(nfcToken, Base64.NO_WRAP), challenge);
-        byte[] nfcResult = generateHash(computeXOR(nfcHash, challenge));
-        nfcResult = computeXOR(nfcResult, nfcResponse);
-        nfcResult = generateHash(nfcResult);
-        Log.d("Crypto", "nfc response test: " + Arrays.equals(nfcHash, nfcResult));
-
-    }
 }
 

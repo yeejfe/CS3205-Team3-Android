@@ -94,14 +94,11 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
 
 
         if (response != null && response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            Log.d("LoginTask", "response content on requesting challenge: " + response.readEntity(String.class));
             JSONObject passwordHeader = null;
             try {
-                Log.d("LoginTask", "headers: " + response.getHeaders());
                 passwordHeader = new JSONObject(response.getHeaderString(RequestInfo.HEADER_AUTHENTICATE));
                 nfc_challenge = Base64.decode(response.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE), Base64.NO_WRAP);
-                Log.d("LoginTask", "salt: " + passwordHeader.get(Value.KEY_VALUE_SALT) +
-                        "; encoded challenge: " + passwordHeader.get(Value.KEY_VALUE_CHALLENGE));
-                Log.d("LoginTask", "decoded nfc challenge: " + response.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE));
                 password_salt = (String) passwordHeader.get(Value.KEY_VALUE_SALT);
                 password_challenge = Base64.decode((String) passwordHeader.get(Value.KEY_VALUE_CHALLENGE), Base64.NO_WRAP);
             } catch (JSONException e) {
@@ -110,8 +107,6 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
             }
             return true;
         } else {
-            Log.d("LoginTask", "error status code on requesting challenge: " + String.valueOf(response.getStatus()));
-            Log.d("LoginTask", "response content on requesting challenge: " + response.readEntity(String.class));
             return false;
         }
     }
@@ -123,12 +118,8 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         String challengeResponse = null;
         try {
             nfcResponse = Base64.encodeToString(Crypto.generateNfcResponse(tag_password, nfc_challenge), Base64.NO_WRAP);
-            Log.d("LoginTask", "nfc token: " + tag_password);
-            Log.d("LoginTask", "nfc token hash: " + Base64.encodeToString(Crypto.generateHash(Base64.decode(tag_password, Base64.NO_WRAP)), Base64.NO_WRAP));
-            Log.d("LoginTask", "nfc response: " + nfcResponse);
             challengeResponse = Base64.encodeToString(Crypto.generatePasswordResponse(
                     password + password_salt, password_challenge), Base64.NO_WRAP);
-            Log.d("LoginTask", "password response: " + challengeResponse);
         } catch (CryptoException e) {
             e.printStackTrace();
             return false;
@@ -153,20 +144,14 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         }
 
         if (response == null || response.getStatus() != Response.Status.OK.getStatusCode()) {
-            Log.d("LoginTask", "error status code on challenge response: " + response.getStatus());
             Log.d("LoginTask", "response content on challenge response: " + response.readEntity(String.class));
-
-            if(response.getHeaderString("X-Timeout") != null){
-                int timeout = Integer.parseInt(response.getHeaderString("X-Timeout"));
+            if(response.getHeaderString(RequestInfo.HEADER_TIMEOUT) != null){
+                int timeout = Integer.parseInt(response.getHeaderString(RequestInfo.HEADER_TIMEOUT));
                 Timeout.getInstance().setDuration(timeout);
-                Log.d("LoginTask", "Timeout time: " + timeout);
             }
-
             return false;
         } else {
             JSONWebToken.getInstance().setData(response.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT));
-            Log.d("LoginTask", "jwt: " + response.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT));
-
             return true;
         }
     }
