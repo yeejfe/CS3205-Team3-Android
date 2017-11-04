@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import cs3205.subsystem3.health.common.core.JSONFileReader;
 import cs3205.subsystem3.health.common.core.JSONFileWriter;
+import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.utilities.JSONUtil;
 import cs3205.subsystem3.health.model.Steps;
 
@@ -46,9 +47,6 @@ public class Repository {
 
         String filePath = dirPath + FRONT_SLASH + fileName;
 
-        //if(data.getTimestamp() == 0)
-        //data.setTimestamp(Timestamp.getEpochTimeStamp());
-
         JSONObject jsonObject = JSONUtil.stepsDataToJSON(data);
 
         JSONFileWriter.toFile(filePath, jsonObject);
@@ -76,6 +74,8 @@ public class Repository {
         if (listFiles.length == 0) {
             return new ArrayList<ArrayList<String>>();
         } else {
+            Log.d("This", String.valueOf(listFiles.length));
+
             for (int i = 0; i < listFiles.length; i++) {
                 String filePath = listFiles[i].getAbsolutePath();
 
@@ -87,8 +87,10 @@ public class Repository {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Steps data = JSONUtil.JSONtoSteps(stepsJSON);
-                arrayListOfFileSessionNames.add(data.getTitle());
+                //Steps data = JSONUtil.JSONtoSteps(stepsJSON);
+                //arrayListOfFileSessionNames.add(data.getTitle());
+
+                arrayListOfFileSessionNames.add("A");
             }
         }
 

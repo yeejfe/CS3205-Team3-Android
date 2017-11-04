@@ -12,6 +12,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.InputType;
@@ -24,7 +26,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,6 +67,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     private static final String SESSION_NAME = "session_";
     private static final int PAST_DAYS = 8;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("E", Locale.getDefault());
+    private static final String MSG_STOP = "Stopping Session";
 
     private String TAG = this.getClass().getName();
     private String sessionName = SESSION_NAME;
@@ -140,7 +143,26 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
     public void stopStepsService() {
         SharedPreferences prefs = getActivity().getSharedPreferences(STEPS, Context.MODE_PRIVATE);
-        saveSteps();
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setTitle(MSG_STOP);
+
+        ProgressBar progressbar = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleLarge);
+        progressbar.setIndeterminate(true);
+        progressbar.setVisibility(View.VISIBLE);
+
+        alertDialogBuilder.setView(progressbar);
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setMessage(MSG_STOP);
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+
+
+        Thread thread = new Thread(new SaveSteps(alertDialog));
+        thread.start();
+
+//        saveSteps();
 
         prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
         prefs.edit().remove(FILENAME);
@@ -294,16 +316,13 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
             Pair<Long, Integer> current = days.get(i);
             steps = current.second;
             Log.d(TAG, "steps = " + String.valueOf(steps));
+            barModel = new BarModel(DATE_FORMAT.format(new Date(current.first)), 0, Color.parseColor("#827717"));
             if (steps > 0) {
-                //barModel = new BarModel(DATE_FORMAT.format(new Date(current.first)), 0,
-                //steps > goal ? Color.parseColor("#99CC00") : Color.parseColor("#0099cc"));
-
-                barModel = new BarModel(DATE_FORMAT.format(new Date(current.first)), 0, Color.parseColor("#99CC00"));
-
+                barModel = new BarModel(DATE_FORMAT.format(new Date(current.first)), 0,
+                        steps > 1500 ? Color.parseColor("#99CC00") : Color.parseColor("#0099cc"));
                 barModel.setValue(steps);
-
-                barChart.addBar(barModel);
             }
+            barChart.addBar(barModel);
         }
 
         Log.d(TAG, "barChart = " + String.valueOf(barChart.getData().size()));
@@ -348,45 +367,51 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         if (barChart.getVisibility() == View.VISIBLE) {
             Resources r = getActivity().getResources();
 
-            RelativeLayout.LayoutParams totalParams = (RelativeLayout.LayoutParams)totalLabel.getLayoutParams();
+            RelativeLayout.LayoutParams totalParams = (RelativeLayout.LayoutParams) totalLabel.getLayoutParams();
             totalParams.topMargin = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     23,
                     r.getDisplayMetrics()
-            );;
-            RelativeLayout.LayoutParams avgParams = (RelativeLayout.LayoutParams)avgLabel.getLayoutParams();
+            );
+            ;
+            RelativeLayout.LayoutParams avgParams = (RelativeLayout.LayoutParams) avgLabel.getLayoutParams();
             avgParams.topMargin = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     75,
                     r.getDisplayMetrics()
-            );;
-            RelativeLayout.LayoutParams todayParams = (RelativeLayout.LayoutParams)todayLabel.getLayoutParams();
+            );
+            ;
+            RelativeLayout.LayoutParams todayParams = (RelativeLayout.LayoutParams) todayLabel.getLayoutParams();
             todayParams.topMargin = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     123,
                     r.getDisplayMetrics()
-            );;
+            );
+            ;
         } else {
             Resources r = getActivity().getResources();
 
-            RelativeLayout.LayoutParams totalParams = (RelativeLayout.LayoutParams)totalLabel.getLayoutParams();
+            RelativeLayout.LayoutParams totalParams = (RelativeLayout.LayoutParams) totalLabel.getLayoutParams();
             totalParams.topMargin = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     153,
                     r.getDisplayMetrics()
-            );;
-            RelativeLayout.LayoutParams avgParams = (RelativeLayout.LayoutParams)avgLabel.getLayoutParams();
+            );
+            ;
+            RelativeLayout.LayoutParams avgParams = (RelativeLayout.LayoutParams) avgLabel.getLayoutParams();
             avgParams.topMargin = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     205,
                     r.getDisplayMetrics()
-            );;
-            RelativeLayout.LayoutParams todayParams = (RelativeLayout.LayoutParams)todayLabel.getLayoutParams();
+            );
+            ;
+            RelativeLayout.LayoutParams todayParams = (RelativeLayout.LayoutParams) todayLabel.getLayoutParams();
             todayParams.topMargin = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     253,
                     r.getDisplayMetrics()
-            );;
+            );
+            ;
         }
     }
 
@@ -435,6 +460,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
                 retrieveSteps("startStepsService");
 
+                //TODO: Change to service instead of Intent Service
                 getActivity().startService(new Intent(getActivity(), StepSensorService.class));
                 setViewServiceStarted();
             }
@@ -491,6 +517,21 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         } else {
             offset = prefs.getLong(OFFSET, 1000);
             divisor = prefs.getLong(DIVISOR, 1);
+        }
+    }
+
+    private class SaveSteps implements Runnable{
+        private AlertDialog alertDialog;
+
+        SaveSteps(AlertDialog alertDialog) {
+            this.alertDialog = alertDialog;
+        }
+
+        @Override
+        public void run() {
+            saveSteps();
+
+            alertDialog.dismiss();
         }
     }
 }
