@@ -21,15 +21,17 @@ import javax.crypto.SecretKey;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 
+import static cs3205.subsystem3.health.common.crypto.Algorithm.SHA_256;
+
 /**
  * Created by danwen on 6/10/17.
  */
 
-public class Crypto {
 
+public class Crypto {
     public static byte[] generateHash(byte[] input) throws CryptoException {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            MessageDigest digest = MessageDigest.getInstance(SHA_256);
             return digest.digest(input);
         } catch (NoSuchAlgorithmException e) {
             throw new CryptoException(AppMessage.ERROR_MESSAGE_CRYPTO_EXCEPTION, e);
@@ -41,8 +43,11 @@ public class Crypto {
 
         //hash the password
         byte[] passwordHash = generateHash(saltedPassword.getBytes());
+        Log.d("Crypto", passwordHash.toString());
         //hash the password hash
         byte[] result = generateHash(passwordHash);
+        Log.d("Crypto", result.toString());
+
         //XOR result with challenge
         result = computeXOR(result, challenge);
         //hash the result
@@ -101,47 +106,5 @@ public class Crypto {
         Log.d("Crypto", "nfc response test: " + Arrays.equals(nfcHash, nfcResult));
 
     }
-
-
-
-    private static void doCrypto(int cipherMode, File inputFile, File outputFile) throws CryptoException{
-
-        SecretKey secretKey = EncryptionKey.getSecretKey();
-        try {
-            Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(cipherMode, secretKey);
-            FileInputStream inputStream = new FileInputStream(inputFile);
-            byte[] inputBytes = new byte[(int) inputFile.length()];
-            inputStream.read(inputBytes);
-
-            byte[] outputBytes = cipher.doFinal(inputBytes);
-
-            FileOutputStream outputStream = new FileOutputStream(outputFile);
-            outputStream.write(outputBytes);
-
-            inputStream.close();
-            outputStream.close();
-
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException
-                | InvalidKeyException | BadPaddingException
-                | IllegalBlockSizeException | IOException e) {
-            throw new CryptoException(AppMessage.ERROR_MESSAGE_CRYPTO_EXCEPTION, e);
-        }
-    }
-
-
-    public static void encryptFile(File inputFile, File outputFile)
-            throws CryptoException {
-        doCrypto(Cipher.ENCRYPT_MODE, inputFile, outputFile);
-
-    }
-
-    public static void decryptFile(File inputFile, File outputFile)
-            throws CryptoException {
-        doCrypto(Cipher.DECRYPT_MODE, inputFile, outputFile);
-    }
-
-
-
 }
 
