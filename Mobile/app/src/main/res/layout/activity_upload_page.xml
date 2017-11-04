@@ -27,7 +27,7 @@
         <Button
             android:id="@+id/buttonUploadImage"
             android:text="@string/button_upload_image"
-
+            android:enabled="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -52,6 +52,7 @@
         <Button
             android:id="@+id/buttonUploadVideo"
             android:text="@string/button_upload_video"
+            android:enabled="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

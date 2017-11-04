@@ -157,6 +157,8 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             Long time = MetaInfoExtractor.getEpochTimeStamp(this, selectedImagePath);
             uploadImageName.setText("Image to upload: " + MetaInfoExtractor.getFileName(selectedImagePath) + "\nEpoch time: " + time);
             imageToUpload.setImageURI(selectedImageUri);
+            bUploadImage.setEnabled(true);
+            bUploadVideo.setEnabled(false);
 
         } else if (requestCode == REQUEST_LOAD_VIDEO && resultCode == RESULT_OK && data != null) {
             Uri selectedVideoUri = data.getData();
@@ -169,6 +171,8 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 uploadVideoName.setText("Video to upload: " + MetaInfoExtractor.getFileName(selectedVideoPath) + "\nEpoch time: " + MetaInfoExtractor.getEpochTimeStamp(this, selectedVideoPath));
             }
             videoToUpload.setImageResource(R.drawable.video_clip);
+            bUploadImage.setEnabled(false);
+            bUploadVideo.setEnabled(true);
 
         } else if (requestCode == REQUEST_READ_NFC) {
             if (resultCode == RESULT_OK) {
@@ -179,6 +183,10 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 } else {
                     selectedPath = selectedVideoPath;
                 }
+                bUploadImage.setEnabled(false);
+                bUploadVideo.setEnabled(false);
+                imageToUpload.setEnabled(false);
+                videoToUpload.setEnabled(false);
                 UploadHandler uploadHander = new UploadHandler(selectedPath, choice, this, jwtToken, nfcToken);
                 uploadHander.startUpload();
             }

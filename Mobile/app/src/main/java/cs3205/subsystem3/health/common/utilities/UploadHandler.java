@@ -1,10 +1,13 @@
 package cs3205.subsystem3.health.common.utilities;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +15,7 @@ import java.io.InputStream;
 
 import javax.ws.rs.core.Response;
 
+import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 import cs3205.subsystem3.health.logic.camera.MetaInfoExtractor;
@@ -46,10 +50,9 @@ public class UploadHandler {
         this.nfcToken = nfcToken;
 
         long time = MetaInfoExtractor.getEpochTimeStamp(context, path);
-        if(time == 0) {
+        if (time == 0) {
             this.epochTime = Long.valueOf(System.currentTimeMillis());
-        }
-        else{
+        } else {
             this.epochTime = time;
         }
 
@@ -64,6 +67,7 @@ public class UploadHandler {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            activateWidgets();
         }
 
     }
@@ -77,6 +81,7 @@ public class UploadHandler {
                 stream = new FileInputStream(f);
             } catch (Exception e) {
                 e.printStackTrace();
+                activateWidgets();
             }
 
             try {
@@ -88,19 +93,23 @@ public class UploadHandler {
                 // Check Response
                 if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
                     showAlert(MESSAGE_SUCCESSFUL);
+                    activateWidgets();
                     return true;
 
                 } else {
                     Log.e("connection", "response is " + response.readEntity(String.class));
                     showAlert(MESSAGE_FAIL);
+                    activateWidgets();
                     return false;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                activateWidgets();
                 return false;
             }
         } else {
             showAlert(MESSAGE_EXCEED_MAX_SIZE);
+            activateWidgets();
             return false;
         }
 
@@ -158,7 +167,7 @@ public class UploadHandler {
         @Override
         protected void onPostExecute(String result) {
             showAlert(result);
-
+            activateWidgets();
             super.onPostExecute(result);
         }
 
@@ -175,6 +184,17 @@ public class UploadHandler {
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    private void activateWidgets() {
+        ImageView imageToUpload = (ImageView) ((Activity) context).findViewById(R.id.imageToUpload);
+        Button bUploadImage = (Button) ((Activity) context).findViewById(R.id.buttonUploadImage);
+        ImageView videoToUpload = (ImageView) ((Activity) context).findViewById(R.id.videoToUpload);
+        Button bUploadVideo = (Button) ((Activity) context).findViewById(R.id.buttonUploadVideo);
+        bUploadImage.setEnabled(true);
+        bUploadVideo.setEnabled(true);
+        imageToUpload.setEnabled(true);
+        videoToUpload.setEnabled(true);
     }
 
 
