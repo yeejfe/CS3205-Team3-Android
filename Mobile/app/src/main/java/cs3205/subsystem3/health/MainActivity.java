@@ -6,9 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -18,7 +16,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
@@ -27,6 +24,7 @@ import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.ui.camera.CameraActivity;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
+import cs3205.subsystem3.health.ui.login.LoginActivity;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 import cs3205.subsystem3.health.ui.step.StepSensorFragment;
 
@@ -41,8 +39,8 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         setContentView(R.layout.activity_main);
         isOnCreate = true;
 
-    //    Intent intent = new Intent(this, LoginActivity.class);
-    //    startActivity(intent);
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
 
         loggedIn();
     }
@@ -50,15 +48,6 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
     private void loggedIn() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -92,7 +81,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        //getMenuInflater().inflate(R.menu.main, menu);
         getMenuInflater().inflate(R.menu.logout, menu);
         return true;
     }
@@ -174,10 +163,10 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
     }
 
     private void startCamera() {
-        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) | ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE))!= PackageManager.PERMISSION_GRANTED) {
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) | ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) != PackageManager.PERMISSION_GRANTED) {
             //ask for authorisation
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 40);
-        }else {
+        } else {
             Intent cameraIntent = new Intent(this, CameraActivity.class);
             startActivity(cameraIntent);
         }
@@ -211,7 +200,7 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
                 }
                 break;
             case 40:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     Intent cameraIntent = new Intent(this, CameraActivity.class);
                     startActivity(cameraIntent);
                 } else {
