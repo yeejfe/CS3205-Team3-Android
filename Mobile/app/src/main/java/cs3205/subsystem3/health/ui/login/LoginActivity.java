@@ -8,6 +8,8 @@ import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -25,7 +27,6 @@ import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.LoginTask;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.logic.session.Timeout;
-import cs3205.subsystem3.health.model.Steps;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 
 
@@ -52,6 +53,9 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
 
         _usernameText = (EditText) findViewById(R.id.input_username);
@@ -161,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
     private void showSnackBarMessage(String message) {
         View view = findViewById(R.id.login_activity);
         if (view != null) {
-            Snackbar.make(view,message,Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show();
         }
     }
 
@@ -169,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 30) {
-            if(resultCode == RESULT_OK) {
+            if (resultCode == RESULT_OK) {
                 tag_username = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME);
                 tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
             }
@@ -193,11 +197,11 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void manageTimeout(){
+    private void manageTimeout() {
         int count = Timeout.getInstance().getCount();
-        if(count > 0){
+        if (count > 0) {
             double duration = Math.pow(Timeout.DEFAULT_TIMEOUT_IN_SECONDS, count);
-            if(duration > Integer.MAX_VALUE){
+            if (duration > Integer.MAX_VALUE) {
                 duration = Integer.MAX_VALUE;
             }
             Timeout.getInstance().setDuration((int) duration);
