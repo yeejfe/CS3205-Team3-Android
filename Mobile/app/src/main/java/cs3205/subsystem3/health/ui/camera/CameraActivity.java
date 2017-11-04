@@ -35,6 +35,12 @@ import cs3205.subsystem3.health.logic.camera.AlbumStorageDirFactory;
 import cs3205.subsystem3.health.logic.camera.BaseAlbumDirFactory;
 import cs3205.subsystem3.health.logic.camera.FroyoAlbumDirFactory;
 import cs3205.subsystem3.health.logic.camera.MetaInfoExtractor;
+import cs3205.subsystem3.health.logic.camera.PathExtractor;
+
+
+/**
+ * Created by panjiyun.
+ */
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -43,26 +49,23 @@ public class CameraActivity extends AppCompatActivity {
     static final int REQUEST_DELETE = 3;
 
 
-
     public static final String JPEG = "JPEG_";
     public static final String UNDERLINE = "_";
     public static final String JPG = ".jpg";
     public static final String DATE_FORMAT = "yyyyMMdd_HHmmssSSS";
-    public static final String MEDIA_SCANNER = "android.intent.action.MEDIA_SCANNER_SCAN_FILE";
 
 
     public static final String FAIL_MESSAGE_1 = "failed to create directory";
     public static final String FAIL_MESSAGE_2 = "External storage is not mounted READ/WRITE.";
+    public static final String GALLERY_REQUEST_TYPE = "gallery_request_type";
 
     private ImageView mImageView;
-    private ImageView mIconView;
     private VideoView mVideoView;
     private TextView mPathName;
 
 
     private String mCurrentImagePathExternal;
     private String mCurrentImagePathInternal;
-    private String mCurrentImagePath;
     private String mCurrentVideoPath;
     private String mDeletedImagePath;
 
@@ -82,12 +85,9 @@ public class CameraActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_camera);
 
-        mImageView = (ImageView)findViewById(R.id.imageView1);
-        mIconView = (ImageView) findViewById(R.id.imageView2);
+        mImageView = (ImageView) findViewById(R.id.imageView1);
         mVideoView = (VideoView) findViewById(R.id.videoView1);
-        mPathName = (TextView)findViewById(R.id.pathName);
-
-
+        mPathName = (TextView) findViewById(R.id.pathName);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
@@ -105,26 +105,7 @@ public class CameraActivity extends AppCompatActivity {
     * Function of taking pictures
     * */
 
-  /*  public void onClick_TakePhoto(View view){
-        Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
-            File imageFile = null;
-            try {
-                imageFile = createImageFile();
-                takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
-            } catch (IOException e) {
-                e.printStackTrace();
-                imageFile = null;
-                mCurrentImagePath = null;
-            }
-            if (imageFile != null) {
-                takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
-                startActivityForResult(takePhotoIntent, REQUEST_TAKE_PHOTO);
-            }
-        }
-    }*/
-
-    public void onClick_TakePhoto(View view){
+    public void onClick_TakePhoto(View view) {
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
             File imageFileExternal = null;
@@ -150,7 +131,7 @@ public class CameraActivity extends AppCompatActivity {
     * Function of recording videos
     * */
 
-    public void onClick_TakeVideo(View view){
+    public void onClick_TakeVideo(View view) {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takeVideoIntent, REQUEST_TAKE_VIDEO);
@@ -162,7 +143,7 @@ public class CameraActivity extends AppCompatActivity {
     * Navigate to upload activity
     * */
 
-    public void onClick_GoToUploadPage(View view){
+    public void onClick_GoToUploadPage(View view) {
         Intent toUploadIntent = new Intent(this, UploadPageActivity.class);
         startActivity(toUploadIntent);
     }
@@ -171,21 +152,19 @@ public class CameraActivity extends AppCompatActivity {
     * Navigate to delete activity
     * */
 
-    public void onClick_GoToCustomGallery(View view){
+    public void onClick_GoToCustomGallery(View view) {
 
-            Intent toDeleteIntent = new Intent(this, CustomGallery.class);
-            toDeleteIntent.putExtra("gallery_request_type", GalleryRequestType.DELETE);
-            startActivityForResult(toDeleteIntent, REQUEST_DELETE);
+        Intent toDeleteIntent = new Intent(this, CustomGallery.class);
+        toDeleteIntent.putExtra(GALLERY_REQUEST_TYPE, GalleryRequestType.DELETE);
+        startActivityForResult(toDeleteIntent, REQUEST_DELETE);
 
     }
 
 
-
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case REQUEST_TAKE_PHOTO:{
-                if (resultCode == RESULT_OK){
+            case REQUEST_TAKE_PHOTO: {
+                if (resultCode == RESULT_OK) {
                     try {
                         handleCameraPhoto();
                     } catch (IOException e) {
@@ -194,18 +173,18 @@ public class CameraActivity extends AppCompatActivity {
                 }
                 break;
             }
-            case REQUEST_TAKE_VIDEO:{
+            case REQUEST_TAKE_VIDEO: {
                 if (resultCode == RESULT_OK) {
                     handleCameraVideo(data);
                 }
                 break;
             }
-            case REQUEST_DELETE:{
-                try{
-                if(resultCode == RESULT_OK){
-                    handleReturnInfo(data);
-                }
-                }catch(Exception e){
+            case REQUEST_DELETE: {
+                try {
+                    if (resultCode == RESULT_OK) {
+                        handleReturnInfo(data);
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
@@ -222,7 +201,7 @@ public class CameraActivity extends AppCompatActivity {
         String imageFileName = JPEG + timeStamp + UNDERLINE;
 
         ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-        File storageDir = wrapper.getDir("Health",MODE_PRIVATE);
+        File storageDir = wrapper.getDir("Health", MODE_PRIVATE);
 
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -251,7 +230,6 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-
     private File getAlbumDir() {
         File storageDir = null;
 
@@ -260,8 +238,8 @@ public class CameraActivity extends AppCompatActivity {
             storageDir = mAlbumStorageDirFactory.getAlbumStorageDir(getString(R.string.album_name));
 
             if (storageDir != null) {
-                if (! storageDir.mkdirs()) {
-                    if (! storageDir.exists()){
+                if (!storageDir.mkdirs()) {
+                    if (!storageDir.exists()) {
                         Log.d(this.getClass().getSimpleName(), FAIL_MESSAGE_1);
                         return null;
                     }
@@ -275,36 +253,25 @@ public class CameraActivity extends AppCompatActivity {
         return storageDir;
     }
 
-  /*  private void handleCameraPhoto() throws IOException{
-        if (mCurrentImagePath != null) {
-            setPic();
-            displayPathName();
-            galleryAddPic();
-            mCurrentImagePath = null;
-        }
-    }*/
 
-    private void handleCameraPhoto() throws IOException{
+    private void handleCameraPhoto() throws IOException {
         if (mCurrentImagePathExternal != null) {
             writeFromExternalToInternal();
             deleteExternalFile();
             setPic();
             displayPathName();
-
-         //   galleryAddPic();
             mCurrentImagePathExternal = null;
         }
     }
 
 
-    private void writeFromExternalToInternal() throws IOException{
+    private void writeFromExternalToInternal() throws IOException {
         OutputStream fOut = null;
         File imageFileInternal = null;
 
         imageFileInternal = createInternalImageFile();
         imageFileInternal.createNewFile();
         fOut = new FileOutputStream(imageFileInternal);
-
         Bitmap image = BitmapFactory.decodeFile(mCurrentImagePathExternal);
 
         image.compress(Bitmap.CompressFormat.PNG, 100, fOut);
@@ -314,59 +281,45 @@ public class CameraActivity extends AppCompatActivity {
 
     private void setPic() {
 
-
-		/* Get the size of the ImageView */
         int targetW = mImageView.getWidth();
         int targetH = mImageView.getHeight();
 
-		/* Get the size of the image */
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(mCurrentImagePathInternal, bmOptions);
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
-		/* Figure out which way needs to be reduced less */
+
         int scaleFactor = 1;
         if ((targetW > 0) || (targetH > 0)) {
-            scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+            scaleFactor = Math.min(photoW / targetW, photoH / targetH);
         }
 
-		/* Set bitmap options to scale the image decode target */
         bmOptions.inJustDecodeBounds = false;
         bmOptions.inSampleSize = scaleFactor;
         bmOptions.inPurgeable = true;
 
-		/* Decode the JPEG file into a Bitmap */
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentImagePathInternal, bmOptions);
-        System.out.println("mCurrentImagePath: " + mCurrentImagePathInternal);
 
-		/* Associate the Bitmap to the ImageView */
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentImagePathInternal, bmOptions);
+        System.out.println("mCurrentImagePathInternal: " + mCurrentImagePathInternal);
+
+
         mImageView.setImageBitmap(bitmap);
-     //   mImageView.setImageDrawable(Drawable.createFromPath(mCurrentImagePathInternal.toString()));
         mImageView.setVisibility(View.VISIBLE);
         mVideoView.setVisibility(View.INVISIBLE);
     }
 
 
-
-    private void displayPathName(){
-        mPathName.setText("Picture taken:\n"+ MetaInfoExtractor.getFileName(mCurrentImagePathInternal));
+    private void displayPathName() {
+        mPathName.setText("Picture taken:\n" + MetaInfoExtractor.getFileName(mCurrentImagePathInternal));
     }
 
 
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(MEDIA_SCANNER);
-        File f = new File(mCurrentImagePath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-
-    private void deleteExternalFile(){
-        if(mCurrentImagePathExternal!=null){
+    private void deleteExternalFile() {
+        if (mCurrentImagePathExternal != null) {
             File file = new File(mCurrentImagePathExternal);
-            if(file.exists()){
+            if (file.exists()) {
                 file.delete();
             }
         }
@@ -375,21 +328,18 @@ public class CameraActivity extends AppCompatActivity {
 
     private void handleCameraVideo(Intent intent) {
         Uri videoUri = intent.getData();
-        mCurrentVideoPath = UploadPageActivity.getPath(this,videoUri);
-        mPathName.setText("\nVideo recorded:\n"+ MetaInfoExtractor.getFileName(mCurrentVideoPath));
+        mCurrentVideoPath = PathExtractor.getPath(this, videoUri);
+        mPathName.setText("\nVideo recorded:\n" + MetaInfoExtractor.getFileName(mCurrentVideoPath));
         mImageView.setVisibility(View.INVISIBLE);
 
     }
 
     private void handleReturnInfo(Intent intent) {
-        mDeletedImagePath= intent.getStringExtra("selected_image_path");
-        mPathName.setText("\nPhoto deleted:\n"+  MetaInfoExtractor.getFileName(mDeletedImagePath));
+        mDeletedImagePath = intent.getStringExtra(CustomGallery.SELECTED_IMAGE_PATH);
+        mPathName.setText("\nPhoto deleted:\n" + MetaInfoExtractor.getFileName(mDeletedImagePath));
         mImageView.setVisibility(View.INVISIBLE);
 
     }
-
-
-
 
 
     /*

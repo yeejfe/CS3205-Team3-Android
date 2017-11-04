@@ -16,17 +16,18 @@ import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
 import cs3205.subsystem3.health.logic.camera.MetaInfoExtractor;
 
+/**
+ * Created by panjiyun.
+ */
 
-public class UploadHandler{
+public class UploadHandler {
 
 
     public static final String MESSAGE_EXCEED_MAX_SIZE = "Exceeded the maximum size: 50MB";
     public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
     public static final String MESSAGE_SUCCESSFUL = "Successful";
     public static final String MESSAGE_FAIL = "Fail";
-    public static final String MESSAGE_NFC_READ_FAIL = "NFC read fail";
     public static final String IMAGE = "IMAGE";
-
 
 
     private Context context;
@@ -37,10 +38,7 @@ public class UploadHandler{
     private RemoteDataSource.Type choice;
 
 
-    long totalSize = 0;
-
-
-    public UploadHandler(String path,RemoteDataSource.Type choice, Context context,String jwtToken, String nfcToken){
+    public UploadHandler(String path, RemoteDataSource.Type choice, Context context, String jwtToken, String nfcToken) {
         this.context = context;
         this.path = path;
         this.choice = choice;
@@ -50,16 +48,14 @@ public class UploadHandler{
 
     }
 
-    public void startUpload(){
+    public void startUpload() {
         try {
-            if(choice.equals(IMAGE)) {
+            if (choice.equals(IMAGE)) {
                 upload();
-            }
-            else{
+            } else {
                 new UploadAsync().execute();
             }
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -92,8 +88,7 @@ public class UploadHandler{
                     showAlert(MESSAGE_FAIL);
                     return false;
                 }
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
@@ -115,40 +110,40 @@ public class UploadHandler{
         @SuppressWarnings("deprecation")
         private String uploadBigFile() {
 
-                String responseString = null;
-                File f = new File(path);
-                long length = f.length() / (1024 * 1024);  // length is expressed in MB
-                if (length < 50.00) {
-                    InputStream stream = null;
-                    try {
-                        stream = new FileInputStream(f);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        RemoteDataSource rDS = new RemoteDataSource();
-                        Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, epochTime, choice);
-
-                        rDS.close();
-                        // Check Response
-
-                        if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-
-                            responseString = MESSAGE_SUCCESSFUL;
-
-                        } else {
-                            responseString = MESSAGE_FAIL;
-                        }
-
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-                } else {
-                    responseString = MESSAGE_EXCEED_MAX_SIZE;
+            String responseString = null;
+            File f = new File(path);
+            long length = f.length() / (1024 * 1024);  // length is expressed in MB
+            if (length < 50.00) {
+                InputStream stream = null;
+                try {
+                    stream = new FileInputStream(f);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
-                return responseString;
+                try {
+                    RemoteDataSource rDS = new RemoteDataSource();
+                    Response response = rDS.buildFileUploadRequest(stream, jwtToken, nfcToken, epochTime, choice);
+
+                    rDS.close();
+                    // Check Response
+
+                    if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+
+                        responseString = MESSAGE_SUCCESSFUL;
+
+                    } else {
+                        responseString = MESSAGE_FAIL;
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                responseString = MESSAGE_EXCEED_MAX_SIZE;
+            }
+
+            return responseString;
 
         }
 
@@ -173,7 +168,6 @@ public class UploadHandler{
         AlertDialog alert = builder.create();
         alert.show();
     }
-
 
 
 }
