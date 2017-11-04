@@ -172,9 +172,11 @@ public class CameraActivity extends AppCompatActivity {
     * */
 
     public void onClick_GoToCustomGallery(View view){
-        Intent toDeleteIntent = new Intent(this, CustomGallery.class);
-        toDeleteIntent.putExtra("gallery_request_type", GalleryRequestType.DELETE);
-        startActivityForResult(toDeleteIntent,REQUEST_DELETE);
+
+            Intent toDeleteIntent = new Intent(this, CustomGallery.class);
+            toDeleteIntent.putExtra("gallery_request_type", GalleryRequestType.DELETE);
+            startActivityForResult(toDeleteIntent, REQUEST_DELETE);
+
     }
 
 
@@ -199,8 +201,12 @@ public class CameraActivity extends AppCompatActivity {
                 break;
             }
             case REQUEST_DELETE:{
+                try{
                 if(resultCode == RESULT_OK){
                     handleReturnInfo(data);
+                }
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
                 break;
             }

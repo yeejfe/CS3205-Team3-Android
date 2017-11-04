@@ -5,6 +5,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
@@ -29,7 +31,7 @@ public class CustomGallery extends AppCompatActivity {
     File[] listFile;
 
     private CameraActivity.GalleryRequestType requestType;
- //   private ImageView imageview;
+
 
 
 
@@ -44,28 +46,12 @@ public class CustomGallery extends AppCompatActivity {
         setContentView(R.layout.activity_custom_gallery);
         getFromSdcard();
         GridView imagegrid = (GridView) findViewById(R.id.ImageGrid);
-        System.out.println("here1...");
         imageAdapter = new ImageAdapter();
-
-        System.out.println("here2...");
         imagegrid.setAdapter(imageAdapter);
-        System.out.println(" f : " +f.size());
 
-        System.out.println("here3...");
 
-   /*     imageview=(ImageView)findViewById(R.id.testImage);
-        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-        File file = wrapper.getDir("Health", MODE_PRIVATE);
 
-        System.out.println(" folder path  " +file.getPath());
-        listFile = file.listFiles();
 
-        Bitmap myBitmap = BitmapFactory.decodeFile(listFile[0].getPath());
-        System.out.println("f.get(position) : "+ listFile[0].getPath());
-        if(myBitmap!=null) {
-            imageview.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 500, 500, false));
-
-        }*/
 
         imagegrid.setOnItemClickListener(new OnItemClickListener(){
 
@@ -83,20 +69,23 @@ public class CustomGallery extends AppCompatActivity {
                 else{
                     File fdelete = new File(listFile[position].getPath());
                     Intent intent = new Intent();
-                    if (fdelete.exists()) {
-                        if (fdelete.delete()) {
-                            Toast.makeText(CustomGallery.this, "image "+(String.valueOf(position+1))+" is deleted! ", Toast.LENGTH_SHORT).show();
-                            intent.putExtra("selected_image_path", listFile[position].getPath().toString());
-                            setResult(RESULT_OK, intent);
+                    try {
+                        if (fdelete.exists()) {
+                            if (fdelete.delete()) {
+                                Toast.makeText(CustomGallery.this, "image " + (String.valueOf(position + 1)) + " is deleted! ", Toast.LENGTH_SHORT).show();
+                                intent.putExtra("selected_image_path", listFile[position].getPath().toString());
+                                setResult(RESULT_OK, intent);
 
+                            } else {
+                                Toast.makeText(CustomGallery.this, "fail to delete image " + (String.valueOf(position + 1)) + "! ", Toast.LENGTH_SHORT).show();
+                                setResult(RESULT_CANCELED, intent);
+                            }
                         } else {
-                            Toast.makeText(CustomGallery.this, "fail to delete image "+(String.valueOf(position+1))+"! ", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CustomGallery.this, "image " + (String.valueOf(position + 1)) + " does not exist! ", Toast.LENGTH_SHORT).show();
                             setResult(RESULT_CANCELED, intent);
                         }
-                    }
-                    else{
-                        Toast.makeText(CustomGallery.this, "image "+(String.valueOf(position+1))+" does not exist! ", Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_CANCELED, intent);
+                    }catch(Exception e){
+                        e.printStackTrace();
                     }
                     finish();
                 }
@@ -125,10 +114,10 @@ public class CustomGallery extends AppCompatActivity {
 
             for (int i = 0; i < listFile.length; i++) {
                 System.out.println(" name  " +listFile[i].getPath());
-              //  String[] nameArr = listFile[i].getAbsolutePath().split("\\.");
-              //  if (nameArr.length>1 && nameArr[1].equals("jpg" ) ) {
+           //     String[] nameArr = listFile[i].getAbsolutePath().split("\\.");
+            //    if (nameArr.length>1 && nameArr[2].equals("jpg" ) ) {
                     f.add(listFile[i].getAbsolutePath());
-              //  }
+            //    }
             }
 
         }catch(Exception e){
@@ -136,12 +125,6 @@ public class CustomGallery extends AppCompatActivity {
         }
 
 
-         /*try {
-               Bitmap myBitmap = BitmapFactory.decodeFile(f.get(0));
-               imageTest.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 150, 150, false));
-           }catch(Exception e){
-               e.printStackTrace();
-           }*/
         }
     }
 
@@ -166,7 +149,7 @@ public class CustomGallery extends AppCompatActivity {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
-            System.out.println("getview called");
+            System.out.println("getView called");
             ViewHolder holder;
             if (convertView == null) {
                 holder = new ViewHolder();
@@ -180,20 +163,15 @@ public class CustomGallery extends AppCompatActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-try{
+/*
          Bitmap myBitmap = BitmapFactory.decodeFile(f.get(position));
-            System.out.println("f.get(position) : "+ f.get(position));
          if(myBitmap!=null) {
              holder.imageview.setImageBitmap(Bitmap.createScaledBitmap(myBitmap, 500, 500, false));
 
-         }
+         }*/
 
-         }catch(Exception e){
-    e.printStackTrace();
-         }
-
-
-
+            ImageGridHandler handler = new ImageGridHandler(getBaseContext(), holder.imageview, position);
+            handler.execute();
             return convertView;
         }
     }
@@ -202,4 +180,39 @@ try{
 
 
     }
+
+
+    public class ImageGridHandler extends AsyncTask<String, Void, Bitmap> {
+        private final WeakReference<ImageView> imageViewReference;
+        private Context context;
+        private int position;
+
+        public ImageGridHandler(Context context, ImageView img, int position){
+            imageViewReference = new WeakReference<ImageView>(img);
+            this.context = context;
+            this.position = position;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params){
+            File file = new File(f.get(position));
+            if(file.exists()) {
+                return BitmapFactory.decodeFile(f.get(position));
+            }
+            else{
+                return null;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            final ImageView imageView = imageViewReference.get();
+            if(result!=null) {
+                imageView.setImageBitmap(Bitmap.createScaledBitmap(result, 500, 500, false));
+            }
+        }
+    }
+
+
 }
