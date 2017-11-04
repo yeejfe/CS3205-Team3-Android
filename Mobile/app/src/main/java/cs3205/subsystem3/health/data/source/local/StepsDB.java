@@ -18,7 +18,7 @@ import cs3205.subsystem3.health.common.logger.Tag;
  */
 
 public class StepsDB implements DbHelper {
-    public static final String TAG = Tag.STEP_SENSOR_DB;
+    private String TAG = this.getClass().getName();
     private Database db;
 
     private String TABLE_NAME = StepsPersistenceContract.StepsEntry.TABLE_NAME;

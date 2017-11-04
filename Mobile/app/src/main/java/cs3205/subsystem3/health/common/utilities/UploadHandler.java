@@ -28,7 +28,7 @@ public class UploadHandler {
 
 
     public static final String MESSAGE_EXCEED_MAX_SIZE = "Exceeded the maximum size: 50MB";
-    public static final String MESSAGE_RESPONSE_TITLE = "Response from Servers";
+    public static final String MESSAGE_RESPONSE_TITLE = "Upload Status";
     public static final String MESSAGE_SUCCESSFUL = "Successful";
     public static final String MESSAGE_FAIL = "Fail";
     public static final String IMAGE = "IMAGE";

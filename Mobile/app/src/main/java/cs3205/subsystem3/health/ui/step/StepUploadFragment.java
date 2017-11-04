@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -15,13 +16,13 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.StepsArrayAdapter;
+import cs3205.subsystem3.health.common.crypto.Encryption;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.StepsUploadTask;
@@ -48,16 +49,16 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
     public static final String STEPS = FRONT_SLASH + FOLDER;
     public static final int LAYOUT_RESOURCE_ID = android.R.layout.simple_list_item_multiple_choice;
-    ListView listView;
-    Button buttonUpload;
+    private ListView listView;
+    private Button buttonUpload;
 
-    StepsArrayAdapter arrayAdapter;
+    private StepsArrayAdapter arrayAdapter;
 
-    ArrayList<ArrayList<String>> filesinfolder = new ArrayList<ArrayList<String>>();
-    List<String> sessionNames = new ArrayList<String>();
-    ArrayList<String> selectedItems = new ArrayList<String>();
+    private ArrayList<ArrayList<String>> filesinfolder = new ArrayList<ArrayList<String>>();
+    private List<String> sessionNames = new ArrayList<String>();
+    private ArrayList<String> selectedItems = new ArrayList<String>();
 
-    ArrayList<Integer> selectedItemsPos = new ArrayList<Integer>();
+    private ArrayList<Integer> selectedItemsPos = new ArrayList<Integer>();
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -129,7 +130,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
     private void promptForUpload() {
         if (getCheckedFiles() == 0) {
-            Toast.makeText(getActivity(), AppMessage.TOAST_MESSAGE_NO_FILE_SELECTED, Toast.LENGTH_SHORT).show();
+            showSnackBarMessage(AppMessage.TOAST_MESSAGE_NO_FILE_SELECTED);
             buttonUpload.setEnabled(false);
             return;
         }
@@ -142,8 +143,8 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
             @Override
             public void onClick(DialogInterface arg0, int arg1) {
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getContext());
-                if (!nfcAdapter.isEnabled()) {
-                    Toast.makeText(getActivity(), AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_SHORT).show();
+                if (nfcAdapter == null || !nfcAdapter.isEnabled()) {
+                    showSnackBarMessage(AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE);
                     return;
                 }
                 Intent startNFCReadingActivity = new Intent(getActivity(), NFCReaderActivity.class);
@@ -168,7 +169,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 88) {
-            if(data != null) {
+            if (data != null) {
                 String tag_password = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_PASSWORD);
                 ArrayList<String> selectedFiles = new ArrayList<String>();
                 selectedFiles.addAll(selectedItems);
@@ -179,6 +180,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
                 ProgressBar progressbar = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
                 progressbar.setProgress(PROGRESS_START);
                 progressbar.setMax(selectedFiles.size());
+                progressbar.setIndeterminate(true);
                 progressbar.setVisibility(View.VISIBLE);
 
                 alertDialogBuilder.setView(progressbar);
@@ -205,7 +207,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         Log.d(TAG, selectedItemsPos + " " + filePaths.size() + " " + sessionNames.size());
 
         for (int i = 0; i < selectedItemsPos.size(); i++) {
-            if(uploadedItems.get(i)) {
+            if (uploadedItems.get(i)) {
                 int pos = selectedItemsPos.get(i) - i;
                 String path = filePaths.remove(pos);
                 sNames.remove(pos);
@@ -227,5 +229,12 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
         selectedItems.clear();
         listView.clearChoices();
         listView.requestLayout();
+    }
+
+    private void showSnackBarMessage(String message) {
+        View view = getView().findViewById(R.id.upload_fragment);
+        if (view != null) {
+            Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
+        }
     }
 }

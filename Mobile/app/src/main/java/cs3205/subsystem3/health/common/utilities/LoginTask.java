@@ -16,6 +16,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cs3205.subsystem3.health.common.crypto.Encryption;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.RequestInfo;
@@ -51,8 +52,9 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean isLoginSuccessful) {
-
         client.close();
+
+        Encryption.getInstance().setKey(tag_password);
 
         if (isLoginSuccessful) {
             new Handler().postDelayed(

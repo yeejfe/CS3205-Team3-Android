@@ -8,9 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import cs3205.subsystem3.health.BuildConfig;
+import cs3205.subsystem3.health.common.crypto.Encryption;
 import cs3205.subsystem3.health.common.logger.Log;
-import cs3205.subsystem3.health.common.logger.Tag;
 
 /**
  * Created by Yee on 10/09/17.
@@ -36,9 +35,12 @@ public class JSONFileWriter extends FileHelper {
         File file = new File(filePath);
         try {
             output = new BufferedWriter(new FileWriter(file, false));
-            if (BuildConfig.DEBUG)
-                Log.i(TAG, jsonObject.toString());
-            output.write(jsonObject.toString());
+            String key = Encryption.getInstance().getKey();
+            if (key != null) {
+                output.write(new String(Encryption.getInstance().e(jsonObject.toString(), key)));
+            } else {
+                output.write(jsonObject.toString());
+            }
             output.close();
         } catch (IOException e) {
             return false;

@@ -3,12 +3,15 @@ package cs3205.subsystem3.health.common.utilities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,7 +20,9 @@ import java.util.Queue;
 import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.MainActivity;
+import cs3205.subsystem3.health.R;
 import cs3205.subsystem3.health.common.core.JSONFileReader;
+import cs3205.subsystem3.health.common.crypto.Encryption;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
@@ -115,7 +120,11 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
             InputStream stream = null;
             try {
                 stream = new FileInputStream(file);
-                Log.d(TAG, JSONFileReader.toString(selectedFiles.get(i)));
+
+                byte[] contents = Encryption.getInstance().d(stream, tag_password);
+                Log.d(TAG, new String(contents));
+
+                stream = new ByteArrayInputStream(contents);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -136,6 +145,14 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
                 return 0;
             }
             rDS.close();
+
+            if(stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
             if (response != null && response.getStatus() == Response.Status.CREATED.getStatusCode()) {
                 uploadedItems.add(true);
@@ -174,6 +191,14 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
         });
     }
 
+    private void showSnackBarMessage(final String message) {
+        ((MainActivity)context).runOnUiThread(new Runnable() {
+            public void run() {
+                Snackbar.make(((MainActivity) context).findViewById(R.id.upload_fragment), message, Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
     @Override
     protected void onProgressUpdate(String... objects) {
         alertDialog.setMessage(objects[0]);
@@ -190,9 +215,9 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
     protected void onPostExecute(Integer uploaded) {
         if (uploaded > 0) {
             frag.refreshFiles(uploadedItems);
-            makeToastMessage(uploaded + FRONT_SLASH + selectedItems.size() + SESSIONS_UPLOAD_COMPLETED);
+            showSnackBarMessage(uploaded + FRONT_SLASH + selectedItems.size() + SESSIONS_UPLOAD_COMPLETED);
         } else {
-            makeToastMessage(UPLOAD_FAILED_FOR_ALL);
+            showSnackBarMessage(UPLOAD_FAILED_FOR_ALL);
         }
 
         frag.clear();

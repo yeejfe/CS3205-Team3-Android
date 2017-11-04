@@ -16,20 +16,26 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import cs3205.subsystem3.health.common.activities.ActivityBase;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
+import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.LogoutHelper;
 import cs3205.subsystem3.health.common.utilities.SessionManager;
 import cs3205.subsystem3.health.ui.camera.CameraActivity;
 import cs3205.subsystem3.health.ui.heartrate.HeartRateReaderActivity;
+import cs3205.subsystem3.health.ui.login.LoginActivity;
 import cs3205.subsystem3.health.ui.nfc.NFCReaderActivity;
 import cs3205.subsystem3.health.ui.step.StepSensorFragment;
 
 public class MainActivity extends ActivityBase implements NavigationView.OnNavigationItemSelectedListener {
 
     private boolean isOnCreate;
+    private TextView textView;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +44,8 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         setContentView(R.layout.activity_main);
         isOnCreate = true;
 
-   //     Intent intent = new Intent(this, LoginActivity.class);
-   //     startActivity(intent);
-
-        loggedIn();
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivityForResult(intent, 77);
     }
 
     private void loggedIn() {
@@ -56,6 +60,10 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View headerView = navigationView.getHeaderView(0);
+        textView = (TextView) headerView.findViewById(R.id.tv_nav_header);
+        textView.append(username);
 
         initFrag();
     }
@@ -123,7 +131,6 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -135,15 +142,6 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
 
         } else if (id == R.id.nav_heartrate) {
             startHeartReader();
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -168,6 +166,17 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
         } else {
             Intent cameraIntent = new Intent(this, CameraActivity.class);
             startActivity(cameraIntent);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 77) {
+            if (resultCode == RESULT_OK) {
+                username = data.getStringExtra(Value.KEY_VALUE_LOGIN_INTENT_USERNAME);
+                loggedIn();
+            }
         }
     }
 
@@ -211,6 +220,4 @@ public class MainActivity extends ActivityBase implements NavigationView.OnNavig
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-
-
 }
