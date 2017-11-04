@@ -287,9 +287,10 @@ public class CameraActivity extends AppCompatActivity {
     private void handleCameraPhoto() throws IOException{
         if (mCurrentImagePathExternal != null) {
             writeFromExternalToInternal();
+            deleteExternalFile();
             setPic();
             displayPathName();
-            deleteExternalDirectory();
+
          //   galleryAddPic();
             mCurrentImagePathExternal = null;
         }
@@ -362,8 +363,13 @@ public class CameraActivity extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
-    private void deleteExternalDirectory(){
-
+    private void deleteExternalFile(){
+        if(mCurrentImagePathExternal!=null){
+            File file = new File(mCurrentImagePathExternal);
+            if(file.exists()){
+                file.delete();
+            }
+        }
     }
 
 
