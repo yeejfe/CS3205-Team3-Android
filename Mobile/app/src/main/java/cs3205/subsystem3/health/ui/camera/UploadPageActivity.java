@@ -134,13 +134,17 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
 
 
     private void getNfcToken() {
-        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (!nfcAdapter.isEnabled()) {
+        try {
+            NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+            if (!nfcAdapter.isEnabled()) {
+                Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
+            startActivityForResult(startNFCReadingActivity, REQUEST_READ_NFC);
+        }catch(Exception e){
             Toast.makeText(this, AppMessage.TOAST_MESSAGE_NFC_UNAVAILABLE, Toast.LENGTH_SHORT).show();
-            return;
         }
-        Intent startNFCReadingActivity = new Intent(this, NFCReaderActivity.class);
-        startActivityForResult(startNFCReadingActivity, REQUEST_READ_NFC);
     }
 
 

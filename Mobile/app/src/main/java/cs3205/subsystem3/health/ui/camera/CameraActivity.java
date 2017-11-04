@@ -314,9 +314,10 @@ public class CameraActivity extends AppCompatActivity {
         imageFileInternal.createNewFile();
         fOut = new FileOutputStream(imageFileInternal);
         Bitmap image = BitmapFactory.decodeFile(mCurrentImagePathExternal);
-
-        image.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-        fOut.flush();
+        if (image != null) {
+            image.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            fOut.flush();
+        }
         fOut.close();
     }
 
