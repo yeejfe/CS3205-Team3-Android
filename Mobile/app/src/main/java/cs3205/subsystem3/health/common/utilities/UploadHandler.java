@@ -65,9 +65,6 @@ public class UploadHandler{
 
     }
 
-
-
-
     private boolean upload() {
         File f = new File(path);
         long length = f.length() / (1024 * 1024);  // length is expressed in MB
@@ -107,9 +104,7 @@ public class UploadHandler{
 
     }
 
-    /**
-     * Uploading the file to server
-     * */
+
     private class UploadAsync extends AsyncTask<Void, Integer, String> {
 
         @Override
