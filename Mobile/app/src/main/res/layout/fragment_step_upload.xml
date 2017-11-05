@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/upload_fragment"
+    android:layout_height="match_parent">
+
+    <ListView
+        android:id="@+id/steps_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="443dp"
+        android:choiceMode="multipleChoice"
+        android:listSelector="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/btn_step_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="Upload" />
+</LinearLayout>
