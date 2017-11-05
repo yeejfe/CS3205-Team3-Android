@@ -14,11 +14,14 @@ import java.util.Date;
 
 public final class MetaInfoExtractor {
 
+    public static final String TOAST_MESSAGE_FILE_NOT_FROM_APP = "File not from Health App!";
+    public static final String DATE_FORMAT = "yyyyMMdd_HHmmssSSS";
+
     public static long getEpochTimeStamp(Context ctx, String path) {
         String str = extractTimeString(ctx, path);
         long epoch = 0;
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmssSSS");
+        SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT);
         try {
             Date date = df.parse(str);
             epoch = date.getTime();
@@ -49,10 +52,15 @@ public final class MetaInfoExtractor {
         }catch(IndexOutOfBoundsException e){
             Log.d("MetaInfoExtractor", "wrong format of file name");
             System.out.println("Wrong format of file name.");
-            Toast.makeText(ctx, "File not from Health App!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, TOAST_MESSAGE_FILE_NOT_FROM_APP, Toast.LENGTH_SHORT).show();
 
         }
         return str;
+    }
+
+    public static String getExtension(String path){
+        String[] arr = getFileName(path).split("\\.");
+        return arr[arr.length-1];
     }
 
 

@@ -59,6 +59,12 @@ public class CameraActivity extends AppCompatActivity {
     public static final String GALLERY_REQUEST_TYPE = "gallery_request_type";
 
     public static final String MEDIA_SCANNER = "android.intent.action.MEDIA_SCANNER_SCAN_FILE";
+    public static final String VID = "VID_";
+    public static final String MP4 = ".mp4";
+
+    public static final String DISPLAY_MESSAGE_VIDEO_RECORDED = "Video recorded:";
+    public static final String DISPLAY_MESSAGE_PHOTO_DELETED = "Photo deleted:";
+    public static final String DISPLAY_MESSAGE_PICTURE_TAKEN = "Picture taken:\n";
 
     private ImageView mImageView;
     private VideoView mVideoView;
@@ -132,13 +138,6 @@ public class CameraActivity extends AppCompatActivity {
     * Function of recording videos
     * */
 
- /*   public void onClick_TakeVideo(View view) {
-        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takeVideoIntent, REQUEST_TAKE_VIDEO);
-        }
-
-    }*/
 
     public void onClick_TakeVideo(View view) {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
@@ -257,11 +256,11 @@ public class CameraActivity extends AppCompatActivity {
     private File createVideoFile() throws IOException {
         // Create   file name
         String timeStamp = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-        String imageFileName = "VID_" + timeStamp + UNDERLINE;
+        String imageFileName = VID + timeStamp + UNDERLINE;
         File storageDir = getAlbumDir();
         File video = File.createTempFile(
                 imageFileName,  /* prefix */
-                ".mp4",         /* suffix */
+                MP4,         /* suffix */
                 storageDir      /* directory */
         );
 
@@ -353,7 +352,7 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private void displayPathName() {
-        mPathName.setText("Picture taken:\n" + MetaInfoExtractor.getFileName(mCurrentImagePathInternal));
+        mPathName.setText(DISPLAY_MESSAGE_PICTURE_TAKEN + MetaInfoExtractor.getFileName(mCurrentImagePathInternal));
     }
 
 
@@ -371,7 +370,7 @@ public class CameraActivity extends AppCompatActivity {
         galleryAddVid();
       //  Uri videoUri = intent.getData();
       //  mCurrentVideoPath = PathExtractor.getPath(this, videoUri);
-        mPathName.setText("\nVideo recorded:\n" + MetaInfoExtractor.getFileName(mCurrentVideoPath));
+        mPathName.setText("\n" + DISPLAY_MESSAGE_VIDEO_RECORDED + "\n" + MetaInfoExtractor.getFileName(mCurrentVideoPath));
         mImageView.setVisibility(View.INVISIBLE);
 
     }
@@ -386,7 +385,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private void handleReturnInfo(Intent intent) {
         mDeletedImagePath = intent.getStringExtra(CustomGallery.SELECTED_IMAGE_PATH);
-        mPathName.setText("\nPhoto deleted:\n" + MetaInfoExtractor.getFileName(mDeletedImagePath));
+        mPathName.setText("\n" + DISPLAY_MESSAGE_PHOTO_DELETED + "\n" + MetaInfoExtractor.getFileName(mDeletedImagePath));
         mImageView.setVisibility(View.INVISIBLE);
 
     }

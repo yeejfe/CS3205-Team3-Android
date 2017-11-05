@@ -32,6 +32,9 @@ import cs3205.subsystem3.health.R;
 public class CustomGallery extends AppCompatActivity {
 
     public static final String SELECTED_IMAGE_PATH = "selected_image_path";
+    public static final String DISPLAY_MESSAGE_NUMBER_OF_PICTURES = "Number of pictures: ";
+    public static final String DIRECTORY_HEALTH = "Health";
+
     private ImageAdapter imageAdapter;
     private TextView textForNumImages;
     private CameraActivity.GalleryRequestType requestType;
@@ -50,7 +53,7 @@ public class CustomGallery extends AppCompatActivity {
         setContentView(R.layout.activity_custom_gallery);
         getFromSdcard();
         textForNumImages = (TextView) findViewById(R.id.TextForNumImages);
-        textForNumImages.setText("Number of pictures: " + f.size());
+        textForNumImages.setText(DISPLAY_MESSAGE_NUMBER_OF_PICTURES + f.size());
 
         GridView imagegrid = (GridView) findViewById(R.id.ImageGrid);
         imageAdapter = new ImageAdapter();
@@ -101,7 +104,7 @@ public class CustomGallery extends AppCompatActivity {
     public void getFromSdcard() {
 
         ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-        File file = wrapper.getDir("Health", MODE_PRIVATE);
+        File file = wrapper.getDir(DIRECTORY_HEALTH, MODE_PRIVATE);
 
         System.out.println(" folder path  " + file.getPath());
 

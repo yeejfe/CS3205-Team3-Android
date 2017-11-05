@@ -37,6 +37,13 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
     private static final int REQUEST_LOAD_VIDEO = 2;
     public static final int REQUEST_READ_NFC = 70;
 
+    public static final String TOAST_MESSAGE_WRONG_FILE_TYPE = "Wrong file type!";
+    public static final String DISPLAY_MESSAGE_IMAGE_TO_UPLOAD = "Image to upload: ";
+    public static final String DISPLAY_MESSAGE_VIDEO_TO_UPLOAD = "Video to upload: ";
+    public static final String DISPLAY_MESSAGE_EPOCH_TIME = "Epoch time: ";
+    public static final String CHECK_INFO_JPG = "jpg";
+    public static final String CHECK_INFO_MP4 = "mp4";
+
     private ImageView imageToUpload, videoToUpload;
     private Button bUploadImage, bUploadVideo;
     private TextView uploadImageName, uploadVideoName;
@@ -155,7 +162,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             selectedImagePath = data.getStringExtra(CustomGallery.SELECTED_IMAGE_PATH);
             Uri selectedImageUri = Uri.fromFile(new File(selectedImagePath));
             Long time = MetaInfoExtractor.getEpochTimeStamp(this, selectedImagePath);
-            uploadImageName.setText("Image to upload: " + MetaInfoExtractor.getFileName(selectedImagePath) + "\nEpoch time: " + time);
+            uploadImageName.setText(DISPLAY_MESSAGE_IMAGE_TO_UPLOAD + MetaInfoExtractor.getFileName(selectedImagePath) + "\n" + DISPLAY_MESSAGE_EPOCH_TIME + time);
             imageToUpload.setImageURI(selectedImageUri);
             bUploadImage.setEnabled(true);
             bUploadVideo.setEnabled(false);
@@ -165,10 +172,10 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
             selectedVideoPath = PathExtractor.getPath(this, selectedVideoUri);
             Long time = MetaInfoExtractor.getEpochTimeStamp(this, selectedVideoPath);
             if(time==0){
-                uploadVideoName.setText("Video to upload: " + MetaInfoExtractor.getFileName(selectedVideoPath));
+                uploadVideoName.setText(DISPLAY_MESSAGE_VIDEO_TO_UPLOAD + MetaInfoExtractor.getFileName(selectedVideoPath));
 
             }else{
-                uploadVideoName.setText("Video to upload: " + MetaInfoExtractor.getFileName(selectedVideoPath) + "\nEpoch time: " + MetaInfoExtractor.getEpochTimeStamp(this, selectedVideoPath));
+                uploadVideoName.setText(DISPLAY_MESSAGE_VIDEO_TO_UPLOAD + MetaInfoExtractor.getFileName(selectedVideoPath) + "\n" + DISPLAY_MESSAGE_EPOCH_TIME + MetaInfoExtractor.getEpochTimeStamp(this, selectedVideoPath));
             }
             videoToUpload.setImageResource(R.drawable.video_clip);
             bUploadImage.setEnabled(false);
@@ -180,8 +187,14 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 Log.d(this.getClass().getSimpleName(), "NFC token is " + nfcToken);
                 if (choice.equals(RemoteDataSource.Type.IMAGE)) {
                     selectedPath = selectedImagePath;
+                    if (MetaInfoExtractor.getExtension(selectedPath)!= CHECK_INFO_JPG){
+                        Toast.makeText(this, TOAST_MESSAGE_WRONG_FILE_TYPE,Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     selectedPath = selectedVideoPath;
+                    if (MetaInfoExtractor.getExtension(selectedPath)!= CHECK_INFO_MP4){
+                        Toast.makeText(this, TOAST_MESSAGE_WRONG_FILE_TYPE,Toast.LENGTH_SHORT).show();
+                    }
                 }
                 bUploadImage.setEnabled(false);
                 bUploadVideo.setEnabled(false);
