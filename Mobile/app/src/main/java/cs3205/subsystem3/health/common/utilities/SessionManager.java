@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SessionManager {
     private static Timer logoutTimer;
-    private static final int LOGOUT_TIMER_DELAY_IN_MINUTES = 1;
+    private static final int LOGOUT_TIMER_DELAY_IN_MINUTES = 10;
 
     public static boolean isLogoutTimerSet() {
         return logoutTimer != null;
