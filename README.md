@@ -11,6 +11,9 @@ This project is to develop a security-focused component subsystem of a prototype
 ## About this repository
 This repository is on the mobile application development of subsystem 3.
 
+## Release
+Check out [here](https://github.com/yeejfe/CS3205-Team3-Android/releases)!
+
 #### Site Map
 Repository for web server:
 * [Link](https://github.com/jmtiong/CS3205)
