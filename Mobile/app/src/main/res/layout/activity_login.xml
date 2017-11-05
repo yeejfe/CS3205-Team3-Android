@@ -31,7 +31,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
-                android:text="3"
                 android:inputType="textFilter"
                 android:maxLines="1"
                 android:hint="Username" />
@@ -47,7 +46,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:text="password"
                 android:hint="Password"/>
         </android.support.design.widget.TextInputLayout>
 
