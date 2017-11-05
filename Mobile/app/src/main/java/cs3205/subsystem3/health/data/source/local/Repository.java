@@ -83,8 +83,6 @@ public class Repository {
         if (listFiles.length == 0) {
             return new ArrayList<ArrayList<String>>();
         } else {
-            Log.d("This", String.valueOf(listFiles.length));
-
             for (int i = 0; i < listFiles.length; i++) {
                 String filePath = listFiles[i].getAbsolutePath();
 

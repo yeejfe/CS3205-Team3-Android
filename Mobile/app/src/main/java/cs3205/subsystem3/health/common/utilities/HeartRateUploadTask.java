@@ -53,7 +53,6 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
             return false;
         }
         challengeResponse = challengeRequest.header(RequestInfo.HEADER_AUTHORIZATION, RequestInfo.JWT_TOKEN_PREFIX + jwt).post(null);
-        Log.d("HeartRateUploadTask", "challenge response:  " + challengeResponse.readEntity(String.class));
         byte[] nfcChallenge = null;
         if (challengeResponse.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
             nfcChallenge = Base64.decode(challengeResponse.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE), Base64.NO_WRAP);
@@ -85,7 +84,6 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
             return false;
         }
 
-        Log.d("HeartRateUploadTask", "upload response: " + uploadResponse.readEntity(String.class));
         if (uploadResponse != null && uploadResponse.getStatus() == Response.Status.CREATED.getStatusCode()) {
             String newJwToken = uploadResponse.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT);
             JSONWebToken.getInstance().setData(newJwToken);

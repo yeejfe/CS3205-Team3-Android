@@ -127,8 +127,6 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
                 stream.read(encText);
                 stream.close();
 
-                Log.d(TAG, new String(encText));
-
                 SessionDB db = new SessionDB(context);
                 Session session = db.getSession(file.getName());
 
@@ -136,7 +134,6 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
 
                 if (isEqual) {
                     byte[] contents = Encryption.getInstance().d(encText, tag_password);
-                    Log.d(TAG, new String(contents));
                     stream = new ByteArrayInputStream(contents);
                 } else {
                     return 0;

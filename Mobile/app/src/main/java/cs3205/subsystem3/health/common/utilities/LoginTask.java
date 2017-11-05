@@ -94,7 +94,6 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
 
 
         if (response != null && response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
-            Log.d("LoginTask", "response content on requesting challenge: " + response.readEntity(String.class));
             JSONObject passwordHeader = null;
             try {
                 passwordHeader = new JSONObject(response.getHeaderString(RequestInfo.HEADER_AUTHENTICATE));
@@ -144,7 +143,6 @@ public class LoginTask extends AsyncTask<Object, Void, Boolean> {
         }
 
         if (response == null || response.getStatus() != Response.Status.OK.getStatusCode()) {
-            Log.d("LoginTask", "response content on challenge response: " + response.readEntity(String.class));
             if(response.getHeaderString(RequestInfo.HEADER_TIMEOUT) != null){
                 int timeout = Integer.parseInt(response.getHeaderString(RequestInfo.HEADER_TIMEOUT));
                 Timeout.getInstance().setDuration(timeout);

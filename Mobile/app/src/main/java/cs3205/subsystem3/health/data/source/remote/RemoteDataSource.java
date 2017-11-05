@@ -60,10 +60,8 @@ public class RemoteDataSource {
         if (challengeResponse.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
             nfcChallenge = Base64.decode(challengeResponse.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE), Base64.NO_WRAP);
             if (nfcChallenge == null) {
-                Log.d(TAG, "NFC is null");
                 return null;
             }
-            Log.d(TAG, "nfc challenge: " + Base64.decode(challengeResponse.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE), Base64.NO_WRAP));
         } else {
             return null;
         }
@@ -76,11 +74,9 @@ public class RemoteDataSource {
                         nfcChallenge), Base64.NO_WRAP))
                 .post(Entity.entity(stream, MediaType.APPLICATION_OCTET_STREAM));
 
-        Log.d(TAG, "upload response: " + uploadResponse.readEntity(String.class));
         if (uploadResponse != null && uploadResponse.getStatus() == Response.Status.CREATED.getStatusCode()) {
             String newJwToken = uploadResponse.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT);
             JSONWebToken.getInstance().setData(newJwToken);
-            Log.d(TAG, "new jwt: " + JSONWebToken.getInstance().getData());
         }
 
         return uploadResponse;
