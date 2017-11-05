@@ -61,7 +61,6 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
                 LogoutHelper.logout(context, AppMessage.TOAST_MESSAGE_EXPIRED_JWT);
                 return false;
             }
-            Log.d("HeartRateUploadTask", "nfc challenge: " + nfcChallenge);
         } else {
             return false;
         }
@@ -90,7 +89,6 @@ public class HeartRateUploadTask extends AsyncTask<Object, Void, Boolean> {
         if (uploadResponse != null && uploadResponse.getStatus() == Response.Status.CREATED.getStatusCode()) {
             String newJwToken = uploadResponse.getHeaderString(RequestInfo.HEADER_REFRESHED_JWT);
             JSONWebToken.getInstance().setData(newJwToken);
-            Log.d("HeartRateUploadTask", "new jwt: " + JSONWebToken.getInstance().getData());
             return true;
         } else {
             if (uploadResponse.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {

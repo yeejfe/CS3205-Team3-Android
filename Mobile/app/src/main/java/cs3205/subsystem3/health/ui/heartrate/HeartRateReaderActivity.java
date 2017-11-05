@@ -27,7 +27,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
 import cs3205.subsystem3.health.common.miscellaneous.Value;
 import cs3205.subsystem3.health.common.utilities.HeartRateUploadTask;
@@ -87,6 +86,9 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         }
     }
 
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {}
+
     public void start(View view) {
 
         if (mHeartRateSensor == null) {
@@ -118,23 +120,6 @@ public class HeartRateReaderActivity extends AppCompatActivity implements Sensor
         } else {
             heartRates.clear();
             Toast.makeText(this, AppMessage.TOAST_MESSAGE_CLEAR_PREVIOUS_CHANGES, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-        switch (i) {
-            case -1:
-                Log.d("HeartRateReaderActivity", "sensor accuracy: no contact");
-            case 0:
-                Log.d("HeartRateReaderActivity", "sensor accuracy: unreliable");
-            case 1:
-                Log.d("HeartRateReaderActivity", "sensor accuracy: low");
-            case 2:
-                Log.d("HeartRateReaderActivity", "sensor accuracy: medium");
-            case 3:
-                Log.d("HeartRateReaderActivity", "sensor accuracy: high");
-
         }
     }
 

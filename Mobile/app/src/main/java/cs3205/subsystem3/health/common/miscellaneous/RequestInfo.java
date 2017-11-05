@@ -14,6 +14,7 @@ public class  RequestInfo {
     public static final String HEADER_REFRESHED_JWT = "Set-Authorization";
     public static final String HEADER_GRANT_TYPE = "grant_type";
     public static final String HEADER_USERNAME = "username";
+    public static final String HEADER_TIMEOUT = "X-Timeout";
     public static final String GRANT_TYPE_PASSWORD = "PASSWORD";
     public static final String URL_HEART_RATE_UPLOAD = "https://cs3205-3.comp.nus.edu.sg/session/heart";
     public static final String URL_LOGIN = "https://cs3205-3.comp.nus.edu.sg/oauth/token";
