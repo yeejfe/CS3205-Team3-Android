@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
-import android.util.Base64;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -22,7 +21,6 @@ import javax.ws.rs.core.Response;
 
 import cs3205.subsystem3.health.MainActivity;
 import cs3205.subsystem3.health.R;
-import cs3205.subsystem3.health.common.core.JSONFileReader;
 import cs3205.subsystem3.health.common.crypto.Encryption;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
@@ -81,7 +79,7 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
 
         if (uploaded == selectedItems.size()) {
             publishProgress(MESSAGE_SUCCESS, new String());
-        } else if(uploaded == 0) {
+        } else if (uploaded == 0) {
             publishProgress(UPLOAD_FAILED_FOR_ALL, new String());
         } else {
             publishProgress(uploaded + OF + selectedItems.size() + HAVE_BEEN_UPLOADED_SUCCESSFULLY, new String());
@@ -129,14 +127,14 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
                 stream.read(encText);
                 stream.close();
 
-                Log.d(TAG,new String(encText));
+                Log.d(TAG, new String(encText));
 
                 SessionDB db = new SessionDB(context);
                 Session session = db.getSession(file.getName());
 
                 boolean isEqual = session.checkHashAndModified(encText, String.valueOf(file.lastModified()));
 
-                if(isEqual) {
+                if (isEqual) {
                     byte[] contents = Encryption.getInstance().d(encText, tag_password);
                     Log.d(TAG, new String(contents));
                     stream = new ByteArrayInputStream(contents);
@@ -158,13 +156,13 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
                 e.printStackTrace();
                 makeToastMessage(AppMessage.TOAST_MESSAGE_UPLOAD_AUTHENTICATION_FAILED);
                 return 0;
-            }catch (RuntimeException e) {
+            } catch (RuntimeException e) {
                 makeToastMessage(AppMessage.TOAST_MESSAGE_FAILED_CONNECTION_TO_SERVER);
                 return 0;
             }
             rDS.close();
 
-            if(stream != null) {
+            if (stream != null) {
                 try {
                     stream.close();
                 } catch (IOException e) {
@@ -181,7 +179,7 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
 
             try {
                 String msg;
-                if(uploadedItems.get(i))
+                if (uploadedItems.get(i))
                     msg = SUCCESSFUL;
                 else
                     msg = FAILED;
@@ -202,7 +200,7 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
     }
 
     private void makeToastMessage(final String message) {
-        ((MainActivity)context).runOnUiThread(new Runnable() {
+        ((MainActivity) context).runOnUiThread(new Runnable() {
             public void run() {
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             }
@@ -210,17 +208,19 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
     }
 
     private void showSnackBarMessage(final String message) {
-        ((MainActivity)context).runOnUiThread(new Runnable() {
-            public void run() {
-                Snackbar.make(((MainActivity) context).findViewById(R.id.upload_fragment), message, Snackbar.LENGTH_LONG).show();
-            }
-        });
+        final View view = ((MainActivity) context).findViewById(R.id.upload_fragment);
+        if (view != null)
+            ((MainActivity) context).runOnUiThread(new Runnable() {
+                public void run() {
+                    Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
+                }
+            });
     }
 
     @Override
     protected void onProgressUpdate(String... objects) {
         alertDialog.setMessage(objects[0]);
-        if(objects.length > 1)
+        if (objects.length > 1)
             progressbar.setVisibility(View.INVISIBLE);
     }
 

@@ -63,7 +63,7 @@ public class RemoteDataSource {
                 Log.d(TAG, "NFC is null");
                 return null;
             }
-            Log.d(TAG, "nfc challenge: " + new String(nfcChallenge));
+            Log.d(TAG, "nfc challenge: " + Base64.decode(challengeResponse.getHeaderString(RequestInfo.HEADER_NFC_CHALLENGE), Base64.NO_WRAP));
         } else {
             return null;
         }

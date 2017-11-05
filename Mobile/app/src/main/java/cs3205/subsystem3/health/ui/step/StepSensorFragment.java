@@ -33,6 +33,7 @@ import org.eazegraph.lib.charts.BarChart;
 import org.eazegraph.lib.models.BarModel;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -308,7 +309,17 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
         //update bar chart
         int steps;
-        Log.d(TAG, "days = " + String.valueOf(days.size()));
+        ArrayList<BarModel> barModels = new ArrayList<>();
+        long lastestTime = days.get(days.size()-1).first;
+
+        for(int i = 0; i < PAST_DAYS - days.size(); i++){
+            lastestTime -= Timestamp.EPOCH_DIFF;
+            barModels.add(new BarModel(DATE_FORMAT.format(new Date(lastestTime)), 0, Color.parseColor("#827717")));
+        }
+
+        for(int i = barModels.size() - 1; i > 0; i--){
+            barChart.addBar(barModels.get(i));
+        }
 
         for (int i = days.size() - 1; i > 0; i--) {
             Pair<Long, Integer> current = days.get(i);
@@ -518,7 +529,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         }
     }
 
-    private class SaveSteps implements Runnable{
+    private class SaveSteps implements Runnable {
         private AlertDialog alertDialog;
 
         SaveSteps(AlertDialog alertDialog) {

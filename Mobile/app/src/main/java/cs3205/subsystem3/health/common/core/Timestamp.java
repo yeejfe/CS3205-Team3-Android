@@ -11,6 +11,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public abstract class Timestamp {
     public static final String DATE_FORMAT = "yyyy-MM-dd_HH:mm:ss";
+    public static final long EPOCH_DIFF = 86400000;
 
     /**
      * @return milliseconds since 1.1.1970 for today 0:00:00 local timezone
