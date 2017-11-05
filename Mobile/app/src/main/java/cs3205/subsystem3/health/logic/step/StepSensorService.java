@@ -150,6 +150,10 @@ public class StepSensorService extends Service implements SensorEventListener {
             SharedPreferences prefs = getSharedPreferences(STEPS, Context.MODE_PRIVATE);
             if (prefs.getBoolean(STEPS_STOPPED, false)) {
                 prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
+
+                //save to file
+                String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
+                Repository.writeFile(getBaseContext(), getApplication().getFilesDir().getAbsolutePath(), filename, data);
             }
         } catch (Exception e) {
             if (BuildConfig.DEBUG) Log.e(TAG, e.getMessage(), e);
@@ -236,10 +240,6 @@ public class StepSensorService extends Service implements SensorEventListener {
                 lastSaveSteps = steps;
                 lastSaveTime = System.currentTimeMillis();
                 //updateNotificationState();
-
-                //save to file
-                String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
-                Repository.writeFile(getApplication().getFilesDir().getAbsolutePath(), filename, data);
             }
         }
     }

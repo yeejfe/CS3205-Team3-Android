@@ -12,8 +12,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.InputType;
@@ -68,6 +66,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
     private static final int PAST_DAYS = 8;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("E", Locale.getDefault());
     private static final String MSG_STOP = "Stopping Session";
+    private static final String TITLE = "Session Name";
 
     private String TAG = this.getClass().getName();
     private String sessionName = SESSION_NAME;
@@ -107,8 +106,6 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         stepsView = (TextView) view.findViewById(R.id.steps);
         totalView = (TextView) view.findViewById(R.id.total);
         averageView = (TextView) view.findViewById(R.id.average);
-
-        Log.d(TAG, "onCreateView");
 
         showSteps();
 
@@ -153,22 +150,23 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
         alertDialogBuilder.setView(progressbar);
         alertDialogBuilder.setCancelable(false);
-        alertDialogBuilder.setMessage(MSG_STOP);
+        //alertDialogBuilder.setMessage(MSG_STOP);
 
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
 
 
-        Thread thread = new Thread(new SaveSteps(alertDialog));
-        thread.start();
+//        Thread thread = new Thread(new SaveSteps(alertDialog));
+//        thread.start();
 
-//        saveSteps();
+        saveSteps();
 
         prefs.edit().putBoolean(STEPS_STOPPED, true).commit();
         prefs.edit().remove(FILENAME);
 
         //getActivity().stopService(new Intent(getActivity(), StepSensorService.class));
         setViewServiceStopped();
+        alertDialog.dismiss();
     }
 
     @Override
@@ -226,7 +224,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
             e.printStackTrace();
         }
 
-        saveSteps();
+        //saveSteps();
     }
 
     private void saveSteps() {
@@ -238,7 +236,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
             //save to file
             String filename = prefs.getString(FILENAME, String.valueOf(Timestamp.getEpochTimeMillis()));
-            Repository.writeFile(getActivity().getFilesDir().getAbsolutePath(), filename, data);
+            Repository.writeFile(getActivity(), getActivity().getFilesDir().getAbsolutePath(), filename, data);
         }
     }
 
@@ -441,7 +439,7 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
         sessionName = SESSION_NAME + Timestamp.getFormattedCurrentTimestamp();
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setTitle("Session Name");
+        alertDialogBuilder.setTitle(TITLE);
 
         final EditText input = new EditText(getActivity());
         input.setText(sessionName);

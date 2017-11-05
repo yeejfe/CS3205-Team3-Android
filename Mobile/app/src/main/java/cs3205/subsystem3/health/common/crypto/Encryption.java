@@ -111,18 +111,6 @@ public class Encryption {
         return Base64.encode(encryptedSaltAndIVAndText, Base64.NO_WRAP);
     }
 
-    public byte[] d(InputStream inputStream, String key) throws IOException {
-        byte[] encText = new byte[inputStream.available()];
-        inputStream.read(encText);
-        inputStream.close();
-
-        Log.d(TAG,new String(encText));
-
-        byte[] decrypt = d(encText, key);
-
-        return decrypt;
-    }
-
     public byte[] d(byte[] encryptedSaltIvTextBytes, String key) {
         // Strip off Salt and IV
         ByteBuffer bufferEncrypted = ByteBuffer.wrap(Base64.decode(encryptedSaltIvTextBytes, Base64.NO_WRAP));

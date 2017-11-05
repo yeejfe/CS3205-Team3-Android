@@ -66,7 +66,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
 
         View view = inflater.inflate(R.layout.fragment_step_upload, null);
 
-        filesinfolder = Repository.getFiles(getActivity().getFilesDir().getAbsolutePath() + STEPS);
+        filesinfolder = Repository.getFiles(getActivity(), getActivity().getFilesDir().getAbsolutePath() + STEPS);
 
         listView = (ListView) view.findViewById(R.id.steps_list_view);
 
@@ -215,7 +215,7 @@ public class StepUploadFragment extends Fragment implements View.OnClickListener
             }
         }
 
-        Repository.deleteFiles(toDelete);
+        Repository.deleteFiles(getActivity(), toDelete);
 
         Log.d(TAG, selectedItemsPos + " " + filePaths.size() + " " + sNames.size());
 

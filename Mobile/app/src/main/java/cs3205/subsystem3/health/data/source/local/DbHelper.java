@@ -7,6 +7,8 @@ package cs3205.subsystem3.health.data.source.local;
 public interface DbHelper {
     public static final String DATABASE_NAME = "Health.db";
 
+    public static final String PRIMARY_KEY = " PRIMARY KEY,";
+
     public static final String TEXT_TYPE = " TEXT";
 
     public static final String BOOLEAN_TYPE = " INTEGER";

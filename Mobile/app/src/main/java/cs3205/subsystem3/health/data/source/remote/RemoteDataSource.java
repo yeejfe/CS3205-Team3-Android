@@ -63,7 +63,7 @@ public class RemoteDataSource {
                 Log.d(TAG, "NFC is null");
                 return null;
             }
-            Log.d(TAG, "nfc challenge: " + nfcChallenge);
+            Log.d(TAG, "nfc challenge: " + new String(nfcChallenge));
         } else {
             return null;
         }

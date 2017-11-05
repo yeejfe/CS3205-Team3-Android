@@ -1,5 +1,7 @@
 package cs3205.subsystem3.health.data.source.local;
 
+import android.content.Context;
+
 import org.json.JSONObject;
 
 import java.io.File;
@@ -10,6 +12,7 @@ import cs3205.subsystem3.health.common.core.JSONFileReader;
 import cs3205.subsystem3.health.common.core.JSONFileWriter;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.utilities.JSONUtil;
+import cs3205.subsystem3.health.model.Session;
 import cs3205.subsystem3.health.model.Steps;
 
 import static cs3205.subsystem3.health.common.core.JSONFileWriter.FOLDER;
@@ -42,27 +45,33 @@ public class Repository {
         return data;
     }
 
-    public static void writeFile(String dirPath, String fileName, Steps data) {
+    public static void writeFile(Context context, String dirPath, String fileName, Steps data) {
         dirPath += (FRONT_SLASH + FOLDER);
 
         String filePath = dirPath + FRONT_SLASH + fileName;
 
+        Session session = new Session(data.getTitle(), fileName, null, null);
+
         JSONObject jsonObject = JSONUtil.stepsDataToJSON(data);
 
-        JSONFileWriter.toFile(filePath, jsonObject);
+        JSONFileWriter.toFile(context, filePath, jsonObject, session, true);
     }
 
-    public static ArrayList<Boolean> deleteFiles(ArrayList<String> files) {
+    public static ArrayList<Boolean> deleteFiles(Context context, ArrayList<String> files) {
         ArrayList<Boolean> deleted = new ArrayList<Boolean>();
         for (String filePath : files) {
             File file = new File(filePath);
             deleted.add(file.delete());
+
+            SessionDB db = new SessionDB(context);
+            db.deleteSession(file.getName());
+            db.close();
         }
 
         return deleted;
     }
 
-    public static ArrayList<ArrayList<String>> getFiles(String dirPath) {
+    public static ArrayList<ArrayList<String>> getFiles(Context context, String dirPath) {
         ArrayList<ArrayList<String>> filesInFolder = new ArrayList<ArrayList<String>>();
 
         ArrayList<String> arrayListOfFilesPath = new ArrayList<String>();
@@ -81,16 +90,19 @@ public class Repository {
 
                 arrayListOfFilesPath.add(filePath);
 
-                JSONObject stepsJSON = null;
-                try {
-                    stepsJSON = JSONFileReader.toJSONObj(filePath);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                JSONObject stepsJSON = null;
+//                try {
+//                    stepsJSON = JSONFileReader.toJSONObj(filePath);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
                 //Steps data = JSONUtil.JSONtoSteps(stepsJSON);
                 //arrayListOfFileSessionNames.add(data.getTitle());
 
-                arrayListOfFileSessionNames.add("A");
+                SessionDB db = new SessionDB(context);
+                Session session = db.getSession(listFiles[i].getName());
+                db.close();
+                arrayListOfFileSessionNames.add(session.getTitle());
             }
         }
 

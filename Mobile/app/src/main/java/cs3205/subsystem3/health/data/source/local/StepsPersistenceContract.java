@@ -6,9 +6,8 @@ import android.provider.BaseColumns;
  * Created by Yee on 09/17/17.
  */
 
-public class StepsPersistenceContract {
-    private StepsPersistenceContract() {
-    }
+public final class StepsPersistenceContract {
+    private StepsPersistenceContract() {}
 
     /* Inner class that defines the table contents */
     public static abstract class StepsEntry implements BaseColumns {

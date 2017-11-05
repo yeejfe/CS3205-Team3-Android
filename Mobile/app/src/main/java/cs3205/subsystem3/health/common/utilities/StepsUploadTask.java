@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
+import android.util.Base64;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -25,7 +26,9 @@ import cs3205.subsystem3.health.common.core.JSONFileReader;
 import cs3205.subsystem3.health.common.crypto.Encryption;
 import cs3205.subsystem3.health.common.logger.Log;
 import cs3205.subsystem3.health.common.miscellaneous.AppMessage;
+import cs3205.subsystem3.health.data.source.local.SessionDB;
 import cs3205.subsystem3.health.data.source.remote.RemoteDataSource;
+import cs3205.subsystem3.health.model.Session;
 import cs3205.subsystem3.health.ui.step.StepUploadFragment;
 
 /**
@@ -35,7 +38,6 @@ import cs3205.subsystem3.health.ui.step.StepUploadFragment;
 public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
 
     public static final String TITLE = "Upload Sessions";
-    public static final int SLEEP_TIME = 2500;
     public static final String MESSAGE_SUCCESS = "All sessions have been uploaded successfully.";
     public static final String UPLOAD_FAILED_FOR_ALL = "Upload failed for all sessions.";
     public static final String SUCCESSFUL = "Successful";
@@ -47,6 +49,8 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
     public static final String SESSIONS_UPLOAD_COMPLETED = " sessions upload completed.";
     public static final String OF = " of ";
     public static final String HAVE_BEEN_UPLOADED_SUCCESSFULLY = " have been uploaded successfully.";
+
+    public static final int SLEEP_TIME = 2500;
     public static final int UI_SLEEP_TIME = 500;
 
     private String TAG = this.getClass().getName();
@@ -121,10 +125,24 @@ public class StepsUploadTask extends AsyncTask<Object, String, Integer> {
             try {
                 stream = new FileInputStream(file);
 
-                byte[] contents = Encryption.getInstance().d(stream, tag_password);
-                Log.d(TAG, new String(contents));
+                byte[] encText = new byte[stream.available()];
+                stream.read(encText);
+                stream.close();
 
-                stream = new ByteArrayInputStream(contents);
+                Log.d(TAG,new String(encText));
+
+                SessionDB db = new SessionDB(context);
+                Session session = db.getSession(file.getName());
+
+                boolean isEqual = session.checkHashAndModified(encText, String.valueOf(file.lastModified()));
+
+                if(isEqual) {
+                    byte[] contents = Encryption.getInstance().d(encText, tag_password);
+                    Log.d(TAG, new String(contents));
+                    stream = new ByteArrayInputStream(contents);
+                } else {
+                    return 0;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

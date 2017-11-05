@@ -1,104 +1,79 @@
 package cs3205.subsystem3.health.model;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.util.Base64;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-
-import java.util.UUID;
+import cs3205.subsystem3.health.BuildConfig;
+import cs3205.subsystem3.health.common.logger.Log;
+import cs3205.subsystem3.health.common.utilities.Crypto;
+import cs3205.subsystem3.health.common.utilities.CryptoException;
 
 /**
  * Created by Yee on 09/18/17.
  */
 
 public class Session {
+    private String TAG = this.getClass().getName();
 
-    @NonNull
-    private final String id;
+    private String title;
+    private String filename;
+    private String hash;
+    private String lastModified;
 
-    @Nullable
-    private final String userId;
-
-    @Nullable
-    private final String timestamp;
-
-    private final boolean haveUploaded;
-
-    public Session(@Nullable String userId, @Nullable String timestamp) {
-        this(userId, timestamp, UUID.randomUUID().toString(), false);
+    public Session(String title, String filename, String hash, String lastModified){
+        this.title = title;
+        this.filename = filename;
+        this.hash = hash;
+        this.lastModified = lastModified;
     }
 
-    public Session(@Nullable String userId, @Nullable String timestamp, @NonNull String id) {
-        this(userId, timestamp, id, false);
+    public String getTitle() {
+        return title;
     }
 
-    public Session(@Nullable String userId, @Nullable String timestamp, boolean haveUploaded) {
-        this(userId, timestamp, UUID.randomUUID().toString(), haveUploaded);
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public Session(@Nullable String userId, @Nullable String timestamp,
-                   @NonNull String id, boolean haveUploaded) {
-        this.id = id;
-        this.userId = userId;
-        this.timestamp = timestamp;
-        this.haveUploaded = haveUploaded;
+    public String getFilename() {
+        return filename;
     }
 
-    @NonNull
-    public String getId() {
-        return id;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
-    @Nullable
-    public String getUserId() {
-        return userId;
+    public String getHash() {
+        return hash;
     }
 
-    @Nullable
-    public String getUserIdForList() {
-        if (!Strings.isNullOrEmpty(userId)) {
-            return userId;
-        } else {
-            return timestamp;
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public String getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(String lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    public boolean checkHashAndModified(byte[] contents, String lastModified){
+        boolean equals = false;
+        try {
+            byte[] hashBytes = Crypto.generateHash(contents);
+            String hash = new String(Base64.encode(hashBytes, Base64.NO_WRAP));
+
+            if(this.getHash().equals(hash)) {
+                equals = true;
+            }
+        } catch (CryptoException e) {
+            e.printStackTrace();
         }
-    }
 
-    @Nullable
-    public String getTimestamp() {
-        return timestamp;
-    }
+        if(BuildConfig.DEBUG)
+            Log.d(TAG, String.valueOf(equals));
 
-    public boolean isUploaded() {
-        return haveUploaded;
-    }
-
-    public boolean isActive() {
-        return !haveUploaded;
-    }
-
-    public boolean isEmpty() {
-        return Strings.isNullOrEmpty(userId) &&
-                Strings.isNullOrEmpty(timestamp);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Session session = (Session) o;
-        return Objects.equal(id, session.id) &&
-                Objects.equal(userId, session.userId) &&
-                Objects.equal(timestamp, session.timestamp);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, userId, timestamp);
-    }
-
-    @Override
-    public String toString() {
-        return "User id: " + userId;
+        return equals;
     }
 }
