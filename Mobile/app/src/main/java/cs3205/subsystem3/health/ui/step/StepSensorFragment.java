@@ -309,8 +309,13 @@ public class StepSensorFragment extends Fragment implements SensorEventListener,
 
         //update bar chart
         int steps;
+        long lastestTime;
         ArrayList<BarModel> barModels = new ArrayList<>();
-        long lastestTime = days.get(days.size()-1).first;
+        if(days.size() != 0) {
+            lastestTime = days.get(days.size() - 1).first;
+        } else {
+            lastestTime = Timestamp.getEpochTimeMillis() - Timestamp.EPOCH_DIFF;
+        }
 
         for(int i = 0; i < PAST_DAYS - days.size(); i++){
             lastestTime -= Timestamp.EPOCH_DIFF;
