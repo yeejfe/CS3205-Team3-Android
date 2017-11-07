@@ -34,4 +34,4 @@
 -keep interface javax.** {*;}
 -keep class * implements javax.** {*;}
 -keepattributes Exceptions, InnerClasses, Signature, Deprecated, *Annotation*, EnclosingMethod
--dontoptimize
+-dontwarn okio.**
