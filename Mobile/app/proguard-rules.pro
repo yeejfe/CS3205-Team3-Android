@@ -24,3 +24,13 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -ignorewarnings
+-dontwarn org.glassfish.***
+-keep class org.glassfish.** {*;}
+-keep interface org.glassfish.** {*;}
+-keep class * implements org.glassfish.** {*;}
+-keepattributes Signature,*Annotation*,EnclosingMethod
+
+-keep class javax.** {*;}
+-keep interface javax.** {*;}
+-keep class * implements javax.** {*;}
+-keepattributes Exceptions, InnerClasses, Signature, Deprecated, *Annotation*, EnclosingMethod
