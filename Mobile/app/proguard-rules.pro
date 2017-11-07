@@ -30,9 +30,15 @@
 -keep class * implements org.glassfish.** {*;}
 -keepattributes Signature,*Annotation*,EnclosingMethod
 
+-dontwarn javax.***
 -keep class javax.** {*;}
 -keep interface javax.** {*;}
 -keep class * implements javax.** {*;}
 -keepattributes Exceptions, InnerClasses, Signature, Deprecated, *Annotation*, EnclosingMethod
--dontwarn javax.***
 -dontwarn okio.**
+
+-dontwarn com.android.support.**
+-dontwarn com.google.guava
+-dontwarn com.jjoe64
+-dontwarn com.nineoldandroids
+-dontwarn junit
