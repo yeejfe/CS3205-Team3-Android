@@ -190,6 +190,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                     Log.d("UpoadPageActivity", "image extension: " + MetaInfoExtractor.getExtension(selectedPath));
                     if (!MetaInfoExtractor.getExtension(selectedPath).equals(CHECK_INFO_JPG)){
                         Toast.makeText(this, TOAST_MESSAGE_WRONG_FILE_TYPE,Toast.LENGTH_SHORT).show();
+                        bUploadImage.setEnabled(false);
                         return;
                     }
                 } else {
@@ -197,6 +198,7 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                     Log.d("UpoadPageActivity", "video extension: " + MetaInfoExtractor.getExtension(selectedPath));
                     if (!MetaInfoExtractor.getExtension(selectedPath).equals(CHECK_INFO_MP4)){
                         Toast.makeText(this, TOAST_MESSAGE_WRONG_FILE_TYPE,Toast.LENGTH_SHORT).show();
+                        bUploadVideo.setEnabled(false);
                         return;
                     }
                 }
