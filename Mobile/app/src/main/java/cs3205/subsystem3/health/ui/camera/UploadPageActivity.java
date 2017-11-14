@@ -187,13 +187,19 @@ public class UploadPageActivity extends AppCompatActivity implements View.OnClic
                 Log.d(this.getClass().getSimpleName(), "NFC token is " + nfcToken);
                 if (choice.equals(RemoteDataSource.Type.IMAGE)) {
                     selectedPath = selectedImagePath;
-                    if (MetaInfoExtractor.getExtension(selectedPath)!= CHECK_INFO_JPG){
+                    Log.d("UpoadPageActivity", "image extension: " + MetaInfoExtractor.getExtension(selectedPath));
+                    if (!MetaInfoExtractor.getExtension(selectedPath).equals(CHECK_INFO_JPG)){
                         Toast.makeText(this, TOAST_MESSAGE_WRONG_FILE_TYPE,Toast.LENGTH_SHORT).show();
+                        bUploadImage.setEnabled(false);
+                        return;
                     }
                 } else {
                     selectedPath = selectedVideoPath;
-                    if (MetaInfoExtractor.getExtension(selectedPath)!= CHECK_INFO_MP4){
+                    Log.d("UpoadPageActivity", "video extension: " + MetaInfoExtractor.getExtension(selectedPath));
+                    if (!MetaInfoExtractor.getExtension(selectedPath).equals(CHECK_INFO_MP4)){
                         Toast.makeText(this, TOAST_MESSAGE_WRONG_FILE_TYPE,Toast.LENGTH_SHORT).show();
+                        bUploadVideo.setEnabled(false);
+                        return;
                     }
                 }
                 bUploadImage.setEnabled(false);
